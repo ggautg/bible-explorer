@@ -170,3 +170,20 @@
         @apply bg-background text-foreground;
     }
 }
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&family=Inter:wght@400;500&display=swap');
+
+@theme {
+  --color-bible-bg: #0B0E1A;
+  --color-bible-panel: #10142A;
+  --color-bible-border: #262B45;
+  --color-bible-text: #EDE6D6;
+  --color-bible-muted: #8F8874;
+  --color-bible-muted-dim: #6B6552;
+  --color-bible-accent: #C9A227;
+  --color-bible-accent-bright: #E8C87A;
+  --color-bible-node: #8A7B54;
+  --color-bible-error: #B0553F;
+
+  --font-bible-display: 'Crimson Pro', serif;
+  --font-bible-body: 'Inter', sans-serif;
+}
