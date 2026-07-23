@@ -1,5 +1,6 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3'
+import { logout } from '@/routes'
 
 const props = defineProps({ book: Object, chapter: Number, verses: Array, hasNext: Boolean, hasPrev: Boolean })
 
@@ -13,17 +14,29 @@ function favoriteData(v) {
 </script>
 
 <template>
-
     <Head :title="`${book.name} ${chapter}`" />
     <div class="bg-bible-bg min-h-screen text-bible-text p-4 md:p-8 font-bible-body">
-        <header class="mb-8">
-            <Link :href="`/leer/${book.code}`" class="text-bible-muted text-sm hover:text-bible-accent">
-                ← {{ book.name }}
-            </Link>
-            <h1 class="font-bible-display font-semibold text-2xl md:text-3xl text-bible-accent-bright mt-2">
-                {{ book.name }} {{ chapter }}
-            </h1>
-        </header>
+        <header class="flex justify-between items-start mb-8">
+  <div>
+    <Link :href="`/leer/${book.code}`" class="text-bible-muted text-sm hover:text-bible-accent">
+      ← {{ book.name }}
+    </Link>
+    <h1 class="font-bible-display font-semibold text-2xl md:text-3xl text-bible-accent-bright mt-2">
+      {{ book.name }} {{ chapter }}
+    </h1>
+  </div>
+  <div class="flex items-center gap-4">
+    <Link href="/leer" class="text-bible-accent text-sm hover:underline whitespace-nowrap">
+      Leer
+    </Link>
+    <Link href="/favoritos" class="text-bible-accent text-sm hover:underline whitespace-nowrap">
+      ★ Favoritos
+    </Link>
+    <Link :href="logout()" method="post" as="button" class="text-bible-muted text-sm hover:text-bible-error whitespace-nowrap">
+      Cerrar sesión
+    </Link>
+  </div>
+</header>
 
         <div class="max-w-2xl font-bible-display text-lg md:text-xl leading-relaxed">
             <p v-for="v in verses" :key="v.verse" class="mb-3.5 group relative">

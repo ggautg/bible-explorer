@@ -1,6 +1,8 @@
 <!-- resources/js/pages/Welcome.vue -->
 <script setup>
-import { Head, Link } from '@inertiajs/vue3'
+import { Head, Link, usePage } from '@inertiajs/vue3'
+import { logout } from '@/routes'
+const page = usePage()
 import testimonials from '../helpers/testimonials.js'
 import Testimonial from './components/testimonials.vue'
 
@@ -52,23 +54,28 @@ import Testimonial from './components/testimonials.vue'
         </p>
 
         <div class="flex flex-wrap gap-4 justify-center">
-          <Link href="/bible/GEN/1/1" class="bg-bible-accent text-bible-bg font-medium px-6 py-3
-                   rounded-md hover:bg-bible-accent-bright transition-colors">
-            Empezar a explorar
+          <Link href="/leer"
+            class="bg-bible-accent text-bible-bg font-medium px-6 py-3 rounded-md hover:bg-bible-accent-bright transition-colors">
+            Empezar a leer
           </Link>
-
-          <Link href="/bible/JHN/3/16" class="border border-bible-border text-bible-text px-6 py-3
-                   rounded-md hover:border-bible-accent
-                   hover:text-bible-accent-bright transition-colors">
+          <Link href="/bible/JHN/3/16"
+            class="border border-bible-border text-bible-text px-6 py-3 rounded-md hover:border-bible-accent hover:text-bible-accent-bright transition-colors">
             Ver un ejemplo (Juan 3:16)
           </Link>
         </div>
 
-        <div class="flex gap-6 mt-8 text-sm">
+        <div v-if="page.props.auth.user" class="mt-8 text-sm text-bible-muted">
+          Ya iniciaste sesión como <span class="text-bible-accent-bright">{{ page.props.auth.user.name }}</span>
+          ·
+          <Link :href="logout()" method="post" as="button" class="hover:text-bible-error">
+            Cerrar sesión
+          </Link>
+        </div>
+
+        <div v-else class="flex gap-6 mt-8 text-sm">
           <Link href="/login" class="text-bible-muted hover:text-bible-accent-bright transition-colors">
             Iniciar sesión
           </Link>
-
           <Link href="/register" class="text-bible-muted hover:text-bible-accent-bright transition-colors">
             Crear cuenta
           </Link>

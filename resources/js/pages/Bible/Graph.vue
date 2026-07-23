@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, watch, nextTick } from 'vue'
-import { Head, Link } from '@inertiajs/vue3'
+import { Head, Link, router } from '@inertiajs/vue3'
+import { logout } from '@/routes'
 import { useConstellationGraph } from '@/composables/useConstellationGraph'
 import { useVerseSearch } from '@/composables/useVerseSearch'
 import { useExplorationTrail } from '@/composables/useExplorationTrail'
@@ -36,12 +37,28 @@ watch(() => props.center, () => {
 
   <div class="bg-bible-bg min-h-screen text-bible-text p-4 md:p-8 font-bible-body">
     <header class="mb-4">
-      <h1 class="font-bible-display font-semibold text-2xl md:text-3xl text-bible-accent-bright mb-1">
-        Explorador de constelaciones
-      </h1>
-      <p class="text-bible-muted text-sm mb-4">
-        Doble clic en una estrella para navegar hacia ese versículo
-      </p>
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <h1 class="font-bible-display font-semibold text-2xl md:text-3xl text-bible-accent-bright mb-1">
+            Explorador de Constelaciones Bíblicas
+          </h1>
+          <p class="text-bible-muted text-sm">
+            Doble clic en una estrella para navegar hacia ese versículo
+          </p>
+        </div>
+        <div class="flex items-center gap-4">
+          <Link href="/leer" class="text-bible-accent text-sm hover:underline whitespace-nowrap">
+            Leer
+          </Link>
+          <Link href="/favoritos" class="text-bible-accent text-sm hover:underline whitespace-nowrap">
+            ★ Favoritos
+          </Link>
+          <Link :href="logout()" method="post" as="button"
+            class="text-bible-muted text-sm hover:text-bible-error whitespace-nowrap">
+            Cerrar sesión
+          </Link>
+        </div>
+      </div>
 
       <div class="relative max-w-xs mb-6">
         <input v-model="searchQuery" @keyup.enter="submitSearch" type="text" placeholder="Ej: Juan 3:16"
@@ -61,7 +78,7 @@ watch(() => props.center, () => {
           <Link :href="`/bible/${step.book}/${step.chapter}/${step.verse}`"
             class="text-bible-muted hover:text-bible-accent-bright transition-colors"
             :class="{ 'text-bible-accent-bright font-medium': i === trail.length - 1 }">
-          {{ step.book }} {{ step.chapter }}:{{ step.verse }}
+            {{ step.book }} {{ step.chapter }}:{{ step.verse }}
           </Link>
           <span v-if="i < trail.length - 1" class="text-bible-muted-dim">→</span>
         </template>
