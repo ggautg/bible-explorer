@@ -60,6 +60,7 @@ import { Head, Link } from '@inertiajs/vue3'
           Crear cuenta
         </Link>
       </div>
+
       <section class="mt-20 mb-8 max-w-3xl mx-auto">
         <h2 class="font-bible-display text-lg text-bible-muted uppercase tracking-wide text-center mb-6">
           Lo que dicen quienes ya la usan
@@ -71,10 +72,10 @@ import { Head, Link } from '@inertiajs/vue3'
                 d="M0 20V11.4C0 7.73 0.933 4.867 2.8 2.8C4.667 0.933 7.133 0 10.2 0V4.2C8.333 4.2 6.9 4.733 5.9 5.8C4.9 6.733 4.4 8.067 4.4 9.8H10.2V20H0ZM17.8 20V11.4C17.8 7.73 18.733 4.867 20.6 2.8C22.467 0.933 24.933 0 28 0V4.2C26.133 4.2 24.7 4.733 23.7 5.8C22.7 6.733 22.2 8.067 22.2 9.8H28V20H17.8Z" />
             </svg>
             <p class="font-bible-display text-lg text-bible-text leading-relaxed mb-2">
-              La app me convenció de que Dios es real
+              La app me convenció de que Dios es real, y me ayudó a entender la Biblia de una manera que nunca antes había experimentado para mi y para mis alumnos.
             </p>
             <p class="text-sm text-bible-muted mb-4">
-              Usuario desde los primeros días de Constelaciones Bíblicas
+              Pastor y profesor de Biblia, usa la app para preparar sus clases
             </p>
             <div class="flex items-center gap-3">
               <img src="/images/testimonials/giovanni-arestivo.png" alt="Giovanni Arestivo"
@@ -89,15 +90,34 @@ import { Head, Link } from '@inertiajs/vue3'
                 d="M0 20V11.4C0 7.73 0.933 4.867 2.8 2.8C4.667 0.933 7.133 0 10.2 0V4.2C8.333 4.2 6.9 4.733 5.9 5.8C4.9 6.733 4.4 8.067 4.4 9.8H10.2V20H0ZM17.8 20V11.4C17.8 7.73 18.733 4.867 20.6 2.8C22.467 0.933 24.933 0 28 0V4.2C26.133 4.2 24.7 4.733 23.7 5.8C22.7 6.733 22.2 8.067 22.2 9.8H28V20H17.8Z" />
             </svg>
             <p class="font-bible-display text-lg text-bible-text leading-relaxed mb-2">
-              La app me motivó a seguir en Cristo
+              La app me motivó a seguir en Cristo y a estudiar la Biblia más a fondo, y me ayuda a mantenerme enfocado en lo que es importante.
             </p>
             <p class="text-sm text-bible-muted mb-4">
-              La usa antes de ir al gimnasio
+              La usa desde hace 2 años y la recomienda a sus amigos y familiares
             </p>
             <div class="flex items-center gap-3">
               <img src="/images/testimonials/piero-arestivo.png" alt="Piero Arestivo"
                 class="w-10 h-10 rounded-full object-cover border border-bible-border" />
               <span class="text-sm text-bible-muted">Piero Arestivo</span>
+            </div>
+          </div>
+
+          <div class="bg-bible-panel border border-bible-border rounded-lg p-6">
+            <svg width="28" height="20" viewBox="0 0 28 20" class="text-bible-accent mb-3 opacity-60">
+              <path fill="currentColor"
+                d="M0 20V11.4C0 7.73 0.933 4.867 2.8 2.8C4.667 0.933 7.133 0 10.2 0V4.2C8.333 4.2 6.9 4.733 5.9 5.8C4.9 6.733 4.4 8.067 4.4 9.8H10.2V20H0ZM17.8 20V11.4C17.8 7.73 18.733 4.867 20.6 2.8C22.467 0.933 24.933 0 28 0V4.2C26.133 4.2 24.7 4.733 23.7 5.8C22.7 6.733 22.2 8.067 22.2 9.8H28V20H17.8Z" />
+            </svg>
+            <p class="font-bible-display text-lg text-bible-text leading-relaxed mb-2">
+              Yo era ateo, me bajé la app con total escepticismo con la intención de refutarla, pero terminé convencido
+              de que Dios es real
+            </p>
+            <p class="text-sm text-bible-muted mb-4">
+              Ex-ateo
+            </p>
+            <div class="flex items-center gap-3">
+              <img src="/images/testimonials/jose-britez.jpg" alt="José Brítez"
+                class="w-10 h-10 rounded-full object-cover border border-bible-border" />
+              <span class="text-sm text-bible-muted">José Brítez</span>
             </div>
           </div>
         </div>
