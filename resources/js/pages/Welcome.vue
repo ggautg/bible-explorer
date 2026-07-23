@@ -4,6 +4,7 @@ import { Head, Link } from '@inertiajs/vue3'
 </script>
 
 <template>
+
   <Head title="Constelaciones Bíblicas" />
 
   <div class="relative min-h-screen bg-bible-bg text-bible-text font-bible-body overflow-hidden">
@@ -41,21 +42,69 @@ import { Head, Link } from '@inertiajs/vue3'
       </p>
 
       <div class="flex flex-wrap gap-4 justify-center">
-        <Link
-          href="/leer"
-          class="bg-bible-accent text-bible-bg font-medium px-6 py-3 rounded-md hover:bg-bible-accent-bright transition-colors"
-        >
-          Empezar a leer
+        <Link href="/bible/GEN/1/1"
+          class="bg-bible-accent text-bible-bg font-medium px-6 py-3 rounded-md hover:bg-bible-accent-bright transition-colors">
+          Empezar a explorar
         </Link>
-        <Link
-          href="/bible/JHN/3/16"
-          class="border border-bible-border text-bible-text px-6 py-3 rounded-md hover:border-bible-accent hover:text-bible-accent-bright transition-colors"
-        >
-          Explorar constelación de cross-references
+        <Link href="/bible/JHN/3/16"
+          class="border border-bible-border text-bible-text px-6 py-3 rounded-md hover:border-bible-accent hover:text-bible-accent-bright transition-colors">
+          Ver un ejemplo (Juan 3:16)
         </Link>
       </div>
+
+      <div class="flex gap-6 mt-8 text-sm">
+        <Link href="/login" class="text-bible-muted hover:text-bible-accent-bright transition-colors">
+          Iniciar sesión
+        </Link>
+        <Link href="/register" class="text-bible-muted hover:text-bible-accent-bright transition-colors">
+          Crear cuenta
+        </Link>
+      </div>
+      <section class="mt-20 mb-8 max-w-3xl mx-auto">
+        <h2 class="font-bible-display text-lg text-bible-muted uppercase tracking-wide text-center mb-6">
+          Lo que dicen quienes ya la usan
+        </h2>
+        <div class="grid sm:grid-cols-2 gap-5">
+          <div class="bg-bible-panel border border-bible-border rounded-lg p-6">
+            <svg width="28" height="20" viewBox="0 0 28 20" class="text-bible-accent mb-3 opacity-60">
+              <path fill="currentColor"
+                d="M0 20V11.4C0 7.73 0.933 4.867 2.8 2.8C4.667 0.933 7.133 0 10.2 0V4.2C8.333 4.2 6.9 4.733 5.9 5.8C4.9 6.733 4.4 8.067 4.4 9.8H10.2V20H0ZM17.8 20V11.4C17.8 7.73 18.733 4.867 20.6 2.8C22.467 0.933 24.933 0 28 0V4.2C26.133 4.2 24.7 4.733 23.7 5.8C22.7 6.733 22.2 8.067 22.2 9.8H28V20H17.8Z" />
+            </svg>
+            <p class="font-bible-display text-lg text-bible-text leading-relaxed mb-2">
+              La app me convenció de que Dios es real
+            </p>
+            <p class="text-sm text-bible-muted mb-4">
+              Usuario desde los primeros días de Constelaciones Bíblicas
+            </p>
+            <div class="flex items-center gap-3">
+              <img src="/images/testimonials/giovanni-arestivo.png" alt="Giovanni Arestivo"
+                class="w-10 h-10 rounded-full object-cover border border-bible-border" />
+              <span class="text-sm text-bible-muted">Giovanni Arestivo</span>
+            </div>
+          </div>
+
+          <div class="bg-bible-panel border border-bible-border rounded-lg p-6">
+            <svg width="28" height="20" viewBox="0 0 28 20" class="text-bible-accent mb-3 opacity-60">
+              <path fill="currentColor"
+                d="M0 20V11.4C0 7.73 0.933 4.867 2.8 2.8C4.667 0.933 7.133 0 10.2 0V4.2C8.333 4.2 6.9 4.733 5.9 5.8C4.9 6.733 4.4 8.067 4.4 9.8H10.2V20H0ZM17.8 20V11.4C17.8 7.73 18.733 4.867 20.6 2.8C22.467 0.933 24.933 0 28 0V4.2C26.133 4.2 24.7 4.733 23.7 5.8C22.7 6.733 22.2 8.067 22.2 9.8H28V20H17.8Z" />
+            </svg>
+            <p class="font-bible-display text-lg text-bible-text leading-relaxed mb-2">
+              La app me motivó a seguir en Cristo
+            </p>
+            <p class="text-sm text-bible-muted mb-4">
+              La usa antes de ir al gimnasio
+            </p>
+            <div class="flex items-center gap-3">
+              <img src="/images/testimonials/piero-arestivo.png" alt="Piero Arestivo"
+                class="w-10 h-10 rounded-full object-cover border border-bible-border" />
+              <span class="text-sm text-bible-muted">Piero Arestivo</span>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
+
 </template>
 
 <style scoped>

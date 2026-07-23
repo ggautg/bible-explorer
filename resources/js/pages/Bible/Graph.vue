@@ -1,8 +1,10 @@
 <script setup>
 import { ref, onMounted, watch, nextTick } from 'vue'
-import { Head } from '@inertiajs/vue3'
+import { Head, Link } from '@inertiajs/vue3'
 import { useConstellationGraph } from '@/composables/useConstellationGraph'
 import { useVerseSearch } from '@/composables/useVerseSearch'
+import { useExplorationTrail } from '@/composables/useExplorationTrail'
+import { useFavorites } from '@/composables/useFavorites'
 
 const props = defineProps({
   nodes: Array,
@@ -15,13 +17,17 @@ const selected = ref(null)
 
 const { render, reference, navigateTo } = useConstellationGraph(svgRef, selected)
 const { searchQuery, suggestions, searchError, pickSuggestion, submitSearch } = useVerseSearch()
+const { trail, visit, clear } = useExplorationTrail()
+const { isFavorite, toggleFavorite } = useFavorites()
 
 onMounted(() => nextTick(() => render(props.nodes, props.edges)))
+
 watch(() => props.center, () => nextTick(() => render(props.nodes, props.edges)))
 
-import { useFavorites } from '@/composables/useFavorites'
-
-const { isFavorite, toggleFavorite } = useFavorites()
+watch(() => props.center, () => {
+  const [book, chapter, verse] = props.center.split('-')
+  visit({ book, chapter: Number(chapter), verse: Number(verse) })
+}, { immediate: true })
 </script>
 
 <template>
@@ -50,35 +56,44 @@ const { isFavorite, toggleFavorite } = useFavorites()
         </ul>
         <p v-if="searchError" class="text-bible-error text-xs mt-1.5">{{ searchError }}</p>
       </div>
+      <div v-if="trail.length > 1" class="flex flex-wrap items-center gap-1.5 mb-6 text-sm">
+        <template v-for="(step, i) in trail" :key="i">
+          <Link :href="`/bible/${step.book}/${step.chapter}/${step.verse}`"
+            class="text-bible-muted hover:text-bible-accent-bright transition-colors"
+            :class="{ 'text-bible-accent-bright font-medium': i === trail.length - 1 }">
+          {{ step.book }} {{ step.chapter }}:{{ step.verse }}
+          </Link>
+          <span v-if="i < trail.length - 1" class="text-bible-muted-dim">→</span>
+        </template>
+        <button @click="clear" class="text-bible-muted-dim text-xs ml-2 hover:text-bible-error"
+          title="Reiniciar recorrido">
+          ✕ limpiar
+        </button>
+      </div>
     </header>
 
     <div class="grid grid-cols-1 md:grid-cols-[1fr_320px] gap-6">
       <svg ref="svgRef" viewBox="0 0 900 640" preserveAspectRatio="xMidYMid meet"
         class="w-full h-[420px] md:h-[640px] bg-bible-bg border border-bible-border rounded-lg"></svg>
 
-     <aside v-if="selected" class="bg-bible-panel border border-bible-border rounded-lg p-5 h-fit">
-  <span class="font-bible-body text-xs uppercase tracking-wide text-bible-accent">
-    {{ reference(selected) }}
-  </span>
-  <p class="font-bible-display text-lg leading-relaxed my-3 text-bible-text">
-    {{ selected.text }}
-  </p>
-  <div class="flex gap-2">
-    <button
-      @click="navigateTo(selected)"
-      class="bg-transparent border border-bible-accent text-bible-accent px-3.5 py-2 rounded-md text-sm hover:bg-bible-accent hover:text-bible-bg transition-colors"
-    >
-      Ir a este versículo →
-    </button>
-    <button
-      @click="toggleFavorite(selected)"
-      class="border px-3.5 py-2 rounded-md text-sm transition-colors"
-      :class="isFavorite(selected) ? 'border-bible-accent-bright text-bible-accent-bright bg-bible-accent/10' : 'border-bible-border text-bible-muted hover:border-bible-accent'"
-    >
-      ★
-    </button>
-  </div>
-</aside>
+      <aside v-if="selected" class="bg-bible-panel border border-bible-border rounded-lg p-5 h-fit">
+        <span class="font-bible-body text-xs uppercase tracking-wide text-bible-accent">
+          {{ reference(selected) }}
+        </span>
+        <p class="font-bible-display text-lg leading-relaxed my-3 text-bible-text">
+          {{ selected.text }}
+        </p>
+        <div class="flex gap-2">
+          <button @click="navigateTo(selected)"
+            class="bg-transparent border border-bible-accent text-bible-accent px-3.5 py-2 rounded-md text-sm hover:bg-bible-accent hover:text-bible-bg transition-colors">
+            Ir a este versículo →
+          </button>
+          <button @click="toggleFavorite(selected)" class="border px-3.5 py-2 rounded-md text-sm transition-colors"
+            :class="isFavorite(selected) ? 'border-bible-accent-bright text-bible-accent-bright bg-bible-accent/10' : 'border-bible-border text-bible-muted hover:border-bible-accent'">
+            ★
+          </button>
+        </div>
+      </aside>
     </div>
   </div>
 </template>
