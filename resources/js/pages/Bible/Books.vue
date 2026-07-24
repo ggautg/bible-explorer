@@ -1,7 +1,7 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3'
 import { computed } from 'vue'
-import { logout } from '@/routes'
+import NavHeader from '@/components/Bible/NavHeader.vue'
 
 const props = defineProps({ books: Array })
 
@@ -13,20 +13,9 @@ const newTestament = computed(() => props.books.filter(b => b.testament === 'NT'
 
   <Head title="Leer la Biblia" />
   <div class="bg-bible-bg min-h-screen text-bible-text p-4 md:p-8 font-bible-body">
-    <header class="flex justify-between items-baseline mb-8 flex-wrap gap-2">
-  <h1 class="font-bible-display font-semibold text-2xl md:text-3xl text-bible-accent-bright">Leer</h1>
-  <div class="flex gap-4 items-baseline">
-    <Link href="/favoritos" class="text-bible-accent text-sm hover:underline">
-      ★ Favoritos
-    </Link>
-    <Link href="/bible/GEN/1/1" class="text-bible-accent text-sm hover:underline">
-      Ver constelación de cross-references →
-    </Link>
-    <Link :href="logout()" method="post" as="button" class="text-bible-muted text-sm hover:text-bible-error">
-      Cerrar sesión
-    </Link>
-  </div>
-</header>
+    <NavHeader>
+      <h1 class="font-bible-display font-semibold text-2xl md:text-3xl text-bible-accent-bright">Leer</h1>
+    </NavHeader>
 
     <section>
       <h2

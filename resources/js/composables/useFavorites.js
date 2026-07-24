@@ -1,46 +1,45 @@
 import { ref } from 'vue'
+import axios from 'axios'
 
-const STORAGE_KEY = 'bible-favorites'
-
-const favorites = ref(loadFavorites())
-
-function loadFavorites() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : []
-  } catch {
-    return []
-  }
-}
-
-function persist() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(favorites.value))
-}
+const favorites = ref([])
+const loaded = ref(false)
 
 function keyOf(v) {
-  return `${v.book}-${v.chapter}-${v.verse}`
+  return `${v.book_code}-${v.chapter}-${v.verse}`
+}
+
+async function loadFavorites() {
+  const { data } = await axios.get('/api/favorites')
+  favorites.value = data
+  loaded.value = true
 }
 
 export function useFavorites() {
+  if (typeof window !== 'undefined' && !loaded.value) {
+    loadFavorites()
+  }
+
   function isFavorite(v) {
     return favorites.value.some(f => keyOf(f) === keyOf(v))
   }
 
-  function toggleFavorite(v) {
+  async function toggleFavorite(v) {
     if (isFavorite(v)) {
+      await axios.delete('/api/favorites', {
+        data: { book_code: v.book_code, chapter: v.chapter, verse: v.verse },
+      })
       favorites.value = favorites.value.filter(f => keyOf(f) !== keyOf(v))
     } else {
-      favorites.value = [...favorites.value, {
-        book: v.book,
-        bookName: v.bookName,
+      const { data } = await axios.post('/api/favorites', {
+        book_code: v.book_code,
+        book_name: v.bookName,
         chapter: v.chapter,
         verse: v.verse,
         text: v.text,
-        savedAt: Date.now(),
-      }]
+      })
+      favorites.value = [...favorites.value, data]
     }
-    persist()
   }
 
-  return { favorites, isFavorite, toggleFavorite }
+  return { favorites, isFavorite, toggleFavorite, loaded }
 }

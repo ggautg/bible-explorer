@@ -36,8 +36,6 @@ defineProps<{
         {{ status }}
     </div>
 
-    <PasskeyVerify />
-
     <Form
         v-bind="store.form()"
         :reset-on-success="['password']"
@@ -62,7 +60,7 @@ defineProps<{
             </div>
 
             <div class="grid gap-2">
-                <div class="flex items-center justify-between">
+                <!-- <div class="flex items-center justify-between">
                     <Label for="password" class="text-bible-text">Contraseña</Label>
                     <TextLink
                         v-if="canResetPassword"
@@ -72,7 +70,8 @@ defineProps<{
                     >
                         ¿Olvidaste tu contraseña?
                     </TextLink>
-                </div>
+                </div> -->
+                   <Label for="password" class="text-bible-text">Contraseña</Label>
                 <PasswordInput
                     id="password"
                     name="password"
@@ -85,12 +84,12 @@ defineProps<{
                 <InputError :message="errors.password" />
             </div>
 
-            <div class="flex items-center justify-between">
+            <!-- <div class="flex items-center justify-between">
                 <Label for="remember" class="flex items-center space-x-3 text-bible-muted">
                     <Checkbox id="remember" name="remember" :tabindex="3" class="border-bible-border data-[state=checked]:bg-bible-accent data-[state=checked]:border-bible-accent" />
                     <span>Recordarme</span>
                 </Label>
-            </div>
+            </div> -->
 
             <Button
                 type="submit"

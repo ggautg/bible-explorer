@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\BibleBook;
 use App\Models\BibleVerse;
 use Illuminate\Support\Facades\DB;
 
@@ -56,11 +57,15 @@ class BibleGraphService
 
     private function buildNodes($centerVerse, $connectedVerses)
     {
+
+        $bookNames = BibleBook::pluck('name', 'code');
+
         return collect([$centerVerse])
             ->concat($connectedVerses)
             ->map(fn ($v) => [
                 'id' => "{$v->book_code}-{$v->chapter}-{$v->verse}",
                 'book' => $v->book_code,
+                'bookName' => $bookNames[$v->book_code] ?? $v->book_code,
                 'chapter' => $v->chapter,
                 'verse' => $v->verse,
                 'text' => $v->text,
@@ -81,7 +86,7 @@ class BibleGraphService
 
         return $outgoing->map($mapEdge)
             ->concat($incoming->map($mapEdge))
-            ->unique(fn ($e) => $e['source'] . '>' . $e['target'])
+            ->unique(fn ($e) => $e['source'].'>'.$e['target'])
             ->values()
             ->all();
     }

@@ -52,4 +52,9 @@ class User extends Authenticatable implements PasskeyUser
     {
         return $this->hasMany(Favorite::class);
     }
+
+    public function notes()
+    {
+        return $this->hasMany(Note::class);
+    }
 }

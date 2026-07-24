@@ -1,11 +1,11 @@
 <script setup>
 import { ref, onMounted, watch, nextTick } from 'vue'
-import { Head, Link, router } from '@inertiajs/vue3'
-import { logout } from '@/routes'
+import { Head, Link } from '@inertiajs/vue3'
 import { useConstellationGraph } from '@/composables/useConstellationGraph'
 import { useVerseSearch } from '@/composables/useVerseSearch'
 import { useExplorationTrail } from '@/composables/useExplorationTrail'
 import { useFavorites } from '@/composables/useFavorites'
+import NavHeader from '@/components/Bible/NavHeader.vue'
 
 const props = defineProps({
   nodes: Array,
@@ -32,62 +32,45 @@ watch(() => props.center, () => {
 </script>
 
 <template>
-
   <Head :title="`Explorador — ${center.replace(/-/g, ' ')}`" />
 
   <div class="bg-bible-bg min-h-screen text-bible-text p-4 md:p-8 font-bible-body">
-    <header class="mb-4">
-      <div class="flex justify-between items-start mb-4">
-        <div>
-          <h1 class="font-bible-display font-semibold text-2xl md:text-3xl text-bible-accent-bright mb-1">
-            Explorador de Constelaciones Bíblicas
-          </h1>
-          <p class="text-bible-muted text-sm">
-            Doble clic en una estrella para navegar hacia ese versículo
-          </p>
-        </div>
-        <div class="flex items-center gap-4">
-          <Link href="/leer" class="text-bible-accent text-sm hover:underline whitespace-nowrap">
-            Leer
-          </Link>
-          <Link href="/favoritos" class="text-bible-accent text-sm hover:underline whitespace-nowrap">
-            ★ Favoritos
-          </Link>
-          <Link :href="logout()" method="post" as="button"
-            class="text-bible-muted text-sm hover:text-bible-error whitespace-nowrap">
-            Cerrar sesión
-          </Link>
-        </div>
-      </div>
+    <NavHeader>
+      <h1 class="font-bible-display font-semibold text-2xl md:text-3xl text-bible-accent-bright mb-1">
+        Explorador de Constelaciones Bíblicas
+      </h1>
+    </NavHeader>
 
-      <div class="relative max-w-xs mb-6">
-        <input v-model="searchQuery" @keyup.enter="submitSearch" type="text" placeholder="Ej: Juan 3:16"
-          autocomplete="off"
-          class="w-full bg-bible-panel border border-bible-border text-bible-text px-3.5 py-2.5 rounded-md text-sm focus:outline-none focus:border-bible-accent" />
-        <ul v-if="suggestions.length"
-          class="absolute top-full left-0 right-0 bg-bible-panel border border-bible-border rounded-md p-1 m-0 list-none z-10">
-          <li v-for="book in suggestions" :key="book.code" @click="pickSuggestion(book)"
-            class="px-2.5 py-2 cursor-pointer rounded text-sm hover:bg-bible-border hover:text-bible-accent-bright">
-            {{ book.name }}
-          </li>
-        </ul>
-        <p v-if="searchError" class="text-bible-error text-xs mt-1.5">{{ searchError }}</p>
-      </div>
-      <div v-if="trail.length > 1" class="flex flex-wrap items-center gap-1.5 mb-6 text-sm">
-        <template v-for="(step, i) in trail" :key="i">
-          <Link :href="`/bible/${step.book}/${step.chapter}/${step.verse}`"
-            class="text-bible-muted hover:text-bible-accent-bright transition-colors"
-            :class="{ 'text-bible-accent-bright font-medium': i === trail.length - 1 }">
-            {{ step.book }} {{ step.chapter }}:{{ step.verse }}
-          </Link>
-          <span v-if="i < trail.length - 1" class="text-bible-muted-dim">→</span>
-        </template>
-        <button @click="clear" class="text-bible-muted-dim text-xs ml-2 hover:text-bible-error"
-          title="Reiniciar recorrido">
-          ✕ limpiar
-        </button>
-      </div>
-    </header>
+    <p class="text-bible-muted text-sm mb-4">
+      Doble clic en una estrella para navegar hacia ese versículo
+    </p>
+
+    <div class="relative max-w-xs mb-6">
+      <input v-model="searchQuery" @keyup.enter="submitSearch" type="text" placeholder="Ej: Juan 3:16" autocomplete="off"
+        class="w-full bg-bible-panel border border-bible-border text-bible-text px-3.5 py-2.5 rounded-md text-sm focus:outline-none focus:border-bible-accent" />
+      <ul v-if="suggestions.length"
+        class="absolute top-full left-0 right-0 bg-bible-panel border border-bible-border rounded-md p-1 m-0 list-none z-10">
+        <li v-for="book in suggestions" :key="book.code" @click="pickSuggestion(book)"
+          class="px-2.5 py-2 cursor-pointer rounded text-sm hover:bg-bible-border hover:text-bible-accent-bright">
+          {{ book.name }}
+        </li>
+      </ul>
+      <p v-if="searchError" class="text-bible-error text-xs mt-1.5">{{ searchError }}</p>
+    </div>
+
+    <div v-if="trail.length > 1" class="flex flex-wrap items-center gap-1.5 mb-6 text-sm">
+      <template v-for="(step, i) in trail" :key="i">
+        <Link :href="`/bible/${step.book}/${step.chapter}/${step.verse}`"
+          class="text-bible-muted hover:text-bible-accent-bright transition-colors"
+          :class="{ 'text-bible-accent-bright font-medium': i === trail.length - 1 }">
+          {{ step.book }} {{ step.chapter }}:{{ step.verse }}
+        </Link>
+        <span v-if="i < trail.length - 1" class="text-bible-muted-dim">→</span>
+      </template>
+      <button @click="clear" class="text-bible-muted-dim text-xs ml-2 hover:text-bible-error" title="Reiniciar recorrido">
+        ✕ limpiar
+      </button>
+    </div>
 
     <div class="grid grid-cols-1 md:grid-cols-[1fr_320px] gap-6">
       <svg ref="svgRef" viewBox="0 0 900 640" preserveAspectRatio="xMidYMid meet"
@@ -105,8 +88,9 @@ watch(() => props.center, () => {
             class="bg-transparent border border-bible-accent text-bible-accent px-3.5 py-2 rounded-md text-sm hover:bg-bible-accent hover:text-bible-bg transition-colors">
             Ir a este versículo →
           </button>
-          <button @click="toggleFavorite(selected)" class="border px-3.5 py-2 rounded-md text-sm transition-colors"
-            :class="isFavorite(selected) ? 'border-bible-accent-bright text-bible-accent-bright bg-bible-accent/10' : 'border-bible-border text-bible-muted hover:border-bible-accent'">
+          <button @click="toggleFavorite({ ...selected, book_code: selected.book })"
+            class="border px-3.5 py-2 rounded-md text-sm transition-colors"
+            :class="isFavorite({ ...selected, book_code: selected.book }) ? 'border-bible-accent-bright text-bible-accent-bright bg-bible-accent/10' : 'border-bible-border text-bible-muted hover:border-bible-accent'">
             ★
           </button>
         </div>

@@ -55,7 +55,12 @@ class ReaderController extends Controller
     }
 
     public function favorites()
-{
-    return inertia('Bible/Favorites');
-}
+    {
+        return inertia('Bible/Favorites');
+    }
+
+    public function notes()
+    {
+        return inertia('Bible/Notes');
+    }
 }

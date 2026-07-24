@@ -1,70 +1,104 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3'
-import { logout } from '@/routes'
+import { ref } from 'vue'
+import { useNotes } from '@/composables/useNotes'
+import NavHeader from '@/components/Bible/NavHeader.vue'
 
 const props = defineProps({ book: Object, chapter: Number, verses: Array, hasNext: Boolean, hasPrev: Boolean })
+const { noteFor, saveNote, deleteNote } = useNotes()
 
 import { useFavorites } from '@/composables/useFavorites'
 
 const { isFavorite, toggleFavorite } = useFavorites()
 
 function favoriteData(v) {
-    return { book: props.book.code, bookName: props.book.name, chapter: props.chapter, verse: v.verse, text: v.text }
+  return { book_code: props.book.code, bookName: props.book.name, chapter: props.chapter, verse: v.verse, text: v.text }
+}
+
+const openNoteVerse = ref(null)
+const draftText = ref('')
+
+function toggleNoteBox(v) {
+  if (openNoteVerse.value === v.verse) {
+    openNoteVerse.value = null
+    return
+  }
+  openNoteVerse.value = v.verse
+  const existing = noteFor(favoriteData(v))
+  draftText.value = existing ? existing.body : ''
+}
+
+async function submitNote(v) {
+  if (!draftText.value.trim()) return
+  await saveNote(favoriteData(v), draftText.value.trim())
+  openNoteVerse.value = null
+}
+
+async function removeNote(v) {
+  await deleteNote(favoriteData(v))
+  openNoteVerse.value = null
 }
 </script>
 
 <template>
-    <Head :title="`${book.name} ${chapter}`" />
-    <div class="bg-bible-bg min-h-screen text-bible-text p-4 md:p-8 font-bible-body">
-        <header class="flex justify-between items-start mb-8">
-  <div>
-    <Link :href="`/leer/${book.code}`" class="text-bible-muted text-sm hover:text-bible-accent">
-      ← {{ book.name }}
-    </Link>
-    <h1 class="font-bible-display font-semibold text-2xl md:text-3xl text-bible-accent-bright mt-2">
-      {{ book.name }} {{ chapter }}
-    </h1>
-  </div>
-  <div class="flex items-center gap-4">
-    <Link href="/leer" class="text-bible-accent text-sm hover:underline whitespace-nowrap">
-      Leer
-    </Link>
-    <Link href="/favoritos" class="text-bible-accent text-sm hover:underline whitespace-nowrap">
-      ★ Favoritos
-    </Link>
-    <Link :href="logout()" method="post" as="button" class="text-bible-muted text-sm hover:text-bible-error whitespace-nowrap">
-      Cerrar sesión
-    </Link>
-  </div>
-</header>
 
-        <div class="max-w-2xl font-bible-display text-lg md:text-xl leading-relaxed">
-            <p v-for="v in verses" :key="v.verse" class="mb-3.5 group relative">
-                <span class="text-bible-accent font-bible-body text-xs align-super mr-1">{{ v.verse }}</span>
-                {{ v.text }}
-                <button @click="toggleFavorite(favoriteData(v))"
-                    :title="isFavorite(favoriteData(v)) ? 'Quitar de favoritos' : 'Guardar en favoritos'"
-                    class="text-sm ml-1.5 transition-opacity"
-                    :class="isFavorite(favoriteData(v)) ? 'text-bible-accent-bright opacity-100' : 'text-bible-muted-dim opacity-0 group-hover:opacity-100 hover:text-bible-accent-bright'">
-                    ★
-                </button>
-                <Link :href="`/bible/${book.code}/${chapter}/${v.verse}`" title="Ver conexiones"
-                    class="text-bible-muted-dim no-underline text-sm ml-1 opacity-0 group-hover:opacity-100 hover:text-bible-accent-bright transition-opacity">
-                    ✦
-                </Link>
-            </p>
-        </div>
+  <Head :title="`${book.name} ${chapter}`" />
+  <div class="bg-bible-bg min-h-screen text-bible-text p-4 md:p-8 font-bible-body">
+    <NavHeader :back-href="`/leer/${book.code}`" :back-label="`← ${book.name}`">
+      <h1 class="font-bible-display font-semibold text-2xl md:text-3xl text-bible-accent-bright mt-2">
+        {{ book.name }} {{ chapter }}
+      </h1>
+    </NavHeader>
 
-        <nav class="flex justify-between max-w-2xl mt-10">
-            <Link v-if="hasPrev" :href="`/leer/${book.code}/${chapter - 1}`"
-                class="text-bible-accent text-sm hover:underline">
-                ← Capítulo anterior
-            </Link>
+    <div class="max-w-2xl font-bible-display text-lg md:text-xl leading-relaxed">
+      <div v-for="v in verses" :key="v.verse" class="mb-3.5 group">
+        <p class="relative">
+          <span class="text-bible-accent font-bible-body text-xs align-super mr-1">{{ v.verse }}</span>
+          {{ v.text }}
+          <button @click="toggleNoteBox(v)" title="Nota personal" class="text-sm ml-1.5 transition-opacity"
+            :class="noteFor(favoriteData(v)) ? 'text-bible-accent-bright opacity-100' : 'text-bible-muted-dim opacity-0 group-hover:opacity-100 hover:text-bible-accent-bright'">
+            ✎
+          </button>
+          <button @click="toggleFavorite(favoriteData(v))"
+            :title="isFavorite(favoriteData(v)) ? 'Quitar de favoritos' : 'Guardar en favoritos'"
+            class="text-sm ml-1 transition-opacity"
+            :class="isFavorite(favoriteData(v)) ? 'text-bible-accent-bright opacity-100' : 'text-bible-muted-dim opacity-0 group-hover:opacity-100 hover:text-bible-accent-bright'">
+            ★
+          </button>
+          <Link :href="`/bible/${book.code}/${chapter}/${v.verse}`" title="Ver conexiones"
+            class="text-bible-muted-dim no-underline text-sm ml-1 opacity-0 group-hover:opacity-100 hover:text-bible-accent-bright transition-opacity">
+            ✦
+          </Link>
+        </p>
+
+        <div v-if="openNoteVerse === v.verse" class="mt-2 bg-bible-panel border border-bible-border rounded-md p-3">
+          <textarea v-model="draftText" rows="3" placeholder="Tu reflexión sobre este versículo..."
+            class="w-full bg-transparent text-bible-text text-sm font-bible-body placeholder:text-bible-muted-dim resize-none focus:outline-none"></textarea>
+          <div class="flex justify-between items-center mt-2">
+            <button v-if="noteFor(favoriteData(v))" @click="removeNote(v)"
+              class="text-bible-error text-xs hover:underline">
+              Borrar nota
+            </button>
             <span v-else></span>
-            <Link v-if="hasNext" :href="`/leer/${book.code}/${chapter + 1}`"
-                class="text-bible-accent text-sm hover:underline">
-                Capítulo siguiente →
-            </Link>
-        </nav>
+            <button @click="submitNote(v)"
+              class="bg-bible-accent text-bible-bg text-xs px-3 py-1.5 rounded hover:bg-bible-accent-bright">
+              Guardar
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <nav class="flex justify-between max-w-2xl mt-10">
+      <Link v-if="hasPrev" :href="`/leer/${book.code}/${chapter - 1}`"
+        class="text-bible-accent text-sm hover:underline">
+        ← Capítulo anterior
+      </Link>
+      <span v-else></span>
+      <Link v-if="hasNext" :href="`/leer/${book.code}/${chapter + 1}`"
+        class="text-bible-accent text-sm hover:underline">
+        Capítulo siguiente →
+      </Link>
+    </nav>
+  </div>
 </template>

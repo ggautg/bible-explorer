@@ -2,10 +2,14 @@
 <script setup>
 import { Head, Link, usePage } from '@inertiajs/vue3'
 import { logout } from '@/routes'
-const page = usePage()
 import testimonials from '../helpers/testimonials.js'
 import Testimonial from './components/testimonials.vue'
 
+defineProps({
+  verseOfTheDay: Object,
+})
+
+const page = usePage()
 </script>
 
 <template>
@@ -47,12 +51,22 @@ import Testimonial from './components/testimonials.vue'
         </h1>
 
         <p class="text-bible-muted text-base md:text-lg max-w-xl
-                 leading-relaxed mb-10">
+         leading-relaxed mb-10">
           Explorá la Biblia no como texto lineal, sino como una red de
           conexiones. Cada versículo conecta con otros a través de citas,
           ecos y referencias — elegí un punto de partida y seguí el hilo.
         </p>
 
+        <div class="bg-bible-panel border border-bible-border rounded-lg px-6 py-4 mb-10 max-w-md">
+          <span class="text-bible-accent text-xs uppercase tracking-wide">Versículo del día</span>
+          <p class="font-bible-display text-lg text-bible-text leading-relaxed mt-2 mb-2">
+            "{{ verseOfTheDay.text }}"
+          </p>
+          <Link :href="`/bible/${verseOfTheDay.book}/${verseOfTheDay.chapter}/${verseOfTheDay.verse}`"
+            class="text-bible-muted text-sm hover:text-bible-accent-bright">
+            {{ verseOfTheDay.bookName }} {{ verseOfTheDay.chapter }}:{{ verseOfTheDay.verse }} — ver su constelación →
+          </Link>
+        </div>
         <div class="flex flex-wrap gap-4 justify-center">
           <Link href="/leer"
             class="bg-bible-accent text-bible-bg font-medium px-6 py-3 rounded-md hover:bg-bible-accent-bright transition-colors">

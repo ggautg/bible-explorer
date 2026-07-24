@@ -1,7 +1,7 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3'
 import { useFavorites } from '@/composables/useFavorites'
-import { logout } from '@/routes'
+import NavHeader from '@/components/Bible/NavHeader.vue'
 
 const { favorites, toggleFavorite } = useFavorites()
 </script>
@@ -10,35 +10,23 @@ const { favorites, toggleFavorite } = useFavorites()
 
   <Head title="Favoritos" />
   <div class="bg-bible-bg min-h-screen text-bible-text p-4 md:p-8 font-bible-body">
-    <header class="flex justify-between items-start mb-8">
-      <div>
-        <Link href="/leer" class="text-bible-muted text-sm hover:text-bible-accent">← Leer</Link>
-        <h1 class="font-bible-display font-semibold text-2xl md:text-3xl text-bible-accent-bright mt-2">
-          Favoritos
-        </h1>
-      </div>
-      <div class="flex items-center gap-4">
-        <Link href="/bible/GEN/1/1" class="text-bible-accent text-sm hover:underline whitespace-nowrap">
-          Grafo
-        </Link>
-        <Link :href="logout()" method="post" as="button"
-          class="text-bible-muted text-sm hover:text-bible-error whitespace-nowrap">
-          Cerrar sesión
-        </Link>
-      </div>
-    </header>
+   <NavHeader back-href="/leer" back-label="← Leer">
+      <h1 class="font-bible-display font-semibold text-2xl md:text-3xl text-bible-accent-bright mt-2">
+        Favoritos
+      </h1>
+    </NavHeader>
 
     <p v-if="!favorites.length" class="text-bible-muted-dim italic">
       Todavía no guardaste ningún versículo. Buscá la ★ mientras leés o explorás el grafo.
     </p>
 
     <div v-else class="max-w-2xl space-y-4">
-      <div v-for="f in [...favorites].sort((a, b) => b.savedAt - a.savedAt)" :key="`${f.book}-${f.chapter}-${f.verse}`"
+      <div v-for="f in favorites" :key="`${f.book_code}-${f.chapter}-${f.verse}`"
         class="bg-bible-panel border border-bible-border rounded-lg p-4">
         <div class="flex justify-between items-start gap-3">
-          <Link :href="`/bible/${f.book}/${f.chapter}/${f.verse}`"
+          <Link :href="`/bible/${f.book_code}/${f.chapter}/${f.verse}`"
             class="text-bible-accent text-xs uppercase tracking-wide hover:underline">
-            {{ f.bookName }} {{ f.chapter }}:{{ f.verse }}
+            {{ f.book_name }} {{ f.chapter }}:{{ f.verse }}
           </Link>
           <button @click="toggleFavorite(f)" class="text-bible-accent-bright text-sm hover:opacity-70">
             ★ Quitar

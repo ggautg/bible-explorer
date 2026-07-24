@@ -347,6 +347,84 @@ favorites.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
     
     favorites.form = favoritesForm
-const ReaderController = { books, chapters, chapter, favorites }
+/**
+* @see \App\Http\Controllers\Bible\ReaderController::notes
+ * @see app/Http/Controllers/Bible/ReaderController.php:62
+ * @route '/notas'
+ */
+export const notes = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: notes.url(options),
+    method: 'get',
+})
+
+notes.definition = {
+    methods: ["get","head"],
+    url: '/notas',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\Bible\ReaderController::notes
+ * @see app/Http/Controllers/Bible/ReaderController.php:62
+ * @route '/notas'
+ */
+notes.url = (options?: RouteQueryOptions) => {
+    return notes.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Bible\ReaderController::notes
+ * @see app/Http/Controllers/Bible/ReaderController.php:62
+ * @route '/notas'
+ */
+notes.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: notes.url(options),
+    method: 'get',
+})
+/**
+* @see \App\Http\Controllers\Bible\ReaderController::notes
+ * @see app/Http/Controllers/Bible/ReaderController.php:62
+ * @route '/notas'
+ */
+notes.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: notes.url(options),
+    method: 'head',
+})
+
+    /**
+* @see \App\Http\Controllers\Bible\ReaderController::notes
+ * @see app/Http/Controllers/Bible/ReaderController.php:62
+ * @route '/notas'
+ */
+    const notesForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: notes.url(options),
+        method: 'get',
+    })
+
+            /**
+* @see \App\Http\Controllers\Bible\ReaderController::notes
+ * @see app/Http/Controllers/Bible/ReaderController.php:62
+ * @route '/notas'
+ */
+        notesForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: notes.url(options),
+            method: 'get',
+        })
+            /**
+* @see \App\Http\Controllers\Bible\ReaderController::notes
+ * @see app/Http/Controllers/Bible/ReaderController.php:62
+ * @route '/notas'
+ */
+        notesForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: notes.url({
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'HEAD',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'get',
+        })
+    
+    notes.form = notesForm
+const ReaderController = { books, chapters, chapter, favorites, notes }
 
 export default ReaderController

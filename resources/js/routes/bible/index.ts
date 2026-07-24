@@ -445,12 +445,170 @@ favorites.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
     
     favorites.form = favoritesForm
+/**
+* @see \App\Http\Controllers\Bible\ReaderController::notes
+ * @see app/Http/Controllers/Bible/ReaderController.php:62
+ * @route '/notas'
+ */
+export const notes = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: notes.url(options),
+    method: 'get',
+})
+
+notes.definition = {
+    methods: ["get","head"],
+    url: '/notas',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\Bible\ReaderController::notes
+ * @see app/Http/Controllers/Bible/ReaderController.php:62
+ * @route '/notas'
+ */
+notes.url = (options?: RouteQueryOptions) => {
+    return notes.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Bible\ReaderController::notes
+ * @see app/Http/Controllers/Bible/ReaderController.php:62
+ * @route '/notas'
+ */
+notes.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: notes.url(options),
+    method: 'get',
+})
+/**
+* @see \App\Http\Controllers\Bible\ReaderController::notes
+ * @see app/Http/Controllers/Bible/ReaderController.php:62
+ * @route '/notas'
+ */
+notes.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: notes.url(options),
+    method: 'head',
+})
+
+    /**
+* @see \App\Http\Controllers\Bible\ReaderController::notes
+ * @see app/Http/Controllers/Bible/ReaderController.php:62
+ * @route '/notas'
+ */
+    const notesForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: notes.url(options),
+        method: 'get',
+    })
+
+            /**
+* @see \App\Http\Controllers\Bible\ReaderController::notes
+ * @see app/Http/Controllers/Bible/ReaderController.php:62
+ * @route '/notas'
+ */
+        notesForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: notes.url(options),
+            method: 'get',
+        })
+            /**
+* @see \App\Http\Controllers\Bible\ReaderController::notes
+ * @see app/Http/Controllers/Bible/ReaderController.php:62
+ * @route '/notas'
+ */
+        notesForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: notes.url({
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'HEAD',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'get',
+        })
+    
+    notes.form = notesForm
+/**
+* @see \App\Http\Controllers\Bible\TextSearchController::search
+ * @see app/Http/Controllers/Bible/TextSearchController.php:11
+ * @route '/buscar'
+ */
+export const search = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: search.url(options),
+    method: 'get',
+})
+
+search.definition = {
+    methods: ["get","head"],
+    url: '/buscar',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\Bible\TextSearchController::search
+ * @see app/Http/Controllers/Bible/TextSearchController.php:11
+ * @route '/buscar'
+ */
+search.url = (options?: RouteQueryOptions) => {
+    return search.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Bible\TextSearchController::search
+ * @see app/Http/Controllers/Bible/TextSearchController.php:11
+ * @route '/buscar'
+ */
+search.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: search.url(options),
+    method: 'get',
+})
+/**
+* @see \App\Http\Controllers\Bible\TextSearchController::search
+ * @see app/Http/Controllers/Bible/TextSearchController.php:11
+ * @route '/buscar'
+ */
+search.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: search.url(options),
+    method: 'head',
+})
+
+    /**
+* @see \App\Http\Controllers\Bible\TextSearchController::search
+ * @see app/Http/Controllers/Bible/TextSearchController.php:11
+ * @route '/buscar'
+ */
+    const searchForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: search.url(options),
+        method: 'get',
+    })
+
+            /**
+* @see \App\Http\Controllers\Bible\TextSearchController::search
+ * @see app/Http/Controllers/Bible/TextSearchController.php:11
+ * @route '/buscar'
+ */
+        searchForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: search.url(options),
+            method: 'get',
+        })
+            /**
+* @see \App\Http\Controllers\Bible\TextSearchController::search
+ * @see app/Http/Controllers/Bible/TextSearchController.php:11
+ * @route '/buscar'
+ */
+        searchForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: search.url({
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'HEAD',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'get',
+        })
+    
+    search.form = searchForm
 const bible = {
     graph: Object.assign(graph, graph),
 books: Object.assign(books, books),
 chapters: Object.assign(chapters, chapters),
 chapter: Object.assign(chapter, chapter),
 favorites: Object.assign(favorites, favorites),
+notes: Object.assign(notes, notes),
+search: Object.assign(search, search),
 }
 
 export default bible
