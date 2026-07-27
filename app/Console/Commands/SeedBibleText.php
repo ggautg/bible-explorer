@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Http;
 class SeedBibleText extends Command
 {
     protected $signature = 'bible:seed-text {translation=spa_rvg}';
+
     protected $description = 'Descarga y guarda el texto completo de una traducción bíblica';
 
     public function handle(): int
@@ -21,6 +22,7 @@ class SeedBibleText extends Command
 
         if ($response->failed()) {
             $this->error('No se pudo descargar la traducción.');
+
             return self::FAILURE;
         }
 
@@ -51,6 +53,7 @@ class SeedBibleText extends Command
                     }
 
                     $verseRows[] = [
+                        'translation' => $translation,
                         'book_code' => $book['id'],
                         'chapter' => $chapterNumber,
                         'verse' => $item['number'],
@@ -63,7 +66,7 @@ class SeedBibleText extends Command
             foreach (array_chunk($verseRows, 500) as $chunk) {
                 BibleVerse::upsert(
                     $chunk,
-                    ['book_code', 'chapter', 'verse'],
+                    ['translation', 'book_code', 'chapter', 'verse'],
                     ['text']
                 );
             }

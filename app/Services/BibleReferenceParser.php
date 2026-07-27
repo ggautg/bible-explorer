@@ -33,10 +33,11 @@ class BibleReferenceParser
         }
 
         $exists = BibleVerse::where('book_code', $book->code)
+            ->where('translation', 'spa_rvg')
             ->where('chapter', $chapter)
             ->where('verse', $verse)
             ->exists();
-
+            
         if (! $exists) {
             throw new RuntimeException("No existe {$book->name} {$chapter}:{$verse}.");
         }

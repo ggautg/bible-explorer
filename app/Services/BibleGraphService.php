@@ -13,6 +13,7 @@ class BibleGraphService
     public function buildGraph(string $book, int $chapter, int $verse): array
     {
         $centerVerse = BibleVerse::where('book_code', $book)
+            ->where('translation', 'spa_rvg')
             ->where('chapter', $chapter)
             ->where('verse', $verse)
             ->firstOrFail();
@@ -47,6 +48,7 @@ class BibleGraphService
             ->unique(fn ($k) => implode('-', $k));
 
         return BibleVerse::query()
+            ->where('translation', 'spa_rvg')
             ->where(function ($query) use ($keys) {
                 foreach ($keys as [$b, $c, $v]) {
                     $query->orWhere(fn ($q) => $q->where('book_code', $b)->where('chapter', $c)->where('verse', $v));

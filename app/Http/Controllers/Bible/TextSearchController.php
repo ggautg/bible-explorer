@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Bible;
 
 use App\Http\Controllers\Controller;
+use App\Models\BibleBook;
 use App\Models\BibleVerse;
 use Illuminate\Http\Request;
 
@@ -17,6 +18,7 @@ class TextSearchController extends Controller
         }
 
         $results = BibleVerse::query()
+            ->where('translation', 'spa_rvg')
             ->select('book_code', 'chapter', 'verse', 'text')
             ->selectRaw('MATCH(text) AGAINST(? IN NATURAL LANGUAGE MODE) as relevance', [$query])
             ->whereRaw('MATCH(text) AGAINST(? IN NATURAL LANGUAGE MODE)', [$query])
@@ -24,7 +26,8 @@ class TextSearchController extends Controller
             ->limit(50)
             ->get()
             ->map(function ($v) {
-                $book = \App\Models\BibleBook::find($v->book_code);
+                $book = BibleBook::find($v->book_code);
+
                 return [
                     'book' => $v->book_code,
                     'bookName' => $book?->name ?? $v->book_code,

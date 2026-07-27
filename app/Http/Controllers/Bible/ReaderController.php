@@ -20,6 +20,7 @@ class ReaderController extends Controller
         $bookModel = BibleBook::findOrFail($book);
 
         $chapters = BibleVerse::where('book_code', $book)
+            ->where('translation', 'spa_rvg')
             ->distinct()
             ->orderBy('chapter')
             ->pluck('chapter');
@@ -35,6 +36,7 @@ class ReaderController extends Controller
         $bookModel = BibleBook::findOrFail($book);
 
         $verses = BibleVerse::where('book_code', $book)
+            ->where('translation', 'spa_rvg')
             ->where('chapter', $chapter)
             ->orderBy('verse')
             ->get(['verse', 'text']);
@@ -43,12 +45,21 @@ class ReaderController extends Controller
             abort(404);
         }
 
-        $maxChapter = BibleVerse::where('book_code', $book)->max('chapter');
+        $alternateVerses = BibleVerse::where('book_code', $book)
+            ->where('translation', 'spa_pdt')
+            ->where('chapter', $chapter)
+            ->orderBy('verse')
+            ->pluck('text', 'verse');
+
+        $maxChapter = BibleVerse::where('book_code', $book)
+            ->where('translation', 'spa_rvg')
+            ->max('chapter');
 
         return inertia('Bible/Chapter', [
             'book' => $bookModel,
             'chapter' => $chapter,
             'verses' => $verses,
+            'alternateVerses' => $alternateVerses,
             'hasNext' => $chapter < $maxChapter,
             'hasPrev' => $chapter > 1,
         ]);

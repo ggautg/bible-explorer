@@ -4,7 +4,17 @@ import { ref } from 'vue'
 import { useNotes } from '@/composables/useNotes'
 import NavHeader from '@/components/Bible/NavHeader.vue'
 
-const props = defineProps({ book: Object, chapter: Number, verses: Array, hasNext: Boolean, hasPrev: Boolean })
+const props = defineProps({
+  book: Object,
+  chapter: Number,
+  verses: Array,
+  alternateVerses: Object,
+  hasNext: Boolean,
+  hasPrev: Boolean,
+})
+
+const showComparison = ref(false)
+
 const { noteFor, saveNote, deleteNote } = useNotes()
 
 import { useFavorites } from '@/composables/useFavorites'
@@ -50,6 +60,10 @@ async function removeNote(v) {
       </h1>
     </NavHeader>
 
+    <button @click="showComparison = !showComparison" class="text-bible-accent text-sm hover:underline mb-4 block">
+      {{ showComparison ? 'Ocultar comparación' : 'Comparar con Palabra de Dios para ti →' }}
+    </button>
+
     <div class="max-w-2xl font-bible-display text-lg md:text-xl leading-relaxed">
       <div v-for="v in verses" :key="v.verse" class="mb-3.5 group">
         <p class="relative">
@@ -70,6 +84,11 @@ async function removeNote(v) {
             ✦
           </Link>
         </p>
+        <p v-if="showComparison && alternateVerses[v.verse]"
+          class="text-bible-muted text-base font-bible-body italic mt-1 pl-4 border-l-2 border-bible-border">
+          {{ alternateVerses[v.verse] }}
+        </p>
+
 
         <div v-if="openNoteVerse === v.verse" class="mt-2 bg-bible-panel border border-bible-border rounded-md p-3">
           <textarea v-model="draftText" rows="3" placeholder="Tu reflexión sobre este versículo..."
