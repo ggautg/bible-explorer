@@ -5,11 +5,14 @@ use App\Http\Controllers\Bible\GraphController;
 use App\Http\Controllers\Bible\NoteController;
 use App\Http\Controllers\Bible\ReaderController;
 use App\Http\Controllers\Bible\SearchController;
+use App\Http\Controllers\Bible\ShareController;
 use App\Http\Controllers\Bible\TextSearchController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/',[HomeController::class,'index'])->name('home');
+
+Route::get('/compartido/{book}/{chapter}/{verse}', [ShareController::class, 'show']);
 
 Route::middleware('auth')->group(function () {
 

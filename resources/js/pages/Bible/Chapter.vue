@@ -3,6 +3,8 @@ import { Head, Link } from '@inertiajs/vue3'
 import { ref } from 'vue'
 import { useNotes } from '@/composables/useNotes'
 import NavHeader from '@/components/Bible/NavHeader.vue'
+import { useToast } from '@/composables/useToast'
+import ToastContainer from '@/components/Bible/ToastContainer.vue'
 
 const props = defineProps({
   book: Object,
@@ -13,6 +15,8 @@ const props = defineProps({
   hasPrev: Boolean,
 })
 
+const { showToast } = useToast()
+
 const showComparison = ref(false)
 
 const { noteFor, saveNote, deleteNote } = useNotes()
@@ -20,6 +24,17 @@ const { noteFor, saveNote, deleteNote } = useNotes()
 import { useFavorites } from '@/composables/useFavorites'
 
 const { isFavorite, toggleFavorite } = useFavorites()
+
+const copiedVerse = ref(null)
+
+async function shareVerse(v) {
+  const shareUrl = `${window.location.origin}/compartido/${props.book.code}/${props.chapter}/${v.verse}`
+  const shareText = `"${v.text}"\n${props.book.name} ${props.chapter}:${v.verse}\n\n${shareUrl}`
+
+  await navigator.clipboard.writeText(shareText)
+  showToast('Versículo copiado al portapapeles')
+}
+
 
 function favoriteData(v) {
   return { book_code: props.book.code, bookName: props.book.name, chapter: props.chapter, verse: v.verse, text: v.text }
@@ -70,19 +85,23 @@ async function removeNote(v) {
           <span class="text-bible-accent font-bible-body text-xs align-super mr-1">{{ v.verse }}</span>
           {{ v.text }}
           <button @click="toggleNoteBox(v)" title="Nota personal" class="text-sm ml-1.5 transition-opacity"
-            :class="noteFor(favoriteData(v)) ? 'text-bible-accent-bright opacity-100' : 'text-bible-muted-dim opacity-0 group-hover:opacity-100 hover:text-bible-accent-bright'">
+            :class="noteFor(favoriteData(v)) ? 'text-bible-accent-bright opacity-100' : 'text-bible-muted-dim opacity-100 md:opacity-0 md:group-hover:opacity-100 hover:text-bible-accent-bright'">
             ✎
           </button>
           <button @click="toggleFavorite(favoriteData(v))"
             :title="isFavorite(favoriteData(v)) ? 'Quitar de favoritos' : 'Guardar en favoritos'"
             class="text-sm ml-1 transition-opacity"
-            :class="isFavorite(favoriteData(v)) ? 'text-bible-accent-bright opacity-100' : 'text-bible-muted-dim opacity-0 group-hover:opacity-100 hover:text-bible-accent-bright'">
+            :class="isFavorite(favoriteData(v)) ? 'text-bible-accent-bright opacity-100' : 'text-bible-muted-dim opacity-100 md:opacity-0 md:group-hover:opacity-100 hover:text-bible-accent-bright'">
             ★
           </button>
           <Link :href="`/bible/${book.code}/${chapter}/${v.verse}`" title="Ver conexiones"
             class="text-bible-muted-dim no-underline text-sm ml-1 opacity-0 group-hover:opacity-100 hover:text-bible-accent-bright transition-opacity">
             ✦
           </Link>
+          <button @click="shareVerse(v)" title="Compartir" class="text-sm ml-1 transition-opacity"
+            :class="copiedVerse === v.verse ? 'text-bible-accent-bright opacity-100' : 'text-bible-muted-dim opacity-100 md:opacity-0 md:group-hover:opacity-100 hover:text-bible-accent-bright'">
+            {{ copiedVerse === v.verse ? '✓' : '⇗' }}
+          </button>
         </p>
         <p v-if="showComparison && alternateVerses[v.verse]"
           class="text-bible-muted text-base font-bible-body italic mt-1 pl-4 border-l-2 border-bible-border">
@@ -120,4 +139,5 @@ async function removeNote(v) {
       </Link>
     </nav>
   </div>
+  <ToastContainer />
 </template>

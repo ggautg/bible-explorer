@@ -6,6 +6,10 @@ import { useVerseSearch } from '@/composables/useVerseSearch'
 import { useExplorationTrail } from '@/composables/useExplorationTrail'
 import { useFavorites } from '@/composables/useFavorites'
 import NavHeader from '@/components/Bible/NavHeader.vue'
+import { useToast } from '@/composables/useToast'
+import ToastContainer from '@/components/Bible/ToastContainer.vue'
+
+const { showToast } = useToast()
 
 const props = defineProps({
   nodes: Array,
@@ -21,6 +25,17 @@ const { searchQuery, suggestions, searchError, pickSuggestion, submitSearch } = 
 const { trail, visit, clear } = useExplorationTrail()
 const { isFavorite, toggleFavorite } = useFavorites()
 
+const copied = ref(false)
+
+async function copyLink() {
+  const v = selected.value
+  const shareUrl = `${window.location.origin}/compartido/${v.book}/${v.chapter}/${v.verse}`
+  const shareText = `"${v.text}"\n${reference(v)}\n\n${shareUrl}`
+
+  await navigator.clipboard.writeText(shareText)
+  showToast('Versículo copiado al portapapeles')
+}
+
 onMounted(() => nextTick(() => render(props.nodes, props.edges)))
 
 watch(() => props.center, () => nextTick(() => render(props.nodes, props.edges)))
@@ -32,6 +47,7 @@ watch(() => props.center, () => {
 </script>
 
 <template>
+
   <Head :title="`Explorador — ${center.replace(/-/g, ' ')}`" />
 
   <div class="bg-bible-bg min-h-screen text-bible-text p-4 md:p-8 font-bible-body">
@@ -46,7 +62,8 @@ watch(() => props.center, () => {
     </p>
 
     <div class="relative max-w-xs mb-6">
-      <input v-model="searchQuery" @keyup.enter="submitSearch" type="text" placeholder="Ej: Juan 3:16" autocomplete="off"
+      <input v-model="searchQuery" @keyup.enter="submitSearch" type="text" placeholder="Ej: Juan 3:16"
+        autocomplete="off"
         class="w-full bg-bible-panel border border-bible-border text-bible-text px-3.5 py-2.5 rounded-md text-sm focus:outline-none focus:border-bible-accent" />
       <ul v-if="suggestions.length"
         class="absolute top-full left-0 right-0 bg-bible-panel border border-bible-border rounded-md p-1 m-0 list-none z-10">
@@ -67,7 +84,8 @@ watch(() => props.center, () => {
         </Link>
         <span v-if="i < trail.length - 1" class="text-bible-muted-dim">→</span>
       </template>
-      <button @click="clear" class="text-bible-muted-dim text-xs ml-2 hover:text-bible-error" title="Reiniciar recorrido">
+      <button @click="clear" class="text-bible-muted-dim text-xs ml-2 hover:text-bible-error"
+        title="Reiniciar recorrido">
         ✕ limpiar
       </button>
     </div>
@@ -92,6 +110,10 @@ watch(() => props.center, () => {
             class="border px-3.5 py-2 rounded-md text-sm transition-colors"
             :class="isFavorite({ ...selected, book_code: selected.book }) ? 'border-bible-accent-bright text-bible-accent-bright bg-bible-accent/10' : 'border-bible-border text-bible-muted hover:border-bible-accent'">
             ★
+          </button>
+          <button @click="copyLink"
+            class="border border-bible-border text-bible-muted px-3.5 py-2 rounded-md text-sm hover:border-bible-accent hover:text-bible-accent-bright transition-colors">
+            {{ copied ? '¡Copiado!' : 'Copiar link' }}
           </button>
         </div>
       </aside>
