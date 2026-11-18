@@ -11,10 +11,16 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Laravel\Fortify\Features;
 
+/**
+ * Controlador de configuración de seguridad.
+ *
+ * Gestiona la visualización de opciones de seguridad y la actualización de
+ * la contraseña del usuario.
+ */
 class SecurityController extends Controller
 {
     /**
-     * Show the user's security settings page.
+     * Muestra la página de seguridad del usuario.
      */
     public function edit(TwoFactorAuthenticationRequest $request): Response
     {
@@ -51,7 +57,7 @@ class SecurityController extends Controller
     }
 
     /**
-     * Update the user's password.
+     * Actualiza la contraseña del usuario autenticado.
      */
     public function update(PasswordUpdateRequest $request): RedirectResponse
     {
@@ -59,7 +65,10 @@ class SecurityController extends Controller
             'password' => $request->password,
         ]);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Password updated.')]);
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Contraseña actualizada correctamente.',
+        ]);
 
         return back();
     }

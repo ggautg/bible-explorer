@@ -5,50 +5,75 @@ namespace App\Console\Commands;
 use App\Models\BibleBook;
 use App\Models\BibleVerse;
 use Illuminate\Console\Command;
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 
+/**
+ * Comando para descargar y sembrar el texto completo de una traducción bíblica.
+ *
+ * Obtiene el JSON público desde bible.helloao.org y guarda libros y versículos
+ * en las tablas locales para su consulta por la aplicación.
+ */
 class SeedBibleText extends Command
 {
+    /**
+     * Nombre y firma del comando.
+     *
+     * @var string
+     */
     protected $signature = 'bible:seed-text {translation=spa_rvg}';
 
+    /**
+     * Descripción del comando mostrada en Artisan.
+     *
+     * @var string
+     */
     protected $description = 'Descarga y guarda el texto completo de una traducción bíblica';
 
+    /**
+     * Ejecuta la importación de la traducción indicada.
+     */
     public function handle(): int
     {
-        $translation = $this->argument('translation');
+        $translation = (string) $this->argument('translation');
 
         $this->info("Descargando {$translation}...");
-        $response = Http::timeout(120)->get("https://bible.helloao.org/api/{$translation}/complete.json");
+
+        $response = $this->httpClient()->get("https://bible.helloao.org/api/{$translation}/complete.json");
 
         if ($response->failed()) {
-            $this->error('No se pudo descargar la traducción.');
+            $this->error('No se pudo descargar la traducción. Verifica la conexión o el código de traducción.');
 
             return self::FAILURE;
         }
 
-        $books = $response->json('books');
+        $books = $response->json('books', []);
         $bar = $this->output->createProgressBar(count($books));
 
         foreach ($books as $book) {
-            // Los primeros 39 libros del canon son del Antiguo Testamento
-            $testament = $book['order'] <= 39 ? 'OT' : 'NT';
+            // Los primeros 39 libros del canon corresponden al Antiguo Testamento.
+            $testament = ($book['order'] ?? 0) <= 39 ? 'OT' : 'NT';
 
             BibleBook::updateOrCreate(
                 ['code' => $book['id']],
                 [
-                    'name' => $book['commonName'] ?? $book['name'],
+                    'name' => $book['commonName'] ?? $book['name'] ?? $book['id'],
                     'testament' => $testament,
-                    'order' => $book['order'],
+                    'order' => $book['order'] ?? 0,
                 ]
             );
 
             $verseRows = [];
 
-            foreach ($book['chapters'] as $chapterData) {
-                $chapterNumber = $chapterData['chapter']['number'];
+            foreach ($book['chapters'] ?? [] as $chapterData) {
+                $chapterNumber = $chapterData['chapter']['number'] ?? null;
 
-                foreach ($chapterData['chapter']['content'] as $item) {
-                    if ($item['type'] !== 'verse') {
+                if ($chapterNumber === null) {
+                    continue;
+                }
+
+                foreach ($chapterData['chapter']['content'] ?? [] as $item) {
+                    if (($item['type'] ?? null) !== 'verse') {
                         continue;
                     }
 
@@ -57,12 +82,12 @@ class SeedBibleText extends Command
                         'book_code' => $book['id'],
                         'chapter' => $chapterNumber,
                         'verse' => $item['number'],
-                        'text' => $this->extractText($item['content']),
+                        'text' => $this->extractText($item['content'] ?? []),
                     ];
                 }
             }
 
-            // Insertamos de a lotes para no saturar memoria/queries
+            // Inserción por lotes para reducir consumo de memoria y consultas.
             foreach (array_chunk($verseRows, 500) as $chunk) {
                 BibleVerse::upsert(
                     $chunk,
@@ -76,15 +101,36 @@ class SeedBibleText extends Command
 
         $bar->finish();
         $this->newLine();
-        $this->info('Listo.');
+        $this->info('Texto bíblico importado correctamente.');
 
         return self::SUCCESS;
     }
 
     /**
-     * El contenido de un versículo puede mezclar strings simples,
-     * texto formateado ({text: ...}), referencias a notas ({noteId: ...})
-     * y saltos de línea ({lineBreak: true}). Nos quedamos solo con el texto.
+     * Crea el cliente HTTP para la descarga.
+     *
+     * En entorno local o con depuración activa se deshabilita la verificación
+     * SSL para evitar fallos por certificados del sistema; en producción se
+     * mantiene la verificación por defecto.
+     */
+    private function httpClient(): PendingRequest
+    {
+        $client = Http::timeout(120)->retry(2, 500);
+
+        if (app()->environment('local') || config('app.debug')) {
+            $client = $client->withoutVerifying();
+        }
+
+        return $client;
+    }
+
+    /**
+     * Extrae texto plano del contenido mixto de un versículo.
+     *
+     * El contenido puede incluir cadenas, objetos con clave "text", notas y
+     * saltos de línea. Solo se conservan los fragmentos textuales.
+     *
+     * @param  array<int, mixed>  $content
      */
     private function extractText(array $content): string
     {
@@ -93,12 +139,11 @@ class SeedBibleText extends Command
         foreach ($content as $piece) {
             if (is_string($piece)) {
                 $parts[] = $piece;
-            } elseif (isset($piece['text'])) {
+            } elseif (is_array($piece) && isset($piece['text'])) {
                 $parts[] = $piece['text'];
             }
-            // los noteId y lineBreak se ignoran para el texto plano
         }
 
-        return trim(implode(' ', $parts));
+        return trim(preg_replace('/\s+/', ' ', implode(' ', $parts)) ?? '');
     }
 }

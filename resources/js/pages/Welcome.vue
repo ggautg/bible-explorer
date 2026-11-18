@@ -1,35 +1,38 @@
-<!-- resources/js/pages/Welcome.vue -->
 <script setup>
-import { Head, Link, usePage } from '@inertiajs/vue3'
-import { logout } from '@/routes'
-import testimonials from '../helpers/testimonials.js'
-import Testimonial from './components/testimonials.vue'
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
+import { logout } from '@/routes';
+import testimonials from '@/helpers/testimonials.js';
+import TestimonialCard from '@/components/Bible/TestimonialCard.vue';
+import StarfieldBackground from '@/components/Bible/StarfieldBackground.vue';
 
-defineProps({
-  verseOfTheDay: Object,
-})
+/**
+ * Página de bienvenida del explorador bíblico.
+ * Presenta la propuesta de valor, el versículo del día y accesos principales.
+ */
+const props = defineProps({
+  /** Versículo destacado del día, o null si aún no hay datos cargados. */
+  verseOfTheDay: {
+    type: Object,
+    default: null,
+  },
+});
 
-const page = usePage()
+const page = usePage();
+const user = computed(() => page.props.auth?.user ?? null);
 </script>
 
 <template>
+  <Head title="Inicio" />
 
-  <Head title="Constelaciones Bíblicas" />
+  <div class="relative min-h-screen overflow-hidden bg-bible-bg text-bible-text font-bible-body">
+    <StarfieldBackground />
 
-  <div class="relative min-h-screen bg-bible-bg text-bible-text font-bible-body overflow-hidden">
-    <!-- Campo de estrellas ambiental -->
-    <div class="absolute inset-0 pointer-events-none opacity-60">
-      <div class="stars"></div>
-    </div>
-
-    <main class="relative max-w-6xl mx-auto px-6 pt-8 pb-16 lg:pt-12 lg:pb-24
-         grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20
-         items-start">
-      <!-- Presentación principal: lado derecho -->
-      <section class="w-full flex flex-col items-center text-center lg:sticky lg:top-24">
-        <!-- Constelación ilustrativa -->
-        <svg width="220" height="140" viewBox="0 0 220 140" class="mb-10" aria-hidden="true">
-          <g stroke="#C9A227" stroke-opacity="0.5" stroke-width="1">
+    <main class="relative mx-auto grid max-w-6xl grid-cols-1 items-start gap-12 px-6 py-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-16 lg:py-16">
+      <!-- Columna principal: presentación y acciones -->
+      <section class="flex flex-col items-center text-center lg:sticky lg:top-16">
+        <svg width="220" height="140" viewBox="0 0 220 140" class="mb-8" aria-hidden="true">
+          <g stroke="#C9A227" stroke-opacity="0.45" stroke-width="1">
             <line x1="110" y1="70" x2="40" y2="30" />
             <line x1="110" y1="70" x2="180" y2="25" />
             <line x1="110" y1="70" x2="60" y2="115" />
@@ -37,7 +40,6 @@ const page = usePage()
             <line x1="40" y1="30" x2="180" y2="25" />
             <line x1="60" y1="115" x2="165" y2="105" />
           </g>
-
           <circle cx="110" cy="70" r="6" fill="#E8C87A" />
           <circle cx="40" cy="30" r="3" fill="#8A7B54" />
           <circle cx="180" cy="25" r="3" fill="#8A7B54" />
@@ -45,88 +47,94 @@ const page = usePage()
           <circle cx="165" cy="105" r="3" fill="#8A7B54" />
         </svg>
 
-        <h1 class="font-bible-display font-semibold text-4xl md:text-5xl
-                 text-bible-accent-bright leading-tight mb-4">
+        <p class="mb-3 text-xs font-medium uppercase tracking-[0.2em] text-bible-accent">Explorador bíblico</p>
+        <h1 class="mb-4 max-w-2xl font-bible-display text-4xl font-semibold leading-tight text-bible-accent-bright md:text-5xl">
           Cada versículo tiene su constelación
         </h1>
-
-        <p class="text-bible-muted text-base md:text-lg max-w-xl
-         leading-relaxed mb-10">
-          Explorá la Biblia no como texto lineal, sino como una red de
-          conexiones. Cada versículo conecta con otros a través de citas,
-          ecos y referencias — elegí un punto de partida y seguí el hilo.
+        <p class="mb-8 max-w-xl text-base leading-relaxed text-bible-muted md:text-lg">
+          Explora la Biblia como una red de conexiones. Descubre citas, ecos y referencias entre pasajes,
+          y sigue el hilo desde cualquier versículo.
         </p>
 
-        <div class="bg-bible-panel border border-bible-border rounded-lg px-6 py-4 mb-10 max-w-md">
-          <span class="text-bible-accent text-xs uppercase tracking-wide">Versículo del día</span>
-          <p class="font-bible-display text-lg text-bible-text leading-relaxed mt-2 mb-2">
-            "{{ verseOfTheDay.text }}"
-          </p>
-          <Link :href="`/bible/${verseOfTheDay.book}/${verseOfTheDay.chapter}/${verseOfTheDay.verse}`"
-            class="text-bible-muted text-sm hover:text-bible-accent-bright">
-            {{ verseOfTheDay.bookName }} {{ verseOfTheDay.chapter }}:{{ verseOfTheDay.verse }} — ver su constelación →
-          </Link>
+        <div class="mb-8 w-full max-w-xl rounded-xl border border-bible-border bg-bible-panel/90 p-5 text-left shadow-sm">
+          <p class="text-xs font-medium uppercase tracking-wide text-bible-accent">Versículo del día</p>
+
+          <template v-if="verseOfTheDay">
+            <p class="mt-3 font-bible-display text-xl leading-relaxed text-bible-text">
+              “{{ verseOfTheDay.text }}”
+            </p>
+            <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+              <p class="text-sm text-bible-muted">
+                {{ verseOfTheDay.bookName }} {{ verseOfTheDay.chapter }}:{{ verseOfTheDay.verse }}
+              </p>
+              <Link
+                :href="`/bible/${verseOfTheDay.book}/${verseOfTheDay.chapter}/${verseOfTheDay.verse}`"
+                class="text-sm font-medium text-bible-accent-bright transition-colors hover:text-bible-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent rounded"
+              >
+                Ver conexiones →
+              </Link>
+            </div>
+          </template>
+
+          <template v-else>
+            <p class="mt-3 text-sm leading-relaxed text-bible-muted">
+              El versículo del día estará disponible cuando se cargue el contenido bíblico en la base de datos.
+            </p>
+          </template>
         </div>
-        <div class="flex flex-wrap gap-4 justify-center">
-          <Link href="/leer"
-            class="bg-bible-accent text-bible-bg font-medium px-6 py-3 rounded-md hover:bg-bible-accent-bright transition-colors">
+
+        <div class="flex flex-wrap justify-center gap-3">
+          <Link
+            href="/leer"
+            class="inline-flex items-center justify-center rounded-md bg-bible-accent px-5 py-3 text-sm font-medium text-bible-bg transition-colors hover:bg-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
+          >
             Empezar a leer
           </Link>
-          <Link href="/bible/JHN/3/16"
-            class="border border-bible-border text-bible-text px-6 py-3 rounded-md hover:border-bible-accent hover:text-bible-accent-bright transition-colors">
-            Ver un ejemplo (Juan 3:16)
+          <Link
+            href="/bible/GEN/1/1"
+            class="inline-flex items-center justify-center rounded-md border border-bible-border px-5 py-3 text-sm font-medium text-bible-text transition-colors hover:border-bible-accent hover:text-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
+          >
+            Explorar un ejemplo
           </Link>
         </div>
 
-        <div v-if="page.props.auth.user" class="mt-8 text-sm text-bible-muted">
-          Ya iniciaste sesión como <span class="text-bible-accent-bright">{{ page.props.auth.user.name }}</span>
-          ·
-          <Link :href="logout()" method="post" as="button" class="hover:text-bible-error">
+        <div v-if="user" class="mt-8 rounded-lg border border-bible-border/70 bg-bible-panel/50 px-4 py-3 text-sm text-bible-muted">
+          Sesión iniciada como <span class="font-medium text-bible-accent-bright">{{ user.name }}</span>.
+          <Link
+            :href="logout()"
+            method="post"
+            as="button"
+            class="ml-2 text-bible-muted underline-offset-2 transition-colors hover:text-bible-error hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent rounded"
+          >
             Cerrar sesión
           </Link>
         </div>
 
-        <div v-else class="flex gap-6 mt-8 text-sm">
-          <Link href="/login" class="text-bible-muted hover:text-bible-accent-bright transition-colors">
+        <div v-else class="mt-8 flex flex-wrap justify-center gap-4 text-sm">
+          <Link
+            href="/login"
+            class="text-bible-muted transition-colors hover:text-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent rounded"
+          >
             Iniciar sesión
           </Link>
-          <Link href="/register" class="text-bible-muted hover:text-bible-accent-bright transition-colors">
+          <Link
+            href="/register"
+            class="text-bible-muted transition-colors hover:text-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent rounded"
+          >
             Crear cuenta
           </Link>
         </div>
       </section>
-      <!-- Testimonios: lado izquierdo -->
-      <section class="w-full">
-        <h2 class="font-bible-display text-lg text-bible-muted uppercase
-                 tracking-wide text-center lg:text-left mb-6">
-          Lo que dicen quienes ya la usan
-        </h2>
 
-        <div class="grid grid-cols-1 gap-5">
-          <Testimonial v-for="(testimonial, index) in testimonials" :key="index" :testimonial="testimonial" />
+      <!-- Columna secundaria: testimonios -->
+      <section class="w-full">
+        <h2 class="mb-4 text-center text-sm font-medium uppercase tracking-[0.18em] text-bible-muted lg:text-left">
+          Lo que dicen quienes ya lo usan
+        </h2>
+        <div class="grid grid-cols-1 gap-4">
+          <TestimonialCard v-for="(testimonial, index) in testimonials" :key="index" :testimonial="testimonial" />
         </div>
       </section>
-
     </main>
   </div>
 </template>
-
-<style scoped>
-.stars {
-  width: 100%;
-  height: 100%;
-  background-image:
-    radial-gradient(1.5px 1.5px at 20px 30px, #EDE6D6, transparent),
-    radial-gradient(1.5px 1.5px at 120px 80px, #EDE6D6, transparent),
-    radial-gradient(1px 1px at 200px 40px, #8F8874, transparent),
-    radial-gradient(1.5px 1.5px at 300px 120px, #EDE6D6, transparent),
-    radial-gradient(1px 1px at 400px 60px, #8F8874, transparent),
-    radial-gradient(1.5px 1.5px at 500px 20px, #EDE6D6, transparent),
-    radial-gradient(1px 1px at 600px 150px, #8F8874, transparent),
-    radial-gradient(1.5px 1.5px at 700px 90px, #EDE6D6, transparent),
-    radial-gradient(1px 1px at 80px 180px, #8F8874, transparent),
-    radial-gradient(1.5px 1.5px at 350px 200px, #EDE6D6, transparent);
-  background-repeat: repeat;
-  background-size: 800px 300px;
-}
-</style>

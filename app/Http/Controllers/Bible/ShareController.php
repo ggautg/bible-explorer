@@ -5,18 +5,26 @@ namespace App\Http\Controllers\Bible;
 use App\Http\Controllers\Controller;
 use App\Models\BibleBook;
 use App\Models\BibleVerse;
+use Inertia\Response;
 
+/**
+ * Controlador de páginas públicas para compartir versículos.
+ */
 class ShareController extends Controller
 {
-    public function show(string $book, int $chapter, int $verse)
+    /**
+     * Muestra una vista pública de un versículo compartido.
+     */
+    public function show(string $book, int $chapter, int $verse): Response
     {
-        $verseModel = BibleVerse::where('book_code', $book)
+        $verseModel = BibleVerse::query()
+            ->where('book_code', $book)
             ->where('translation', 'spa_rvg')
             ->where('chapter', $chapter)
             ->where('verse', $verse)
             ->firstOrFail();
 
-        $bookModel = BibleBook::findOrFail($book);
+        $bookModel = BibleBook::query()->findOrFail($book);
 
         return inertia('Bible/Shared', [
             'verse' => [

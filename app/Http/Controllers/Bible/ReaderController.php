@@ -5,21 +5,34 @@ namespace App\Http\Controllers\Bible;
 use App\Http\Controllers\Controller;
 use App\Models\BibleBook;
 use App\Models\BibleVerse;
+use Inertia\Response;
 
+/**
+ * Controlador de lectura de la Biblia.
+ *
+ * Expone las páginas para navegar por libros, capítulos, favoritos y notas.
+ */
 class ReaderController extends Controller
 {
-    public function books()
+    /**
+     * Muestra el listado de libros bíblicos ordenados canónicamente.
+     */
+    public function books(): Response
     {
         return inertia('Bible/Books', [
-            'books' => BibleBook::orderBy('order')->get(),
+            'books' => BibleBook::query()->orderBy('order')->get(),
         ]);
     }
 
-    public function chapters(string $book)
+    /**
+     * Muestra los capítulos disponibles de un libro.
+     */
+    public function chapters(string $book): Response
     {
-        $bookModel = BibleBook::findOrFail($book);
+        $bookModel = BibleBook::query()->findOrFail($book);
 
-        $chapters = BibleVerse::where('book_code', $book)
+        $chapters = BibleVerse::query()
+            ->where('book_code', $book)
             ->where('translation', 'spa_rvg')
             ->distinct()
             ->orderBy('chapter')
@@ -31,11 +44,18 @@ class ReaderController extends Controller
         ]);
     }
 
-    public function chapter(string $book, int $chapter)
+    /**
+     * Muestra los versículos de un capítulo y metadatos de navegación.
+     *
+     * Incluye, cuando existen, los textos alternos de la traducción PDT para
+     * comparación rápida en la interfaz de lectura.
+     */
+    public function chapter(string $book, int $chapter): Response
     {
-        $bookModel = BibleBook::findOrFail($book);
+        $bookModel = BibleBook::query()->findOrFail($book);
 
-        $verses = BibleVerse::where('book_code', $book)
+        $verses = BibleVerse::query()
+            ->where('book_code', $book)
             ->where('translation', 'spa_rvg')
             ->where('chapter', $chapter)
             ->orderBy('verse')
@@ -45,13 +65,15 @@ class ReaderController extends Controller
             abort(404);
         }
 
-        $alternateVerses = BibleVerse::where('book_code', $book)
+        $alternateVerses = BibleVerse::query()
+            ->where('book_code', $book)
             ->where('translation', 'spa_pdt')
             ->where('chapter', $chapter)
             ->orderBy('verse')
             ->pluck('text', 'verse');
 
-        $maxChapter = BibleVerse::where('book_code', $book)
+        $maxChapter = BibleVerse::query()
+            ->where('book_code', $book)
             ->where('translation', 'spa_rvg')
             ->max('chapter');
 
@@ -60,17 +82,27 @@ class ReaderController extends Controller
             'chapter' => $chapter,
             'verses' => $verses,
             'alternateVerses' => $alternateVerses,
-            'hasNext' => $chapter < $maxChapter,
+            'hasNext' => $chapter < (int) $maxChapter,
             'hasPrev' => $chapter > 1,
         ]);
     }
 
-    public function favorites()
+    /**
+     * Muestra la página de favoritos del usuario.
+     *
+     * Los datos se cargan desde el cliente mediante la API de favoritos.
+     */
+    public function favorites(): Response
     {
         return inertia('Bible/Favorites');
     }
 
-    public function notes()
+    /**
+     * Muestra la página de notas personales del usuario.
+     *
+     * Los datos se cargan desde el cliente mediante la API de notas.
+     */
+    public function notes(): Response
     {
         return inertia('Bible/Notes');
     }

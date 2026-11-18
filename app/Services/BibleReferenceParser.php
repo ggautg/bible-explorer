@@ -7,37 +7,48 @@ use App\Models\BibleVerse;
 use InvalidArgumentException;
 use RuntimeException;
 
+/**
+ * Servicio para interpretar referencias bíblicas en texto.
+ *
+ * Convierte cadenas como "Juan 3:16" en códigos de libro, capítulo y versículo
+ * verificando que existan en la base de datos.
+ */
 class BibleReferenceParser
 {
     /**
-     * Convierte una referencia tipo "Juan 3:16" en libro/capítulo/versículo.
+     * Interpreta una referencia bíblica textual.
      *
-     * @throws InvalidArgumentException si el formato de texto no matchea
-     * @throws RuntimeException si el libro o el versículo no existen
+     * @return array{book: string, chapter: int, verse: int}
+     *
+     * @throws InvalidArgumentException Si el formato del texto no es válido.
+     * @throws RuntimeException Si el libro o el versículo no existen.
      */
     public function parse(string $reference): array
     {
         $reference = trim($reference);
 
         if (! preg_match('/^(\d?\s?[\p{L}\s]+?)\s+(\d+):(\d+)$/u', $reference, $matches)) {
-            throw new InvalidArgumentException('Formato inválido. Usá algo como "Juan 3:16".');
+            throw new InvalidArgumentException('Formato no válido. Usa algo como "Juan 3:16".');
         }
 
         [, $bookName, $chapter, $verse] = $matches;
         $bookName = trim($bookName);
 
-        $book = BibleBook::where('name', 'like', "{$bookName}%")->first();
+        $book = BibleBook::query()
+            ->where('name', 'like', "{$bookName}%")
+            ->first();
 
         if (! $book) {
             throw new RuntimeException("No se encontró el libro \"{$bookName}\".");
         }
 
-        $exists = BibleVerse::where('book_code', $book->code)
+        $exists = BibleVerse::query()
+            ->where('book_code', $book->code)
             ->where('translation', 'spa_rvg')
-            ->where('chapter', $chapter)
-            ->where('verse', $verse)
+            ->where('chapter', (int) $chapter)
+            ->where('verse', (int) $verse)
             ->exists();
-            
+
         if (! $exists) {
             throw new RuntimeException("No existe {$book->name} {$chapter}:{$verse}.");
         }

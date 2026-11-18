@@ -12,10 +12,15 @@ use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 
+/**
+ * Controlador de configuración de perfil.
+ *
+ * Permite ver, actualizar y eliminar la información básica del usuario.
+ */
 class ProfileController extends Controller
 {
     /**
-     * Show the user's profile settings page.
+     * Muestra la página de configuración del perfil.
      */
     public function edit(Request $request): Response
     {
@@ -26,7 +31,7 @@ class ProfileController extends Controller
     }
 
     /**
-     * Update the user's profile information.
+     * Actualiza el nombre y correo electrónico del usuario.
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
@@ -38,13 +43,16 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Profile updated.')]);
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Perfil actualizado correctamente.',
+        ]);
 
         return to_route('profile.edit');
     }
 
     /**
-     * Delete the user's profile.
+     * Elimina la cuenta del usuario autenticado.
      */
     public function destroy(ProfileDeleteRequest $request): RedirectResponse
     {

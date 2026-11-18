@@ -3,14 +3,21 @@
 namespace App\Http\Controllers\Bible;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Controlador API de favoritos.
+ *
+ * Permite listar, agregar y quitar versículos favoritos del usuario
+ * autenticado.
+ */
 class FavoriteController extends Controller
 {
     /**
-     * Devuelve todos los favoritos del usuario logueado.
+     * Devuelve todos los favoritos del usuario autenticado.
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         return response()->json(
             $request->user()->favorites()->latest()->get()
@@ -18,9 +25,11 @@ class FavoriteController extends Controller
     }
 
     /**
-     * Guarda un versículo como favorito. Si ya existe, no hace nada (evita duplicados).
+     * Guarda un versículo como favorito.
+     *
+     * Si ya existe el mismo versículo, no crea duplicados.
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
             'book_code' => 'required|string|max:10',
@@ -30,15 +39,19 @@ class FavoriteController extends Controller
             'text' => 'required|string',
         ]);
 
-        $favorite = $request->user()->favorites()->firstOrCreate($data);
+        $favorite = $request->user()->favorites()->firstOrCreate([
+            'book_code' => $data['book_code'],
+            'chapter' => $data['chapter'],
+            'verse' => $data['verse'],
+        ], $data);
 
         return response()->json($favorite);
     }
 
     /**
-     * Saca un versículo de favoritos.
+     * Elimina un versículo de favoritos.
      */
-    public function destroy(Request $request)
+    public function destroy(Request $request): JsonResponse
     {
         $data = $request->validate([
             'book_code' => 'required|string',

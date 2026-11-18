@@ -7,10 +7,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Middleware que comparte la preferencia de apariencia con las vistas.
+ *
+ * Permite que la plantilla Blade conozca el modo visual elegido (claro,
+ * oscuro o sistema) desde la cookie correspondiente.
+ */
 class HandleAppearance
 {
     /**
-     * Handle an incoming request.
+     * Gestiona una solicitud entrante.
      *
      * @param  Closure(Request): (Response)  $next
      */

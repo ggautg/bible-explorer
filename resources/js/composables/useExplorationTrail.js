@@ -1,39 +1,57 @@
-import { ref, watch } from 'vue'
+import { ref } from 'vue';
 
-const STORAGE_KEY = 'bible-trail'
+/**
+ * Historial de navegación por el grafo durante la sesión actual.
+ */
+const STORAGE_KEY = 'bible-trail';
+const trail = ref(loadTrail());
 
-const trail = ref(loadTrail())
-
+/** Recupera el recorrido guardado en la sesión. */
 function loadTrail() {
   try {
-    const raw = sessionStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : []
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
   } catch {
-    return []
+    return [];
   }
 }
 
+/** Persiste el recorrido en la sesión del navegador. */
 function persist() {
-  sessionStorage.setItem(STORAGE_KEY, JSON.stringify(trail.value))
+  try {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(trail.value));
+  } catch {
+    // Si el almacenamiento no está disponible, se continúa sin persistencia.
+  }
 }
 
+/**
+ * Composable para registrar y limpiar el recorrido de exploración.
+ */
 export function useExplorationTrail() {
+  /** Registra una visita a un versículo evitando duplicados consecutivos. */
   function visit(node) {
-    const entry = { book: node.book, chapter: node.chapter, verse: node.verse }
-    const key = `${entry.book}-${entry.chapter}-${entry.verse}`
+    const entry = {
+      book: node.book,
+      chapter: Number(node.chapter),
+      verse: Number(node.verse),
+    };
+    const key = `${entry.book}-${entry.chapter}-${entry.verse}`;
 
-    // Si ya estás en este versículo (por ejemplo, recargaste la página), no duplicamos
-    const last = trail.value[trail.value.length - 1]
-    if (last && `${last.book}-${last.chapter}-${last.verse}` === key) return
+    const last = trail.value[trail.value.length - 1];
+    if (last && `${last.book}-${last.chapter}-${last.verse}` === key) {
+      return;
+    }
 
-    trail.value = [...trail.value, entry]
-    persist()
+    trail.value = [...trail.value, entry];
+    persist();
   }
 
+  /** Limpia el recorrido de la sesión. */
   function clear() {
-    trail.value = []
-    persist()
+    trail.value = [];
+    persist();
   }
 
-  return { trail, visit, clear }
+  return { trail, visit, clear };
 }

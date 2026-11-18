@@ -1,51 +1,89 @@
-import { ref } from 'vue'
-import axios from 'axios'
+import { ref } from 'vue';
+import axios from 'axios';
 
-const notes = ref([])
-const loaded = ref(false)
+/**
+ * Estado compartido de notas personales en el cliente.
+ */
+const notes = ref([]);
+const loaded = ref(false);
+const loading = ref(false);
 
+/** Genera una clave única para identificar la nota de un versículo. */
 function keyOf(v) {
-  return `${v.book_code}-${v.chapter}-${v.verse}`
+  return `${v.book_code}-${v.chapter}-${v.verse}`;
 }
 
+/** Carga las notas del usuario autenticado desde la API. */
 async function loadNotes() {
-  const { data } = await axios.get('/api/notes')
-  notes.value = data
-  loaded.value = true
+  if (loading.value || loaded.value) {
+    return;
+  }
+
+  loading.value = true;
+
+  try {
+    const { data } = await axios.get('/api/notes');
+    notes.value = Array.isArray(data) ? data : [];
+    loaded.value = true;
+  } finally {
+    loading.value = false;
+  }
 }
 
+/**
+ * Composable para consultar y gestionar notas de versículos.
+ */
 export function useNotes() {
-  if (typeof window !== 'undefined' && !loaded.value) {
-    loadNotes()
+  if (typeof window !== 'undefined' && !loaded.value && !loading.value) {
+    void loadNotes();
   }
 
+  /** Obtiene la nota asociada a un versículo, si existe. */
   function noteFor(v) {
-    return notes.value.find(n => keyOf(n) === keyOf(v))
+    return notes.value.find((n) => keyOf(n) === keyOf(v));
   }
 
+  /** Crea o actualiza la nota de un versículo. */
   async function saveNote(v, body) {
-    const { data } = await axios.put('/api/notes', {
-      book_code: v.book_code,
-      book_name: v.bookName,
+    if (!loaded.value) {
+      await loadNotes();
+    }
+
+    const payload = {
+      book_code: v.book_code ?? v.book,
+      book_name: v.bookName ?? v.book_name,
       chapter: v.chapter,
       verse: v.verse,
       body,
-    })
+    };
 
-    const index = notes.value.findIndex(n => keyOf(n) === keyOf(v))
+    const { data } = await axios.put('/api/notes', payload);
+    const index = notes.value.findIndex((n) => keyOf(n) === keyOf(payload));
+
     if (index >= 0) {
-      notes.value[index] = data
+      notes.value[index] = data;
     } else {
-      notes.value = [...notes.value, data]
+      notes.value = [data, ...notes.value];
     }
+
+    return data;
   }
 
+  /** Elimina la nota asociada a un versículo. */
   async function deleteNote(v) {
-    await axios.delete('/api/notes', {
-      data: { book_code: v.book_code, chapter: v.chapter, verse: v.verse },
-    })
-    notes.value = notes.value.filter(n => keyOf(n) !== keyOf(v))
+    if (!loaded.value) {
+      await loadNotes();
+    }
+
+    const payload = {
+      book_code: v.book_code ?? v.book,
+      chapter: v.chapter,
+      verse: v.verse,
+    };
+
+    await axios.delete('/api/notes', { data: payload });
+    notes.value = notes.value.filter((n) => keyOf(n) !== keyOf(payload));
   }
 
-  return { notes, noteFor, saveNote, deleteNote, loaded }
+  return { notes, noteFor, saveNote, deleteNote, loaded, loading, loadNotes };
 }

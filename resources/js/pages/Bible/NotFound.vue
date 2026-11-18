@@ -1,44 +1,39 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3'
+import { Head, Link } from '@inertiajs/vue3';
+import StarfieldBackground from '@/components/Bible/StarfieldBackground.vue';
+
+/**
+ * Página mostrada cuando una referencia bíblica no existe o es inválida.
+ */
 </script>
 
 <template>
+  <Head title="Referencia no encontrada" />
 
-    <Head title="Estrella no encontrada" />
-    <div class="bg-bible-bg min-h-screen text-bible-text font-bible-body flex items-center justify-center p-6">
-        <div class="text-center max-w-md">
-            <svg width="140" height="100" viewBox="0 0 140 100" class="mx-auto mb-8 opacity-40">
-                <g stroke="#8A7B54" stroke-opacity="0.4" stroke-width="1" stroke-dasharray="3,4">
-                    <line x1="70" y1="50" x2="25" y2="20" />
-                    <line x1="70" y1="50" x2="115" y2="18" />
-                    <line x1="70" y1="50" x2="40" y2="82" />
-                </g>
-                <circle cx="70" cy="50" r="5" fill="#6B6552" />
-                <circle cx="25" cy="20" r="2.5" fill="#6B6552" />
-                <circle cx="115" cy="18" r="2.5" fill="#6B6552" />
-                <circle cx="40" cy="82" r="2.5" fill="#6B6552" />
-                <line x1="55" y1="35" x2="85" y2="65" stroke="#B0553F" stroke-width="1.5" stroke-opacity="0.6" />
-                <line x1="85" y1="35" x2="55" y2="65" stroke="#B0553F" stroke-width="1.5" stroke-opacity="0.6" />
-            </svg>
+  <div class="relative flex min-h-screen items-center justify-center overflow-hidden bg-bible-bg p-6 text-bible-text font-bible-body">
+    <StarfieldBackground :opacity="0.35" />
 
-            <h1 class="font-bible-display font-semibold text-2xl text-bible-accent-bright mb-3">
-                Esa estrella no existe
-            </h1>
-            <p class="text-bible-muted mb-8 leading-relaxed">
-                La referencia que buscás no está en el mapa — puede que el capítulo o el versículo
-                no existan, o que la dirección tenga un error de tipeo.
-            </p>
+    <main class="relative w-full max-w-lg rounded-2xl border border-bible-border bg-bible-panel/85 p-8 text-center">
+      <p class="text-xs font-medium uppercase tracking-[0.2em] text-bible-accent">No se encontró la referencia</p>
+      <h1 class="mt-3 font-bible-display text-3xl font-semibold text-bible-accent-bright">Esa estrella no está en el mapa</h1>
+      <p class="mt-4 text-sm leading-relaxed text-bible-muted">
+        La referencia que buscaste no existe o la dirección tiene un error. Puedes volver a la lectura o explorar una conexión conocida.
+      </p>
 
-            <div class="flex gap-3 justify-center flex-wrap">
-                <Link href="/leer"
-                    class="bg-bible-accent text-bible-bg px-5 py-2.5 rounded-md text-sm hover:bg-bible-accent-bright transition-colors p-3">
-                    Ir a Leer
-                </Link>
-                <Link href="/bible/GEN/1/1"
-                    class="border border-bible-border text-bible-text px-5 py-2.5 p-3 rounded-md text-sm hover:border-bible-accent hover:text-bible-accent-bright transition-colors">
-                    Ver una constelación
-                </Link>
-            </div>
-        </div>
-    </div>
+      <div class="mt-8 flex flex-wrap justify-center gap-3">
+        <Link
+          href="/leer"
+          class="inline-flex items-center justify-center rounded-md bg-bible-accent px-5 py-2.5 text-sm font-medium text-bible-bg transition-colors hover:bg-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
+        >
+          Ir a leer
+        </Link>
+        <Link
+          href="/bible/GEN/1/1"
+          class="inline-flex items-center justify-center rounded-md border border-bible-border px-5 py-2.5 text-sm font-medium text-bible-text transition-colors hover:border-bible-accent hover:text-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
+        >
+          Ver un ejemplo
+        </Link>
+      </div>
+    </main>
+  </div>
 </template>

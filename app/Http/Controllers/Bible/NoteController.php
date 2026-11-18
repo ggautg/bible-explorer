@@ -3,14 +3,21 @@
 namespace App\Http\Controllers\Bible;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Controlador API de notas personales.
+ *
+ * Permite listar, crear/actualizar y eliminar notas asociadas a versículos
+ * para el usuario autenticado.
+ */
 class NoteController extends Controller
 {
     /**
-     * Todas las notas del usuario logueado (para la página "Mis notas").
+     * Devuelve todas las notas del usuario, ordenadas por última actualización.
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         return response()->json(
             $request->user()->notes()->latest('updated_at')->get()
@@ -18,9 +25,9 @@ class NoteController extends Controller
     }
 
     /**
-     * Guarda o actualiza la nota de un versículo puntual.
+     * Crea o actualiza la nota de un versículo específico.
      */
-    public function upsert(Request $request)
+    public function upsert(Request $request): JsonResponse
     {
         $data = $request->validate([
             'book_code' => 'required|string|max:10',
@@ -31,13 +38,11 @@ class NoteController extends Controller
         ]);
 
         $note = $request->user()->notes()->updateOrCreate(
-            // condición para encontrar la nota existente:
             [
                 'book_code' => $data['book_code'],
                 'chapter' => $data['chapter'],
                 'verse' => $data['verse'],
             ],
-            // datos a guardar/actualizar:
             $data
         );
 
@@ -45,9 +50,9 @@ class NoteController extends Controller
     }
 
     /**
-     * Borra la nota de un versículo.
+     * Elimina la nota asociada a un versículo.
      */
-    public function destroy(Request $request)
+    public function destroy(Request $request): JsonResponse
     {
         $data = $request->validate([
             'book_code' => 'required|string',

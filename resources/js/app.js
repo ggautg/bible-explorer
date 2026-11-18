@@ -4,10 +4,10 @@ import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { initializeTheme } from "@/composables/useAppearance";
 import { initializeFlashToast } from "@/lib/flashToast";
 
-const appName = import.meta.env.VITE_APP_NAME || "Laravel";
+const appName = import.meta.env.VITE_APP_NAME || "Explorador Bíblico";
 
 createInertiaApp({
-    title: (title) => (title ? title + " - " + appName : appName),
+    title: (title) => (title ? `${title} - ${appName}` : appName),
     resolve: (name) =>
         resolvePageComponent(
             "./pages/" + name + ".vue",
@@ -22,7 +22,7 @@ createInertiaApp({
             .mount(el);
     },
     progress: {
-        color: "#4B5563",
+        color: "#c9a227",
     },
 });
 

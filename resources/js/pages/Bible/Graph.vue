@@ -1,259 +1,235 @@
 <script setup>
-import { ref, onMounted, watch, nextTick } from 'vue'
-import { Head, Link } from '@inertiajs/vue3'
-import { useConstellationGraph } from '@/composables/useConstellationGraph'
-import { useVerseSearch } from '@/composables/useVerseSearch'
-import { useExplorationTrail } from '@/composables/useExplorationTrail'
-import { useFavorites } from '@/composables/useFavorites'
-import NavHeader from '@/components/Bible/NavHeader.vue'
-import { useToast } from '@/composables/useToast'
-import ToastContainer from '@/components/Bible/ToastContainer.vue'
+import { Head, Link } from '@inertiajs/vue3';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import BiblePageShell from '@/components/Bible/BiblePageShell.vue';
+import ToastContainer from '@/components/Bible/ToastContainer.vue';
+import { useConstellationGraph } from '@/composables/useConstellationGraph';
+import { useExplorationTrail } from '@/composables/useExplorationTrail';
+import { useFavorites } from '@/composables/useFavorites';
+import { useToast } from '@/composables/useToast';
+import { useVerseSearch } from '@/composables/useVerseSearch';
 
-const { showToast } = useToast()
-
+/**
+ * Página del grafo de conexiones entre versículos.
+ */
 const props = defineProps({
-  nodes: Array,
-  edges: Array,
-  center: String,
-})
+  nodes: { type: Array, default: () => [] },
+  edges: { type: Array, default: () => [] },
+  center: { type: String, default: '' },
+});
 
-const svgRef = ref(null)
-const selected = ref(null)
+const svgRef = ref(null);
+const selected = ref(null);
+const copied = ref(false);
 
-const { render, reference, navigateTo } = useConstellationGraph(svgRef, selected)
-const { searchQuery, suggestions, searchError, pickSuggestion, submitSearch } = useVerseSearch()
-const { trail, visit, clear } = useExplorationTrail()
-const { isFavorite, toggleFavorite } = useFavorites()
+const { render, reference, navigateTo } = useConstellationGraph(svgRef, selected);
+const { searchQuery, suggestions, searchError, isResolving, pickSuggestion, submitSearch } = useVerseSearch();
+const { trail, visit, clear } = useExplorationTrail();
+const { isFavorite, toggleFavorite } = useFavorites();
+const { showToast } = useToast();
 
-const copied = ref(false)
+const pageTitle = computed(() => {
+  if (!props.center) return 'Grafo de conexiones';
+  return `Grafo: ${props.center.replace(/-/g, ' ')}`;
+});
 
+/** Copia el versículo seleccionado y su enlace público. */
 async function copyLink() {
-  const v = selected.value
-  const shareUrl = `${window.location.origin}/compartido/${v.book}/${v.chapter}/${v.verse}`
-  const shareText = `"${v.text}"\n${reference(v)}\n\n${shareUrl}`
+  const v = selected.value;
+  if (!v) return;
 
-  await navigator.clipboard.writeText(shareText)
-  showToast('Versículo copiado al portapapeles')
+  const shareUrl = `${window.location.origin}/compartido/${v.book}/${v.chapter}/${v.verse}`;
+  const shareText = `"${v.text}"\n${reference(v)}\n${shareUrl}`;
+
+  try {
+    await navigator.clipboard.writeText(shareText);
+    copied.value = true;
+    showToast('Versículo copiado al portapapeles.');
+    setTimeout(() => {
+      copied.value = false;
+    }, 1800);
+  } catch {
+    showToast('No se pudo copiar el versículo.');
+  }
 }
 
-onMounted(() => nextTick(() => render(props.nodes, props.edges)))
+/** Alterna el favorito del versículo seleccionado. */
+async function toggleSelectedFavorite() {
+  const v = selected.value;
+  if (!v) return;
 
-watch(() => props.center, () => nextTick(() => render(props.nodes, props.edges)))
+  const payload = { ...v, book_code: v.book, bookName: v.bookName };
+  const wasFavorite = isFavorite(payload);
+
+  try {
+    await toggleFavorite(payload);
+    showToast(wasFavorite ? 'Versículo quitado de favoritos.' : 'Versículo guardado en favoritos.');
+  } catch {
+    showToast('No se pudo actualizar favoritos.');
+  }
+}
+
+/** Renderiza el grafo cuando hay datos disponibles. */
+async function renderGraph() {
+  selected.value = null;
+  await nextTick();
+  render(props.nodes, props.edges);
+}
+
+onMounted(() => {
+  void renderGraph();
+});
 
 watch(() => props.center, () => {
-  const [book, chapter, verse] = props.center.split('-')
-  visit({ book, chapter: Number(chapter), verse: Number(verse) })
-}, { immediate: true })
+  void renderGraph();
+});
+
+watch(
+  () => props.center,
+  (value) => {
+    if (!value) return;
+    const [book, chapter, verse] = value.split('-');
+    visit({ book, chapter: Number(chapter), verse: Number(verse) });
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
+  <Head :title="pageTitle" />
 
-  <Head :title="`Explorador — ${center.replace(/-/g, ' ')}`" />
+  <BiblePageShell max-width-class="max-w-7xl">
+    <template #header>
+      <h1 class="font-bible-display text-3xl font-semibold text-bible-accent-bright">Grafo de conexiones</h1>
+      <p class="text-sm text-bible-muted">Explora relaciones entre versículos y navega por sus referencias cruzadas.</p>
+    </template>
 
-  <div class="bg-bible-bg min-h-screen text-bible-text p-4 md:p-8 font-bible-body">
-    <NavHeader>
-      <h1 class="font-bible-display font-semibold text-2xl md:text-3xl text-bible-accent-bright mb-1">
-        Explorador de Constelaciones Bíblicas
-      </h1>
-    </NavHeader>
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+      <section class="space-y-4">
+        <div class="rounded-xl border border-bible-border bg-bible-panel/40 p-4">
+          <form class="flex flex-col gap-3 sm:flex-row" @submit.prevent="submitSearch">
+            <div class="relative flex-1">
+              <label for="buscar-referencia-grafo" class="sr-only">Buscar referencia bíblica</label>
+              <input
+                id="buscar-referencia-grafo"
+                v-model="searchQuery"
+                type="text"
+                autocomplete="off"
+                placeholder="Escribe una referencia, por ejemplo: Juan 3:16"
+                class="w-full rounded-md border border-bible-border bg-bible-bg/40 px-4 py-2.5 text-sm text-bible-text placeholder:text-bible-muted-dim focus:outline-none focus:ring-2 focus:ring-bible-accent"
+              />
 
-    <p class="text-bible-muted text-sm mb-4">
-      Doble clic en una estrella para navegar hacia ese versículo
-    </p>
+              <ul
+                v-if="suggestions.length"
+                class="absolute left-0 right-0 top-full z-10 mt-1 max-h-60 overflow-auto rounded-md border border-bible-border bg-bible-panel p-1 shadow-lg"
+                role="listbox"
+              >
+                <li v-for="book in suggestions" :key="book.code">
+                  <button
+                    type="button"
+                    class="w-full rounded px-3 py-2 text-left text-sm text-bible-text transition-colors hover:bg-bible-bg/60 hover:text-bible-accent-bright"
+                    @click="pickSuggestion(book)"
+                  >
+                    {{ book.name }}
+                  </button>
+                </li>
+              </ul>
+            </div>
 
-    <div class="relative max-w-xs mb-6">
-      <input v-model="searchQuery" @keyup.enter="submitSearch" type="text" placeholder="Ej: Juan 3:16"
-        autocomplete="off"
-        class="w-full bg-bible-panel border border-bible-border text-bible-text px-3.5 py-2.5 rounded-md text-sm focus:outline-none focus:border-bible-accent" />
-      <ul v-if="suggestions.length"
-        class="absolute top-full left-0 right-0 bg-bible-panel border border-bible-border rounded-md p-1 m-0 list-none z-10">
-        <li v-for="book in suggestions" :key="book.code" @click="pickSuggestion(book)"
-          class="px-2.5 py-2 cursor-pointer rounded text-sm hover:bg-bible-border hover:text-bible-accent-bright">
-          {{ book.name }}
-        </li>
-      </ul>
-      <p v-if="searchError" class="text-bible-error text-xs mt-1.5">{{ searchError }}</p>
-    </div>
+            <button
+              type="submit"
+              class="inline-flex items-center justify-center rounded-md bg-bible-accent px-4 py-2.5 text-sm font-medium text-bible-bg transition-colors hover:bg-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent disabled:cursor-not-allowed disabled:opacity-60"
+              :disabled="!searchQuery.trim() || isResolving"
+            >
+              {{ isResolving ? 'Buscando...' : 'Ir al versículo' }}
+            </button>
+          </form>
 
-    <div v-if="trail.length > 1" class="flex flex-wrap items-center gap-1.5 mb-6 text-sm">
-      <template v-for="(step, i) in trail" :key="i">
-        <Link :href="`/bible/${step.book}/${step.chapter}/${step.verse}`"
-          class="text-bible-muted hover:text-bible-accent-bright transition-colors"
-          :class="{ 'text-bible-accent-bright font-medium': i === trail.length - 1 }">
-          {{ step.book }} {{ step.chapter }}:{{ step.verse }}
-        </Link>
-        <span v-if="i < trail.length - 1" class="text-bible-muted-dim">→</span>
-      </template>
-      <button @click="clear" class="text-bible-muted-dim text-xs ml-2 hover:text-bible-error"
-        title="Reiniciar recorrido">
-        ✕ limpiar
-      </button>
-    </div>
+          <p v-if="searchError" class="mt-2 text-sm text-bible-error">{{ searchError }}</p>
+          <p class="mt-2 text-xs text-bible-muted">
+            Consejo: haz clic en un nodo para ver detalles y doble clic para navegar a ese versículo.
+          </p>
+        </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-[1fr_320px] gap-6">
-      <svg ref="svgRef" viewBox="0 0 900 640" preserveAspectRatio="xMidYMid meet"
-        class="w-full h-[420px] md:h-[640px] bg-bible-bg border border-bible-border rounded-lg"></svg>
-
-      <aside v-if="selected" class="bg-bible-panel border border-bible-border rounded-lg p-5 h-fit">
-        <span class="font-bible-body text-xs uppercase tracking-wide text-bible-accent">
-          {{ reference(selected) }}
-        </span>
-        <p class="font-bible-display text-lg leading-relaxed my-3 text-bible-text">
-          {{ selected.text }}
-        </p>
-        <div class="flex gap-2">
-          <button @click="navigateTo(selected)"
-            class="bg-transparent border border-bible-accent text-bible-accent px-3.5 py-2 rounded-md text-sm hover:bg-bible-accent hover:text-bible-bg transition-colors">
-            Ir a este versículo →
-          </button>
-          <button @click="toggleFavorite({ ...selected, book_code: selected.book })"
-            class="border px-3.5 py-2 rounded-md text-sm transition-colors"
-            :class="isFavorite({ ...selected, book_code: selected.book }) ? 'border-bible-accent-bright text-bible-accent-bright bg-bible-accent/10' : 'border-bible-border text-bible-muted hover:border-bible-accent'">
-            ★
-          </button>
-          <button @click="copyLink"
-            class="border border-bible-border text-bible-muted px-3.5 py-2 rounded-md text-sm hover:border-bible-accent hover:text-bible-accent-bright transition-colors">
-            {{ copied ? '¡Copiado!' : 'Copiar link' }}
+        <div v-if="trail.length > 1" class="flex flex-wrap items-center gap-2 rounded-xl border border-bible-border bg-bible-panel/30 px-4 py-3 text-sm">
+          <span class="text-bible-muted">Recorrido:</span>
+          <template v-for="(step, i) in trail" :key="`${step.book}-${step.chapter}-${step.verse}-${i}`">
+            <Link
+              :href="`/bible/${step.book}/${step.chapter}/${step.verse}`"
+              class="rounded px-1.5 py-0.5 transition-colors hover:text-bible-accent-bright"
+              :class="i === trail.length - 1 ? 'bg-bible-panel text-bible-accent-bright' : 'text-bible-muted'"
+            >
+              {{ step.book }} {{ step.chapter }}:{{ step.verse }}
+            </Link>
+            <span v-if="i < trail.length - 1" class="text-bible-muted-dim">→</span>
+          </template>
+          <button
+            type="button"
+            @click="clear"
+            class="ml-auto text-xs text-bible-muted transition-colors hover:text-bible-error"
+          >
+            Limpiar recorrido
           </button>
         </div>
+
+        <div class="rounded-xl border border-bible-border bg-bible-panel/20 p-2">
+          <svg
+            ref="svgRef"
+            viewBox="0 0 900 640"
+            preserveAspectRatio="xMidYMid meet"
+            class="h-[420px] w-full rounded-lg bg-bible-bg md:h-[640px]"
+            role="img"
+            aria-label="Grafo interactivo de conexiones bíblicas"
+          ></svg>
+        </div>
+      </section>
+
+      <aside class="h-fit rounded-xl border border-bible-border bg-bible-panel/50 p-5">
+        <template v-if="selected">
+          <p class="text-xs font-medium uppercase tracking-[0.18em] text-bible-accent">Versículo seleccionado</p>
+          <h2 class="mt-2 font-bible-display text-2xl font-semibold text-bible-accent-bright">{{ reference(selected) }}</h2>
+          <p class="mt-3 font-bible-display text-lg leading-relaxed text-bible-text">{{ selected.text }}</p>
+
+          <div class="mt-5 flex flex-wrap gap-2">
+            <button
+              type="button"
+              @click="navigateTo(selected)"
+              class="rounded-md bg-bible-accent px-4 py-2 text-sm font-medium text-bible-bg transition-colors hover:bg-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
+            >
+              Abrir versículo
+            </button>
+            <button
+              type="button"
+              @click="toggleSelectedFavorite"
+              class="rounded-md border px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
+              :class="isFavorite({ ...selected, book_code: selected.book })
+                ? 'border-bible-accent/60 bg-bible-accent/10 text-bible-accent-bright'
+                : 'border-bible-border text-bible-muted hover:border-bible-accent hover:text-bible-accent-bright'"
+            >
+              {{ isFavorite({ ...selected, book_code: selected.book }) ? 'Quitar de favoritos' : 'Guardar en favoritos' }}
+            </button>
+            <button
+              type="button"
+              @click="copyLink"
+              class="rounded-md border border-bible-border px-4 py-2 text-sm font-medium text-bible-muted transition-colors hover:border-bible-accent hover:text-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
+            >
+              {{ copied ? 'Copiado' : 'Copiar enlace' }}
+            </button>
+          </div>
+        </template>
+
+        <template v-else>
+          <h2 class="font-bible-display text-xl font-semibold text-bible-accent-bright">Detalles del versículo</h2>
+          <p class="mt-3 text-sm leading-relaxed text-bible-muted">
+            Selecciona un nodo del grafo para ver su texto y acceder a sus acciones. Si el grafo está vacío, es posible que aún no se hayan importado las referencias cruzadas.
+          </p>
+          <p class="mt-3 text-xs text-bible-muted-dim">
+            Nodos: {{ nodes.length }} · Conexiones: {{ edges.length }}
+          </p>
+        </template>
       </aside>
     </div>
-  </div>
+
+    <ToastContainer />
+  </BiblePageShell>
 </template>
-
-<style scoped>
-.sky {
-  background: var(--bible-bg);
-  min-height: 100vh;
-  color: var(--bible-text);
-  padding: 2rem;
-  font-family: var(--font-body);
-}
-
-.topbar h1 {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 1.9rem;
-  color: var(--bible-accent-bright);
-  margin-bottom: 0.25rem;
-}
-
-.hint {
-  color: var(--bible-muted);
-  font-size: 0.85rem;
-  margin-bottom: 1rem;
-}
-
-.search {
-  position: relative;
-  max-width: 320px;
-  margin-bottom: 1.5rem;
-}
-
-.search input {
-  width: 100%;
-  background: var(--bible-panel);
-  border: 1px solid var(--bible-border);
-  color: var(--bible-text);
-  padding: 0.6rem 0.9rem;
-  border-radius: 6px;
-  font-family: var(--font-body);
-  font-size: 0.9rem;
-}
-
-.search input:focus {
-  outline: none;
-  border-color: var(--bible-accent);
-}
-
-.suggestions {
-  position: absolute;
-  top: 105%;
-  left: 0;
-  right: 0;
-  background: var(--bible-panel);
-  border: 1px solid var(--bible-border);
-  border-radius: 6px;
-  list-style: none;
-  padding: 0.25rem;
-  margin: 0;
-  z-index: 10;
-}
-
-.suggestions li {
-  padding: 0.45rem 0.7rem;
-  cursor: pointer;
-  border-radius: 4px;
-  font-size: 0.9rem;
-}
-
-.suggestions li:hover {
-  background: var(--bible-border);
-  color: var(--bible-accent-bright);
-}
-
-.search-error {
-  color: var(--bible-error);
-  font-size: 0.8rem;
-  margin-top: 0.4rem;
-}
-
-.layout {
-  display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 1.5rem;
-}
-
-.graph {
-  width: 100%;
-  height: 640px;
-  background: var(--bible-bg);
-  border: 1px solid var(--bible-border);
-  border-radius: 8px;
-}
-
-.panel {
-  background: var(--bible-panel);
-  border: 1px solid var(--bible-border);
-  border-radius: 8px;
-  padding: 1.25rem;
-  height: fit-content;
-}
-
-.panel.empty {
-  color: var(--bible-muted-dim);
-  font-style: italic;
-}
-
-.ref {
-  font-family: var(--font-body);
-  font-size: 0.75rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--bible-accent);
-}
-
-.verse-text {
-  font-family: var(--font-display);
-  font-size: 1.15rem;
-  line-height: 1.6;
-  margin: 0.75rem 0 1.25rem;
-  color: var(--bible-text);
-}
-
-.jump {
-  background: transparent;
-  border: 1px solid var(--bible-accent);
-  color: var(--bible-accent);
-  padding: 0.5rem 0.9rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-family: var(--font-body);
-  font-size: 0.85rem;
-}
-
-.jump:hover {
-  background: var(--bible-accent);
-  color: var(--bible-bg);
-}
-</style>

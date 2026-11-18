@@ -1,17 +1,26 @@
-import { ref } from 'vue'
+import { ref } from 'vue';
 
-const toasts = ref([])
-let nextId = 0
+/**
+ * Cola simple de notificaciones breves para acciones dentro de la interfaz.
+ */
+const toasts = ref([]);
+let nextId = 0;
 
+/**
+ * Composable para mostrar y consultar mensajes temporales.
+ */
 export function useToast() {
-  function showToast(message, duration = 2500) {
-    const id = nextId++
-    toasts.value.push({ id, message })
+  /**
+   * Muestra un mensaje temporal en pantalla.
+   */
+  function showToast(message, duration = 2600) {
+    const id = nextId++;
+    toasts.value.push({ id, message });
 
     setTimeout(() => {
-      toasts.value = toasts.value.filter(t => t.id !== id)
-    }, duration)
+      toasts.value = toasts.value.filter((t) => t.id !== id);
+    }, duration);
   }
 
-  return { toasts, showToast }
+  return { toasts, showToast };
 }

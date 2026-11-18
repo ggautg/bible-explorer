@@ -1,12 +1,16 @@
-import type { InertiaLinkProps } from '@inertiajs/vue3';
 import { clsx } from 'clsx';
-import type { ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
-export function cn(...inputs: ClassValue[]) {
+/**
+ * Combina clases CSS condicionales y resuelve conflictos de Tailwind.
+ */
+export function cn(...inputs) {
     return twMerge(clsx(inputs));
 }
 
-export function toUrl(href: NonNullable<InertiaLinkProps['href']>) {
+/**
+ * Normaliza una URL proveniente de Inertia a cadena de texto.
+ */
+export function toUrl(href) {
     return typeof href === 'string' ? href : href?.url;
 }
