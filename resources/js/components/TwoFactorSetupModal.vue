@@ -49,7 +49,7 @@ const modalConfig = computed<TwoFactorConfigContent>(() => {
         return {
             title: 'Verificación en dos pasos activada',
             description:
-                'La verificación en dos pasos ya está activada. Escanea el código QR o introduce la clave de configuración en tu aplicación de autenticación.',
+                'La verificación en dos pasos ya está activada. Escaneá el código QR o ingresá la clave de configuración en tu aplicación de autenticación.',
             buttonText: 'Cerrar',
         };
     }
@@ -57,7 +57,7 @@ const modalConfig = computed<TwoFactorConfigContent>(() => {
     if (showVerificationStep.value) {
         return {
             title: 'Verificar código de autenticación',
-            description: 'Introduce el código de 6 dígitos de tu aplicación de autenticación',
+            description: 'Ingresá el código de 6 dígitos de tu aplicación de autenticación',
             buttonText: 'Continuar',
         };
     }
@@ -65,7 +65,7 @@ const modalConfig = computed<TwoFactorConfigContent>(() => {
     return {
         title: 'Activar verificación en dos pasos',
         description:
-            'Para terminar de activar la verificación en dos pasos, escanea el código QR o introduce la clave de configuración en tu aplicación de autenticación',
+            'Para terminar de activar la verificación en dos pasos, escaneá el código QR o ingresá la clave de configuración en tu aplicación de autenticación',
         buttonText: 'Continuar',
     };
 });
@@ -198,7 +198,7 @@ watch(
                                 class="absolute inset-0 top-1/2 h-px w-full bg-border"
                             />
                             <span class="relative bg-card px-2 py-1 text-xs text-muted-foreground"
-                                >o introduce el código manualmente</span
+                                >o ingresá el código manualmente</span
                             >
                         </div>
 

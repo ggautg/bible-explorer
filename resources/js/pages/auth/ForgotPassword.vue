@@ -21,7 +21,7 @@ defineProps<{
 <template>
     <AuthLayout
         title="¿Olvidaste tu contraseña?"
-        description="Ingresa tu correo y te enviaremos un enlace para restablecerla"
+        description="Ingresá tu correo y te vamos a enviar un enlace para restablecerla"
     >
         <div
             v-if="status"

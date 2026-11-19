@@ -7,14 +7,37 @@ use App\Http\Controllers\Bible\ReaderController;
 use App\Http\Controllers\Bible\SearchController;
 use App\Http\Controllers\Bible\ShareController;
 use App\Http\Controllers\Bible\TextSearchController;
+use App\Http\Controllers\FollowController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PostController;
+use App\Http\Controllers\PostInteractionController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/',[HomeController::class,'index'])->name('home');
-
+Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/compartido/{book}/{chapter}/{verse}', [ShareController::class, 'show']);
 
+/**
+ * Área social (Twitter-like): feed, perfiles, posts e interacciones.
+ */
 Route::middleware('auth')->group(function () {
+    // Feed principal
+    Route::get('/comunidad', [PostController::class, 'index'])->name('community.feed');
+    Route::get('/inicio', fn () => redirect()->route('community.feed'));
+
+    // Perfil
+    Route::get('/perfil/{user:slug}', [ProfileController::class, 'show'])->name('profile.show');
+    Route::post('/usuarios/{user:slug}/seguir', [FollowController::class, 'toggle'])->name('users.follow.toggle');
+
+    // Publicaciones
+    Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
+    Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
+    Route::post('/posts/{post}/responder', [PostController::class, 'reply'])->name('posts.reply');
+    Route::post('/posts/{post}/like', [PostInteractionController::class, 'toggleLike'])->name('posts.like');
+    Route::post('/posts/{post}/rebiblear', [PostInteractionController::class, 'toggleRebible'])->name('posts.rebible');
+
+    // Herramientas bíblicas (aparte del foco social)
+    Route::get('/devocionario', fn () => inertia('Devotional/Index'))->name('devotional.index');
 
     Route::get('/bible/{book}/{chapter}/{verse}', [GraphController::class, 'show'])->name('bible.graph');
 

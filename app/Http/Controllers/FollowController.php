@@ -1,0 +1,37 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+
+/**
+ * Controlador para seguir/dejar de seguir usuarios.
+ */
+class FollowController extends Controller
+{
+    /**
+     * Alterna el estado de seguimiento entre el usuario autenticado y el perfil.
+     *
+     * @param  Request  $request  Solicitud autenticada.
+     * @param  User  $user  Usuario a seguir o dejar de seguir.
+     * @return RedirectResponse Redirección de vuelta.
+     */
+    public function toggle(Request $request, User $user): RedirectResponse
+    {
+        $viewer = $request->user();
+
+        if ($viewer->id === $user->id) {
+            return back();
+        }
+
+        if ($viewer->isFollowing($user)) {
+            $viewer->unfollow($user);
+        } else {
+            $viewer->follow($user);
+        }
+
+        return back();
+    }
+}

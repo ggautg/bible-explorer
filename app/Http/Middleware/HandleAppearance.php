@@ -22,7 +22,7 @@ class HandleAppearance
      */
     public function handle(Request $request, Closure $next): Response
     {
-        View::share('appearance', $request->cookie('appearance') ?? 'system');
+        View::share('appearance', $request->cookie('theme') ?? $request->cookie('appearance') ?? 'getsemani');
 
         return $next($request);
     }

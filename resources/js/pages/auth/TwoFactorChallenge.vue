@@ -24,8 +24,8 @@ const title = computed(() =>
 );
 const description = computed(() =>
     recovery.value
-        ? 'Ingresa uno de tus códigos de recuperación para acceder a tu cuenta.'
-        : 'Ingresa el código de 6 dígitos de tu aplicación de autenticación.',
+        ? 'Ingresá uno de tus códigos de recuperación para acceder a tu cuenta.'
+        : 'Ingresá el código de 6 dígitos de tu aplicación de autenticación.',
 );
 </script>
 
@@ -61,7 +61,7 @@ const description = computed(() =>
                             required
                             autofocus
                             autocomplete="one-time-code"
-                            placeholder="Ingresa un código de recuperación"
+                            placeholder="Ingresá un código de recuperación"
                         />
                         <InputError :message="errors.recovery_code" />
                     </div>

@@ -22,7 +22,7 @@ const props = defineProps<{
 <template>
     <AuthLayout
         title="Restablecer contraseña"
-        description="Ingresa tu nueva contraseña para recuperar el acceso"
+        description="Ingresá tu nueva contraseña para recuperar el acceso"
     >
         <Form
             v-bind="update.form()"
@@ -67,7 +67,7 @@ const props = defineProps<{
                         name="password_confirmation"
                         required
                         autocomplete="new-password"
-                        placeholder="Repite la nueva contraseña"
+                        placeholder="Repetí la nueva contraseña"
                     />
                     <InputError :message="errors.password_confirmation" />
                 </div>

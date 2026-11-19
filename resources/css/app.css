@@ -62,12 +62,14 @@
 }
 
 /*
- * Tema visual coherente (oscuro, inspirado en constelaciones).
- * Se unifican los tokens base y los específicos del explorador bíblico
- * para que toda la interfaz comparta la misma paleta y legibilidad.
+ * Temas bíblicos (3 claros y 3 oscuros).
+ * Los tokens usan variables CSS para permitir cambio de tema en tiempo real.
  */
+
+/* Tema por defecto / Getsemaní (oscuro) */
 :root,
-.dark {
+[data-theme='getsemani'] {
+    color-scheme: dark;
     --background: #0b0e1a;
     --foreground: #ede6d6;
     --card: #10142a;
@@ -102,6 +104,262 @@
     --sidebar-border: #262b45;
     --sidebar-ring: #c9a227;
     --sidebar: #0f1326;
+
+    --bible-bg: #0b0e1a;
+    --bible-panel: #10142a;
+    --bible-border: #262b45;
+    --bible-text: #ede6d6;
+    --bible-muted: #8f8874;
+    --bible-muted-dim: #6b6552;
+    --bible-accent: #c9a227;
+    --bible-accent-bright: #e8c87a;
+    --bible-node: #8a7b54;
+    --bible-error: #b0553f;
+}
+
+/* Sinaí (oscuro, desierto y bronce) */
+[data-theme='sinai'] {
+    color-scheme: dark;
+    --background: #1a140f;
+    --foreground: #f1e6d2;
+    --card: #231c15;
+    --card-foreground: #f1e6d2;
+    --popover: #231c15;
+    --popover-foreground: #f1e6d2;
+    --primary: #c58a3a;
+    --primary-foreground: #1a140f;
+    --secondary: #2a2118;
+    --secondary-foreground: #f1e6d2;
+    --muted: #2a2118;
+    --muted-foreground: #a89274;
+    --accent: #33281e;
+    --accent-foreground: #e0a85a;
+    --destructive: #b0553f;
+    --destructive-foreground: #f1e6d2;
+    --border: #3b3126;
+    --input: #3b3126;
+    --ring: #c58a3a;
+    --chart-1: #e0a85a;
+    --chart-2: #c58a3a;
+    --chart-3: #8f6a3a;
+    --chart-4: #6b6552;
+    --chart-5: #b0553f;
+    --sidebar-background: #1f1812;
+    --sidebar-foreground: #f1e6d2;
+    --sidebar-primary: #c58a3a;
+    --sidebar-primary-foreground: #1a140f;
+    --sidebar-accent: #2a2118;
+    --sidebar-accent-foreground: #e0a85a;
+    --sidebar-border: #3b3126;
+    --sidebar-ring: #c58a3a;
+    --sidebar: #1f1812;
+
+    --bible-bg: #1a140f;
+    --bible-panel: #231c15;
+    --bible-border: #3b3126;
+    --bible-text: #f1e6d2;
+    --bible-muted: #a89274;
+    --bible-muted-dim: #7d6b55;
+    --bible-accent: #c58a3a;
+    --bible-accent-bright: #e0a85a;
+    --bible-node: #8f6a3a;
+    --bible-error: #c45a4a;
+}
+
+/* Patmos (oscuro, mar profundo) */
+[data-theme='patmos'] {
+    color-scheme: dark;
+    --background: #081427;
+    --foreground: #e6eef8;
+    --card: #0d1e36;
+    --card-foreground: #e6eef8;
+    --popover: #0d1e36;
+    --popover-foreground: #e6eef8;
+    --primary: #4ea1d3;
+    --primary-foreground: #081427;
+    --secondary: #10243f;
+    --secondary-foreground: #e6eef8;
+    --muted: #10243f;
+    --muted-foreground: #8fa8c2;
+    --accent: #143055;
+    --accent-foreground: #79c4ee;
+    --destructive: #c45a4a;
+    --destructive-foreground: #e6eef8;
+    --border: #1f3554;
+    --input: #1f3554;
+    --ring: #4ea1d3;
+    --chart-1: #79c4ee;
+    --chart-2: #4ea1d3;
+    --chart-3: #2f6f95;
+    --chart-4: #6b8aa6;
+    --chart-5: #c45a4a;
+    --sidebar-background: #0a1930;
+    --sidebar-foreground: #e6eef8;
+    --sidebar-primary: #4ea1d3;
+    --sidebar-primary-foreground: #081427;
+    --sidebar-accent: #10243f;
+    --sidebar-accent-foreground: #79c4ee;
+    --sidebar-border: #1f3554;
+    --sidebar-ring: #4ea1d3;
+    --sidebar: #0a1930;
+
+    --bible-bg: #081427;
+    --bible-panel: #0d1e36;
+    --bible-border: #1f3554;
+    --bible-text: #e6eef8;
+    --bible-muted: #8fa8c2;
+    --bible-muted-dim: #68829c;
+    --bible-accent: #4ea1d3;
+    --bible-accent-bright: #79c4ee;
+    --bible-node: #2f6f95;
+    --bible-error: #c45a4a;
+}
+
+/* Pergamino (claro, pergamino antiguo) */
+[data-theme='pergamino'] {
+    color-scheme: light;
+    --background: #f6efe1;
+    --foreground: #2f2416;
+    --card: #fffaf0;
+    --card-foreground: #2f2416;
+    --popover: #fffaf0;
+    --popover-foreground: #2f2416;
+    --primary: #8a5a2b;
+    --primary-foreground: #fffaf0;
+    --secondary: #efe4cf;
+    --secondary-foreground: #2f2416;
+    --muted: #efe4cf;
+    --muted-foreground: #7a6a52;
+    --accent: #e7d7b8;
+    --accent-foreground: #5b3a1d;
+    --destructive: #b0553f;
+    --destructive-foreground: #fffaf0;
+    --border: #e0d2b8;
+    --input: #e0d2b8;
+    --ring: #8a5a2b;
+    --chart-1: #8a5a2b;
+    --chart-2: #b07a3c;
+    --chart-3: #5b7a4a;
+    --chart-4: #7a6a52;
+    --chart-5: #b0553f;
+    --sidebar-background: #f2e8d6;
+    --sidebar-foreground: #2f2416;
+    --sidebar-primary: #8a5a2b;
+    --sidebar-primary-foreground: #fffaf0;
+    --sidebar-accent: #e7d7b8;
+    --sidebar-accent-foreground: #5b3a1d;
+    --sidebar-border: #e0d2b8;
+    --sidebar-ring: #8a5a2b;
+    --sidebar: #f2e8d6;
+
+    --bible-bg: #f6efe1;
+    --bible-panel: #fffaf0;
+    --bible-border: #e0d2b8;
+    --bible-text: #2f2416;
+    --bible-muted: #7a6a52;
+    --bible-muted-dim: #9a8870;
+    --bible-accent: #8a5a2b;
+    --bible-accent-bright: #5b3a1d;
+    --bible-node: #b07a3c;
+    --bible-error: #b0553f;
+}
+
+/* Olivo (claro, monte de los Olivos) */
+[data-theme='olivo'] {
+    color-scheme: light;
+    --background: #f2f6ee;
+    --foreground: #243019;
+    --card: #fbfdf8;
+    --card-foreground: #243019;
+    --popover: #fbfdf8;
+    --popover-foreground: #243019;
+    --primary: #4f6b3a;
+    --primary-foreground: #fbfdf8;
+    --secondary: #e6eedc;
+    --secondary-foreground: #243019;
+    --muted: #e6eedc;
+    --muted-foreground: #667357;
+    --accent: #d8e4c8;
+    --accent-foreground: #355025;
+    --destructive: #b0553f;
+    --destructive-foreground: #fbfdf8;
+    --border: #d6e0c7;
+    --input: #d6e0c7;
+    --ring: #4f6b3a;
+    --chart-1: #4f6b3a;
+    --chart-2: #6f8f52;
+    --chart-3: #8a5a2b;
+    --chart-4: #667357;
+    --chart-5: #b0553f;
+    --sidebar-background: #edf3e4;
+    --sidebar-foreground: #243019;
+    --sidebar-primary: #4f6b3a;
+    --sidebar-primary-foreground: #fbfdf8;
+    --sidebar-accent: #d8e4c8;
+    --sidebar-accent-foreground: #355025;
+    --sidebar-border: #d6e0c7;
+    --sidebar-ring: #4f6b3a;
+    --sidebar: #edf3e4;
+
+    --bible-bg: #f2f6ee;
+    --bible-panel: #fbfdf8;
+    --bible-border: #d6e0c7;
+    --bible-text: #243019;
+    --bible-muted: #667357;
+    --bible-muted-dim: #87957a;
+    --bible-accent: #4f6b3a;
+    --bible-accent-bright: #355025;
+    --bible-node: #6f8f52;
+    --bible-error: #b0553f;
+}
+
+/* Jordán (claro, aguas del río) */
+[data-theme='jordan'] {
+    color-scheme: light;
+    --background: #eef6fb;
+    --foreground: #183142;
+    --card: #f8fcff;
+    --card-foreground: #183142;
+    --popover: #f8fcff;
+    --popover-foreground: #183142;
+    --primary: #2f6f95;
+    --primary-foreground: #f8fcff;
+    --secondary: #e0edf6;
+    --secondary-foreground: #183142;
+    --muted: #e0edf6;
+    --muted-foreground: #5d7485;
+    --accent: #cfe6f5;
+    --accent-foreground: #1f4f6d;
+    --destructive: #b0553f;
+    --destructive-foreground: #f8fcff;
+    --border: #cfe0ec;
+    --input: #cfe0ec;
+    --ring: #2f6f95;
+    --chart-1: #2f6f95;
+    --chart-2: #3f8fbe;
+    --chart-3: #4f6b3a;
+    --chart-4: #5d7485;
+    --chart-5: #b0553f;
+    --sidebar-background: #e7f2f9;
+    --sidebar-foreground: #183142;
+    --sidebar-primary: #2f6f95;
+    --sidebar-primary-foreground: #f8fcff;
+    --sidebar-accent: #cfe6f5;
+    --sidebar-accent-foreground: #1f4f6d;
+    --sidebar-border: #cfe0ec;
+    --sidebar-ring: #2f6f95;
+    --sidebar: #e7f2f9;
+
+    --bible-bg: #eef6fb;
+    --bible-panel: #f8fcff;
+    --bible-border: #cfe0ec;
+    --bible-text: #183142;
+    --bible-muted: #5d7485;
+    --bible-muted-dim: #7f96a6;
+    --bible-accent: #2f6f95;
+    --bible-accent-bright: #1f4f6d;
+    --bible-node: #3f8fbe;
+    --bible-error: #b0553f;
 }
 
 @layer base {
@@ -124,18 +382,18 @@
     }
 }
 
-/* Tokens específicos del explorador bíblico (coherentes con el tema base). */
+/* Tokens específicos del explorador bíblico (responden al tema activo). */
 @theme {
-    --color-bible-bg: #0b0e1a;
-    --color-bible-panel: #10142a;
-    --color-bible-border: #262b45;
-    --color-bible-text: #ede6d6;
-    --color-bible-muted: #8f8874;
-    --color-bible-muted-dim: #6b6552;
-    --color-bible-accent: #c9a227;
-    --color-bible-accent-bright: #e8c87a;
-    --color-bible-node: #8a7b54;
-    --color-bible-error: #b0553f;
+    --color-bible-bg: var(--bible-bg);
+    --color-bible-panel: var(--bible-panel);
+    --color-bible-border: var(--bible-border);
+    --color-bible-text: var(--bible-text);
+    --color-bible-muted: var(--bible-muted);
+    --color-bible-muted-dim: var(--bible-muted-dim);
+    --color-bible-accent: var(--bible-accent);
+    --color-bible-accent-bright: var(--bible-accent-bright);
+    --color-bible-node: var(--bible-node);
+    --color-bible-error: var(--bible-error);
 
     --font-bible-display: 'Crimson Pro', serif;
     --font-bible-body: 'Inter', sans-serif;

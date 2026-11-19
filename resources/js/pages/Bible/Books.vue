@@ -21,10 +21,10 @@ const newTestament = computed(() => props.books.filter((b) => b.testament === 'N
 <template>
   <Head title="Leer la Biblia" />
 
-  <BiblePageShell max-width-class="max-w-6xl">
+  <BiblePageShell max-width-class="max-w-7xl">
     <template #header>
       <h1 class="font-bible-display text-3xl font-semibold text-bible-accent-bright">Lectura de la Biblia</h1>
-      <p class="text-sm text-bible-muted">Elige un libro para comenzar a leer por capítulos.</p>
+      <p class="text-sm text-bible-muted">Elegí un libro para empezar a leer por capítulos.</p>
     </template>
 
     <div class="space-y-10">

@@ -26,7 +26,7 @@ const passwordInput = useTemplateRef('passwordInput');
         <Heading
             variant="small"
             title="Eliminar cuenta"
-            description="Elimina tu cuenta y todos sus datos asociados"
+            description="Eliminá tu cuenta y todos sus datos asociados"
         />
         <div class="space-y-4 rounded-lg border border-red-200/40 bg-red-500/10 p-4">
             <div class="relative space-y-0.5 text-red-200">
@@ -51,10 +51,10 @@ const passwordInput = useTemplateRef('passwordInput');
                         v-slot="{ errors, processing, reset, clearErrors }"
                     >
                         <DialogHeader class="space-y-3">
-                            <DialogTitle>¿Seguro que deseas eliminar tu cuenta?</DialogTitle>
+                            <DialogTitle>¿Seguro que querés eliminar tu cuenta?</DialogTitle>
                             <DialogDescription>
-                                Al eliminar tu cuenta, todos tus datos y recursos se borrarán de forma permanente.
-                                Ingresa tu contraseña para confirmar esta acción.
+                                Al eliminar tu cuenta, se van a borrar de forma permanente todos tus datos y recursos.
+                                Ingresá tu contraseña para confirmar esta acción.
                             </DialogDescription>
                         </DialogHeader>
 

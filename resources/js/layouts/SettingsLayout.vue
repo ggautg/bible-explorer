@@ -1,16 +1,11 @@
 <script setup lang="ts">
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
-import AppContent from '@/components/AppContent.vue';
-import AppShell from '@/components/AppShell.vue';
-import AppSidebar from '@/components/AppSidebar.vue';
-import Heading from '@/components/Heading.vue';
-import { Separator } from '@/components/ui/separator';
-import { cn } from '@/lib/utils';
+import BiblePageShell from '@/components/Bible/BiblePageShell.vue';
 
 /**
- * Diseño para las páginas de configuración de la cuenta.
- * Incluye navegación entre perfil, seguridad y apariencia.
+ * Layout general para las páginas de configuración de la cuenta.
+ * Usa el mismo contenedor visual que el perfil para mantener coherencia.
  */
 const props = defineProps<{
     title?: string;
@@ -34,41 +29,37 @@ function isActive(href: string): boolean {
 <template>
     <Head :title="title ?? 'Configuración'" />
 
-    <AppShell variant="sidebar">
-        <AppSidebar />
-        <AppContent variant="sidebar" class="overflow-x-hidden">
-            <div class="px-4 py-6 md:px-8">
-                <Heading
-                    :title="title ?? 'Configuración'"
-                    :description="description ?? 'Administra tu perfil y la seguridad de tu cuenta.'"
-                />
+    <BiblePageShell back-href="/comunidad" back-label="← Comunidad" max-width-class="max-w-7xl">
+        <template #header>
+            <h1 class="font-bible-display text-3xl font-semibold text-bible-accent-bright">{{ title ?? 'Configuración' }}</h1>
+            <p v-if="description" class="text-sm text-bible-muted">{{ description }}</p>
+            <p v-else class="text-sm text-bible-muted">Administrá tu perfil, seguridad y apariencia.</p>
+        </template>
 
-                <div class="flex flex-col gap-8 lg:flex-row lg:gap-12">
-                    <aside class="w-full lg:w-52">
-                        <nav class="flex flex-row gap-1 overflow-x-auto lg:flex-col" aria-label="Configuración">
-                            <Link
-                                v-for="item in navItems"
-                                :key="item.href"
-                                :href="item.href"
-                                :class="cn(
-                                    'rounded-md px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap',
-                                    isActive(item.href)
-                                        ? 'bg-accent text-accent-foreground'
-                                        : 'text-muted-foreground hover:bg-accent/60 hover:text-foreground',
-                                )"
-                            >
-                                {{ item.title }}
-                            </Link>
-                        </nav>
-                    </aside>
+        <div class="space-y-6">
+            <nav class="flex flex-wrap gap-2 rounded-2xl border border-bible-border bg-bible-panel/50 p-2" aria-label="Secciones de configuración">
+                <Link
+                    v-for="item in navItems"
+                    :key="item.href"
+                    :href="item.href"
+                    class="rounded-xl px-4 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
+                    :class="isActive(item.href)
+                        ? 'bg-bible-accent text-bible-bg'
+                        : 'text-bible-muted hover:bg-bible-bg/50 hover:text-bible-accent-bright'"
+                >
+                    {{ item.title }}
+                </Link>
+                <Link
+                    href="/devocionario"
+                    class="rounded-xl px-4 py-2.5 text-sm font-medium text-bible-muted transition-colors hover:bg-bible-bg/50 hover:text-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
+                >
+                    Devocionario
+                </Link>
+            </nav>
 
-                    <Separator class="lg:hidden" />
-
-                    <div class="flex-1 md:max-w-2xl">
-                        <slot />
-                    </div>
-                </div>
+            <div class="rounded-2xl border border-bible-border bg-bible-panel/50 p-5 md:p-7">
+                <slot />
             </div>
-        </AppContent>
-    </AppShell>
+        </div>
+    </BiblePageShell>
 </template>

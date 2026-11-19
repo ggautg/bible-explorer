@@ -16,7 +16,7 @@ import password from '@/routes/password';
 <template>
     <AuthLayout
         title="Confirmar contraseña"
-        description="Esta es un área segura. Confirma tu contraseña para continuar."
+        description="Esta es un área segura. Confirmá tu contraseña para continuar."
     >
         <Form
             v-bind="password.confirm.store.form()"

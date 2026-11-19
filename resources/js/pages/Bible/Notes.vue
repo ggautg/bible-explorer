@@ -27,7 +27,7 @@ async function removeNote(note) {
 <template>
   <Head title="Mis notas" />
 
-  <BiblePageShell max-width-class="max-w-4xl">
+  <BiblePageShell max-width-class="max-w-7xl">
     <template #header>
       <h1 class="font-bible-display text-3xl font-semibold text-bible-accent-bright">Mis notas</h1>
       <p class="text-sm text-bible-muted">Reflexiones personales guardadas junto a tus versículos.</p>
@@ -37,8 +37,8 @@ async function removeNote(note) {
 
     <EmptyState
       v-else-if="loaded && !notes.length"
-      title="Aún no has escrito notas"
-      description="Mientras lees un capítulo, puedes agregar una nota breve en cualquier versículo."
+      title="Todavía no escribiste notas"
+      description="Mientras leés un capítulo, podés agregar una nota breve en cualquier versículo."
     >
       <template #actions>
         <Link

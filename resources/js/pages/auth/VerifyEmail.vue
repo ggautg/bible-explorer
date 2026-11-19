@@ -17,20 +17,20 @@ defineProps<{
 
 <template>
     <AuthLayout
-        title="Verifica tu correo"
-        description="Confirma tu dirección de correo para continuar"
+        title="Verificá tu correo"
+        description="Confirmá tu dirección de correo para continuar"
     >
         <div
             v-if="status === 'verification-link-sent'"
             class="mb-4 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-center text-sm font-medium text-emerald-400"
         >
-            Se ha enviado un nuevo enlace de verificación a tu correo electrónico.
+            Te enviamos un nuevo enlace de verificación a tu correo electrónico.
         </div>
 
         <div class="space-y-5 text-sm text-muted-foreground">
             <p>
-                Antes de continuar, revisa tu correo y haz clic en el enlace de verificación que te enviamos.
-                Si no lo recibiste, puedes solicitar otro.
+                Antes de seguir, revisá tu correo y hacé clic en el enlace de verificación que te enviamos.
+                Si no te llegó, podés pedir otro.
             </p>
 
             <Form v-bind="send.form()" v-slot="{ processing }" class="space-y-4">

@@ -115,7 +115,7 @@ watch(
                 v-model="searchQuery"
                 type="text"
                 autocomplete="off"
-                placeholder="Escribe una referencia, por ejemplo: Juan 3:16"
+                placeholder="Escribí una referencia, por ejemplo: Juan 3:16"
                 class="w-full rounded-md border border-bible-border bg-bible-bg/40 px-4 py-2.5 text-sm text-bible-text placeholder:text-bible-muted-dim focus:outline-none focus:ring-2 focus:ring-bible-accent"
               />
 
@@ -147,7 +147,7 @@ watch(
 
           <p v-if="searchError" class="mt-2 text-sm text-bible-error">{{ searchError }}</p>
           <p class="mt-2 text-xs text-bible-muted">
-            Consejo: haz clic en un nodo para ver detalles y doble clic para navegar a ese versículo.
+            Consejo: hacé clic en un nodo para ver detalles y doble clic para navegar a ese versículo.
           </p>
         </div>
 
@@ -221,7 +221,7 @@ watch(
         <template v-else>
           <h2 class="font-bible-display text-xl font-semibold text-bible-accent-bright">Detalles del versículo</h2>
           <p class="mt-3 text-sm leading-relaxed text-bible-muted">
-            Selecciona un nodo del grafo para ver su texto y acceder a sus acciones. Si el grafo está vacío, es posible que aún no se hayan importado las referencias cruzadas.
+            Seleccioná un nodo del grafo para ver su texto y acceder a sus acciones. Si el grafo está vacío, es posible que todavía no se hayan importado las referencias cruzadas.
           </p>
           <p class="mt-3 text-xs text-bible-muted-dim">
             Nodos: {{ nodes.length }} · Conexiones: {{ edges.length }}

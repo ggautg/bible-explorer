@@ -28,7 +28,7 @@ const user = computed(() => page.props.auth?.user ?? null);
   <div class="relative min-h-screen overflow-hidden bg-bible-bg text-bible-text font-bible-body">
     <StarfieldBackground />
 
-    <main class="relative mx-auto grid max-w-6xl grid-cols-1 items-start gap-12 px-6 py-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-16 lg:py-16">
+    <main class="relative mx-auto grid max-w-7xl grid-cols-1 items-start gap-12 px-6 py-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-16 lg:py-16">
       <!-- Columna principal: presentación y acciones -->
       <section class="flex flex-col items-center text-center lg:sticky lg:top-16">
         <svg width="220" height="140" viewBox="0 0 220 140" class="mb-8" aria-hidden="true">
@@ -52,8 +52,8 @@ const user = computed(() => page.props.auth?.user ?? null);
           Cada versículo tiene su constelación
         </h1>
         <p class="mb-8 max-w-xl text-base leading-relaxed text-bible-muted md:text-lg">
-          Explora la Biblia como una red de conexiones. Descubre citas, ecos y referencias entre pasajes,
-          y sigue el hilo desde cualquier versículo.
+          Explorá la Biblia como una red de conexiones. Descubrí citas, ecos y referencias entre pasajes,
+          y seguí el hilo desde cualquier versículo.
         </p>
 
         <div class="mb-8 w-full max-w-xl rounded-xl border border-bible-border bg-bible-panel/90 p-5 text-left shadow-sm">
@@ -83,6 +83,30 @@ const user = computed(() => page.props.auth?.user ?? null);
           </template>
         </div>
 
+        <!-- Maquetado: contacto con un pastor de la iglesia -->
+        <div class="mb-8 w-full max-w-xl rounded-xl border border-bible-accent/30 bg-bible-panel/90 p-5 text-left shadow-sm">
+          <p class="text-xs font-medium uppercase tracking-wide text-bible-accent">Comunidad</p>
+          <h2 class="mt-2 font-bible-display text-xl font-semibold text-bible-accent-bright">Hablar con un pastor de mi iglesia</h2>
+          <p class="mt-2 text-sm leading-relaxed text-bible-muted">
+            ¿Necesitás consejo, oración o una charla? Conectate con un pastor de tu iglesia de forma simple y cercana.
+          </p>
+          <div class="mt-4 flex flex-wrap gap-2.5">
+            <button
+              type="button"
+              class="inline-flex items-center justify-center rounded-md bg-bible-accent px-4 py-2.5 text-sm font-medium text-bible-bg transition-colors hover:bg-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
+            >
+              Iniciar conversación
+            </button>
+            <button
+              type="button"
+              class="inline-flex items-center justify-center rounded-md border border-bible-border px-4 py-2.5 text-sm font-medium text-bible-text transition-colors hover:border-bible-accent hover:text-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
+            >
+              Pedir oración
+            </button>
+          </div>
+          <p class="mt-3 text-xs text-bible-muted-dim">Maquetado de interfaz (próximamente disponible).</p>
+        </div>
+
         <div class="flex flex-wrap justify-center gap-3">
           <Link
             href="/leer"
@@ -99,7 +123,7 @@ const user = computed(() => page.props.auth?.user ?? null);
         </div>
 
         <div v-if="user" class="mt-8 rounded-lg border border-bible-border/70 bg-bible-panel/50 px-4 py-3 text-sm text-bible-muted">
-          Sesión iniciada como <span class="font-medium text-bible-accent-bright">{{ user.name }}</span>.
+          Iniciaste sesión como <span class="font-medium text-bible-accent-bright">{{ user.name }}</span>.
           <Link
             :href="logout()"
             method="post"
@@ -115,13 +139,13 @@ const user = computed(() => page.props.auth?.user ?? null);
             href="/login"
             class="text-bible-muted transition-colors hover:text-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent rounded"
           >
-            Iniciar sesión
+            Iniciá sesión
           </Link>
           <Link
             href="/register"
             class="text-bible-muted transition-colors hover:text-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent rounded"
           >
-            Crear cuenta
+            Creá tu cuenta
           </Link>
         </div>
       </section>

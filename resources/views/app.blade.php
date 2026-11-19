@@ -1,22 +1,35 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="getsemani" class="dark">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        {{-- Se fuerza el modo oscuro para mantener un tema visual coherente en toda la aplicación. --}}
+        {{-- Aplica el tema bíblico guardado antes de pintar para evitar parpadeos. --}}
         <script>
-            document.documentElement.classList.add('dark');
-            try {
-                localStorage.setItem('appearance', 'dark');
-            } catch (e) {
-                // Sin almacenamiento disponible: no es crítico para la carga.
-            }
+            (function () {
+                var themes = ['pergamino','olivo','jordan','getsemani','sinai','patmos'];
+                var dark = ['getsemani','sinai','patmos'];
+                var theme = 'getsemani';
+                try {
+                    var stored = localStorage.getItem('theme') || localStorage.getItem('appearance');
+                    var m = document.cookie.match(/(?:^|; )(?:theme|appearance)=([^;]+)/);
+                    var cookie = m ? decodeURIComponent(m[1]) : null;
+                    var v = stored || cookie || 'getsemani';
+                    if (v === 'light') v = 'pergamino';
+                    if (v === 'dark' || v === 'system') v = 'getsemani';
+                    if (themes.indexOf(v) !== -1) theme = v;
+                } catch (e) {}
+                var isDark = dark.indexOf(theme) !== -1;
+                var root = document.documentElement;
+                root.setAttribute('data-theme', theme);
+                root.classList.toggle('dark', isDark);
+                root.style.colorScheme = isDark ? 'dark' : 'light';
+            })();
         </script>
 
         <style>
-            html {
-                background-color: #0b0e1a;
+            html, body {
+                background-color: var(--background);
             }
         </style>
 

@@ -1,21 +1,21 @@
-const testimonials = [
+﻿const testimonials = [
     {
-        text: "La app me convenció de que Dios es real, y me ayudó a entender la Biblia de una manera que nunca antes había experimentado para mi y para mis alumnos.",
-        role: "Pastor y profesor de la Biblia",
+        text: "Soy pastor y encontré a Dios de una manera más profunda a través de esta aplicación. Me ayudó a entender la Biblia y a compartirla con mis alumnos.",
+        role: "Pastor",
         image: "/images/testimonials/giovanni-arestivo.png",
-        name: "Giovanni Arestivo"
+        name: "Giovanni Arestivo",
     },
     {
-        text: "La app me motivó a seguir en Cristo y a estudiar la Biblia más a fondo, y me ayuda a mantenerme enfocado en lo que es importante.",
-        role: "Estudiante de la Biblia",
+        text: "No era creyente, pero con esta aplicación conocí a Dios y el amor. Me acercó a la Biblia y transformó mi forma de ver la vida.",
+        role: "Antes no creyente",
         image: "/images/testimonials/piero-arestivo.png",
-        name: "Piero Arestivo"
+        name: "Piero Arestivo",
     },
     {
-        text: "Yo era ateo, me bajé la app con total escepticismo con la intención de refutarla, pero terminé convencido de que Dios es real.",
-        role: "Ex-ateo",
+        text: "Era ateo y estaba en contra de las cruces. Empecé a usar la aplicación con escepticismo, pero hoy amo a Cristo.",
+        role: "Exateo",
         image: "/images/testimonials/jose-britez.jpg",
-        name: "José Brítez"
+        name: "José Brítez",
     },
 ];
 

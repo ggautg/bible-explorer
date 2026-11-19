@@ -27,7 +27,7 @@ async function removeFavorite(favorite) {
 <template>
   <Head title="Favoritos" />
 
-  <BiblePageShell max-width-class="max-w-4xl">
+  <BiblePageShell max-width-class="max-w-7xl">
     <template #header>
       <h1 class="font-bible-display text-3xl font-semibold text-bible-accent-bright">Favoritos</h1>
       <p class="text-sm text-bible-muted">Tus versículos guardados para volver a ellos rápidamente.</p>
@@ -37,8 +37,8 @@ async function removeFavorite(favorite) {
 
     <EmptyState
       v-else-if="loaded && !favorites.length"
-      title="Aún no tienes favoritos"
-      description="Cuando encuentres un versículo especial, márcalo como favorito desde la lectura o el grafo."
+      title="Todavía no tenés favoritos"
+      description="Cuando encuentres un versículo especial, marcalo como favorito desde la lectura o el grafo."
     >
       <template #actions>
         <Link

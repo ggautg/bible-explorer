@@ -16,6 +16,9 @@ class FavoriteController extends Controller
 {
     /**
      * Devuelve todos los favoritos del usuario autenticado.
+     *
+     * @param  Request  $request  Solicitud HTTP autenticada.
+     * @return JsonResponse Colección JSON de favoritos (más recientes primero).
      */
     public function index(Request $request): JsonResponse
     {
@@ -27,7 +30,10 @@ class FavoriteController extends Controller
     /**
      * Guarda un versículo como favorito.
      *
-     * Si ya existe el mismo versículo, no crea duplicados.
+     * Si ya existe el mismo versículo para el usuario, no crea duplicados.
+     *
+     * @param  Request  $request  Solicitud con book_code, book_name, chapter, verse y text.
+     * @return JsonResponse Favorito creado o existente.
      */
     public function store(Request $request): JsonResponse
     {
@@ -50,6 +56,9 @@ class FavoriteController extends Controller
 
     /**
      * Elimina un versículo de favoritos.
+     *
+     * @param  Request  $request  Solicitud con book_code, chapter y verse.
+     * @return JsonResponse Confirmación de eliminación.
      */
     public function destroy(Request $request): JsonResponse
     {

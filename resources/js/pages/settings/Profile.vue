@@ -25,13 +25,13 @@ const user = computed(() => page.props.auth?.user as { name: string; email: stri
 </script>
 
 <template>
-    <SettingsLayout title="Perfil" description="Actualiza tu nombre y correo electrónico.">
+    <SettingsLayout title="Perfil" description="Actualizá tu nombre y correo electrónico.">
         <div class="space-y-10">
             <section class="space-y-6">
                 <Heading
                     variant="small"
                     title="Información del perfil"
-                    description="Modifica los datos básicos de tu cuenta"
+                    description="Modificá los datos básicos de tu cuenta"
                 />
 
                 <Form
@@ -83,7 +83,7 @@ const user = computed(() => page.props.auth?.user as { name: string; email: stri
                             v-if="status === 'verification-link-sent'"
                             class="font-medium text-emerald-500"
                         >
-                            Se ha enviado un nuevo enlace de verificación a tu correo.
+                            Te enviamos un nuevo enlace de verificación a tu correo.
                         </p>
                     </div>
 

@@ -21,8 +21,8 @@ defineProps<{
 
 <template>
     <AuthLayout
-        title="Crear cuenta"
-        description="Completa tus datos para registrarte"
+        title="Creá tu cuenta"
+        description="Completá tus datos para registrarte"
     >
         <Form
             v-bind="register.store.form()"
@@ -82,7 +82,7 @@ defineProps<{
                         required
                         :tabindex="4"
                         autocomplete="new-password"
-                        placeholder="Repite la contraseña"
+                        placeholder="Repetí la contraseña"
                     />
                     <InputError :message="errors.password_confirmation" />
                 </div>
@@ -101,8 +101,8 @@ defineProps<{
         </Form>
 
         <template #footer>
-            ¿Ya tienes cuenta?
-            <TextLink :href="login()" :tabindex="6">Iniciar sesión</TextLink>
+            ¿Ya tenés cuenta?
+            <TextLink :href="login()" :tabindex="6">Iniciá sesión</TextLink>
         </template>
     </AuthLayout>
 </template>

@@ -21,6 +21,9 @@ class ProfileController extends Controller
 {
     /**
      * Muestra la página de configuración del perfil.
+     *
+     * @param  Request  $request  Solicitud autenticada.
+     * @return Response Página Inertia de perfil.
      */
     public function edit(Request $request): Response
     {
@@ -32,6 +35,11 @@ class ProfileController extends Controller
 
     /**
      * Actualiza el nombre y correo electrónico del usuario.
+     *
+     * Si cambia el correo, se invalida la verificación para exigir una nueva.
+     *
+     * @param  ProfileUpdateRequest  $request  Datos validados del perfil.
+     * @return RedirectResponse Redirección a la edición de perfil.
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
@@ -53,6 +61,11 @@ class ProfileController extends Controller
 
     /**
      * Elimina la cuenta del usuario autenticado.
+     *
+     * Cierra sesión, borra el usuario e invalida la sesión.
+     *
+     * @param  ProfileDeleteRequest  $request  Solicitud con confirmación de contraseña.
+     * @return RedirectResponse Redirección al inicio.
      */
     public function destroy(ProfileDeleteRequest $request): RedirectResponse
     {

@@ -50,7 +50,7 @@ const handleDelete = () => {
                     </span>
                 </div>
                 <p class="text-sm text-muted-foreground">
-                    Añadida {{ passkey.created_at_diff }}
+                    Agregada {{ passkey.created_at_diff }}
                     <template v-if="passkey.last_used_at_diff">
                         <span class="mx-1 text-muted-foreground/50">/</span>
                         Último uso {{ passkey.last_used_at_diff }}
@@ -74,8 +74,8 @@ const handleDelete = () => {
             <DialogContent>
                 <DialogTitle>Eliminar llave de acceso</DialogTitle>
                 <DialogDescription>
-                    ¿Seguro que deseas eliminar la llave de acceso "{{ passkey.name }}"?
-                    Ya no podrás usarla para iniciar sesión.
+                    ¿Seguro que querés eliminar la llave de acceso "{{ passkey.name }}"?
+                    Ya no vas a poder usarla para iniciar sesión.
                 </DialogDescription>
                 <DialogFooter class="gap-2">
                     <DialogClose as-child>

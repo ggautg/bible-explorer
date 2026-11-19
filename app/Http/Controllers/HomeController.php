@@ -4,21 +4,30 @@ namespace App\Http\Controllers;
 
 use App\Models\BibleBook;
 use App\Models\BibleVerse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Response;
 
 /**
  * Controlador de la página de inicio.
  *
- * Muestra la bienvenida y selecciona un "versículo del día" determinístico
- * (el mismo para todos los usuarios durante la fecha actual).
+ * Muestra la bienvenida pública a visitantes y redirige a la comunidad a
+ * las personas autenticadas.
  */
 class HomeController extends Controller
 {
     /**
-     * Renderiza la página de bienvenida con el versículo del día.
+     * Renderiza la bienvenida para visitantes o redirige a la comunidad.
+     *
+     * @param  Request  $request  Solicitud HTTP actual.
+     * @return Response|RedirectResponse Página de bienvenida o redirección.
      */
-    public function index(): Response
+    public function index(Request $request): Response|RedirectResponse
     {
+        if ($request->user()) {
+            return redirect()->route('community.feed');
+        }
+
         $totalVerses = BibleVerse::query()
             ->where('translation', 'spa_rvg')
             ->count();

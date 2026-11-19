@@ -17,7 +17,7 @@ import StarfieldBackground from '@/components/Bible/StarfieldBackground.vue';
       <p class="text-xs font-medium uppercase tracking-[0.2em] text-bible-accent">No se encontró la referencia</p>
       <h1 class="mt-3 font-bible-display text-3xl font-semibold text-bible-accent-bright">Esa estrella no está en el mapa</h1>
       <p class="mt-4 text-sm leading-relaxed text-bible-muted">
-        La referencia que buscaste no existe o la dirección tiene un error. Puedes volver a la lectura o explorar una conexión conocida.
+        La referencia que buscaste no existe o la dirección tiene un error. Podés volver a la lectura o explorar una conexión conocida.
       </p>
 
       <div class="mt-8 flex flex-wrap justify-center gap-3">

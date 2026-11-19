@@ -21,6 +21,12 @@ class SecurityController extends Controller
 {
     /**
      * Muestra la página de seguridad del usuario.
+     *
+     * Expone las capacidades y datos necesarios para gestionar contraseña,
+     * verificación en dos pasos y llaves de acceso según las features activas.
+     *
+     * @param  TwoFactorAuthenticationRequest  $request  Solicitud validada para 2FA.
+     * @return Response Página Inertia de seguridad.
      */
     public function edit(TwoFactorAuthenticationRequest $request): Response
     {
@@ -58,6 +64,9 @@ class SecurityController extends Controller
 
     /**
      * Actualiza la contraseña del usuario autenticado.
+     *
+     * @param  PasswordUpdateRequest  $request  Solicitud con la nueva contraseña validada.
+     * @return RedirectResponse Redirección atrás con mensaje flash.
      */
     public function update(PasswordUpdateRequest $request): RedirectResponse
     {

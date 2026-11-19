@@ -16,6 +16,8 @@ class ReaderController extends Controller
 {
     /**
      * Muestra el listado de libros bíblicos ordenados canónicamente.
+     *
+     * @return Response Página Inertia con la colección de libros.
      */
     public function books(): Response
     {
@@ -26,6 +28,9 @@ class ReaderController extends Controller
 
     /**
      * Muestra los capítulos disponibles de un libro.
+     *
+     * @param  string  $book  Código del libro (p. ej. "GEN", "JHN").
+     * @return Response Página Inertia con el libro y sus capítulos.
      */
     public function chapters(string $book): Response
     {
@@ -48,7 +53,12 @@ class ReaderController extends Controller
      * Muestra los versículos de un capítulo y metadatos de navegación.
      *
      * Incluye, cuando existen, los textos alternos de la traducción PDT para
-     * comparación rápida en la interfaz de lectura.
+     * comparación rápida en la interfaz de lectura. Responde 404 si el capítulo
+     * no tiene versículos en la traducción principal.
+     *
+     * @param  string  $book  Código del libro.
+     * @param  int  $chapter  Número de capítulo.
+     * @return Response Página Inertia con versículos y banderas de navegación.
      */
     public function chapter(string $book, int $chapter): Response
     {
@@ -90,7 +100,10 @@ class ReaderController extends Controller
     /**
      * Muestra la página de favoritos del usuario.
      *
-     * Los datos se cargan desde el cliente mediante la API de favoritos.
+     * Los datos se cargan desde el cliente mediante la API de favoritos para
+     * mantener la interfaz reactiva y simple.
+     *
+     * @return Response Página Inertia de favoritos.
      */
     public function favorites(): Response
     {
@@ -101,6 +114,8 @@ class ReaderController extends Controller
      * Muestra la página de notas personales del usuario.
      *
      * Los datos se cargan desde el cliente mediante la API de notas.
+     *
+     * @return Response Página Inertia de notas.
      */
     public function notes(): Response
     {

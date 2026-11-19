@@ -14,6 +14,11 @@ class ShareController extends Controller
 {
     /**
      * Muestra una vista pública de un versículo compartido.
+     *
+     * @param  string  $book  Código del libro.
+     * @param  int  $chapter  Número de capítulo.
+     * @param  int  $verse  Número de versículo.
+     * @return Response Página Inertia pública del versículo.
      */
     public function show(string $book, int $chapter, int $verse): Response
     {

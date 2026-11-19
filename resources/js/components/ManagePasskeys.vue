@@ -36,7 +36,7 @@ const handleRegisterSuccess = () => {
         <Heading
             variant="small"
             title="Llaves de acceso"
-            description="Administra tus llaves de acceso para iniciar sesión sin contraseña"
+            description="Administrá tus llaves de acceso para iniciar sesión sin contraseña"
         />
 
         <div class="overflow-hidden rounded-lg border border-border">
@@ -55,9 +55,9 @@ const handleRegisterSuccess = () => {
                 >
                     <KeyRound class="h-7 w-7 text-muted-foreground" />
                 </div>
-                <p class="font-medium">Todavía no tienes llaves de acceso</p>
+                <p class="font-medium">Todavía no tenés llaves de acceso</p>
                 <p class="mt-1 text-sm text-muted-foreground">
-                    Añade una llave de acceso para iniciar sesión sin contraseña
+                    Agregá una llave de acceso para iniciar sesión sin contraseña
                 </p>
             </div>
         </div>

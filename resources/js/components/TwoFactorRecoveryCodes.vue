@@ -112,7 +112,7 @@ onMounted(async () => {
                     </div>
                     <p class="text-xs text-muted-foreground select-none">
                         Cada código de recuperación puede usarse una sola vez para acceder a tu cuenta
-                        y se eliminará después de utilizarse. Si necesitas más, pulsa
+                        y se va a eliminar después de utilizarse. Si necesitás más, usá
                         <span class="font-bold">Regenerar códigos</span>.
                     </p>
                 </div>

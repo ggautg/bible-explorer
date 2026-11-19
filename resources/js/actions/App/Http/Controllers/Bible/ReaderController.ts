@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Bible\ReaderController::books
- * @see app/Http/Controllers/Bible/ReaderController.php:20
+ * @see app/Http/Controllers/Bible/ReaderController.php:22
  * @route '/leer'
  */
 export const books = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ books.definition = {
 
 /**
 * @see \App\Http\Controllers\Bible\ReaderController::books
- * @see app/Http/Controllers/Bible/ReaderController.php:20
+ * @see app/Http/Controllers/Bible/ReaderController.php:22
  * @route '/leer'
  */
 books.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ books.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Bible\ReaderController::books
- * @see app/Http/Controllers/Bible/ReaderController.php:20
+ * @see app/Http/Controllers/Bible/ReaderController.php:22
  * @route '/leer'
  */
 books.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ books.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Bible\ReaderController::books
- * @see app/Http/Controllers/Bible/ReaderController.php:20
+ * @see app/Http/Controllers/Bible/ReaderController.php:22
  * @route '/leer'
  */
 books.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ books.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Bible\ReaderController::books
- * @see app/Http/Controllers/Bible/ReaderController.php:20
+ * @see app/Http/Controllers/Bible/ReaderController.php:22
  * @route '/leer'
  */
     const booksForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ books.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Bible\ReaderController::books
- * @see app/Http/Controllers/Bible/ReaderController.php:20
+ * @see app/Http/Controllers/Bible/ReaderController.php:22
  * @route '/leer'
  */
         booksForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ books.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Bible\ReaderController::books
- * @see app/Http/Controllers/Bible/ReaderController.php:20
+ * @see app/Http/Controllers/Bible/ReaderController.php:22
  * @route '/leer'
  */
         booksForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ books.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     books.form = booksForm
 /**
 * @see \App\Http\Controllers\Bible\ReaderController::chapters
- * @see app/Http/Controllers/Bible/ReaderController.php:30
+ * @see app/Http/Controllers/Bible/ReaderController.php:35
  * @route '/leer/{book}'
  */
 export const chapters = (args: { book: string | number } | [book: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ chapters.definition = {
 
 /**
 * @see \App\Http\Controllers\Bible\ReaderController::chapters
- * @see app/Http/Controllers/Bible/ReaderController.php:30
+ * @see app/Http/Controllers/Bible/ReaderController.php:35
  * @route '/leer/{book}'
  */
 chapters.url = (args: { book: string | number } | [book: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -122,7 +122,7 @@ chapters.url = (args: { book: string | number } | [book: string | number ] | str
 
 /**
 * @see \App\Http\Controllers\Bible\ReaderController::chapters
- * @see app/Http/Controllers/Bible/ReaderController.php:30
+ * @see app/Http/Controllers/Bible/ReaderController.php:35
  * @route '/leer/{book}'
  */
 chapters.get = (args: { book: string | number } | [book: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -131,7 +131,7 @@ chapters.get = (args: { book: string | number } | [book: string | number ] | str
 })
 /**
 * @see \App\Http\Controllers\Bible\ReaderController::chapters
- * @see app/Http/Controllers/Bible/ReaderController.php:30
+ * @see app/Http/Controllers/Bible/ReaderController.php:35
  * @route '/leer/{book}'
  */
 chapters.head = (args: { book: string | number } | [book: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -141,7 +141,7 @@ chapters.head = (args: { book: string | number } | [book: string | number ] | st
 
     /**
 * @see \App\Http\Controllers\Bible\ReaderController::chapters
- * @see app/Http/Controllers/Bible/ReaderController.php:30
+ * @see app/Http/Controllers/Bible/ReaderController.php:35
  * @route '/leer/{book}'
  */
     const chaptersForm = (args: { book: string | number } | [book: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -151,7 +151,7 @@ chapters.head = (args: { book: string | number } | [book: string | number ] | st
 
             /**
 * @see \App\Http\Controllers\Bible\ReaderController::chapters
- * @see app/Http/Controllers/Bible/ReaderController.php:30
+ * @see app/Http/Controllers/Bible/ReaderController.php:35
  * @route '/leer/{book}'
  */
         chaptersForm.get = (args: { book: string | number } | [book: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -160,7 +160,7 @@ chapters.head = (args: { book: string | number } | [book: string | number ] | st
         })
             /**
 * @see \App\Http\Controllers\Bible\ReaderController::chapters
- * @see app/Http/Controllers/Bible/ReaderController.php:30
+ * @see app/Http/Controllers/Bible/ReaderController.php:35
  * @route '/leer/{book}'
  */
         chaptersForm.head = (args: { book: string | number } | [book: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -176,7 +176,7 @@ chapters.head = (args: { book: string | number } | [book: string | number ] | st
     chapters.form = chaptersForm
 /**
 * @see \App\Http\Controllers\Bible\ReaderController::chapter
- * @see app/Http/Controllers/Bible/ReaderController.php:53
+ * @see app/Http/Controllers/Bible/ReaderController.php:63
  * @route '/leer/{book}/{chapter}'
  */
 export const chapter = (args: { book: string | number, chapter: string | number } | [book: string | number, chapter: string | number ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -191,7 +191,7 @@ chapter.definition = {
 
 /**
 * @see \App\Http\Controllers\Bible\ReaderController::chapter
- * @see app/Http/Controllers/Bible/ReaderController.php:53
+ * @see app/Http/Controllers/Bible/ReaderController.php:63
  * @route '/leer/{book}/{chapter}'
  */
 chapter.url = (args: { book: string | number, chapter: string | number } | [book: string | number, chapter: string | number ], options?: RouteQueryOptions) => {
@@ -217,7 +217,7 @@ chapter.url = (args: { book: string | number, chapter: string | number } | [book
 
 /**
 * @see \App\Http\Controllers\Bible\ReaderController::chapter
- * @see app/Http/Controllers/Bible/ReaderController.php:53
+ * @see app/Http/Controllers/Bible/ReaderController.php:63
  * @route '/leer/{book}/{chapter}'
  */
 chapter.get = (args: { book: string | number, chapter: string | number } | [book: string | number, chapter: string | number ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -226,7 +226,7 @@ chapter.get = (args: { book: string | number, chapter: string | number } | [book
 })
 /**
 * @see \App\Http\Controllers\Bible\ReaderController::chapter
- * @see app/Http/Controllers/Bible/ReaderController.php:53
+ * @see app/Http/Controllers/Bible/ReaderController.php:63
  * @route '/leer/{book}/{chapter}'
  */
 chapter.head = (args: { book: string | number, chapter: string | number } | [book: string | number, chapter: string | number ], options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -236,7 +236,7 @@ chapter.head = (args: { book: string | number, chapter: string | number } | [boo
 
     /**
 * @see \App\Http\Controllers\Bible\ReaderController::chapter
- * @see app/Http/Controllers/Bible/ReaderController.php:53
+ * @see app/Http/Controllers/Bible/ReaderController.php:63
  * @route '/leer/{book}/{chapter}'
  */
     const chapterForm = (args: { book: string | number, chapter: string | number } | [book: string | number, chapter: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -246,7 +246,7 @@ chapter.head = (args: { book: string | number, chapter: string | number } | [boo
 
             /**
 * @see \App\Http\Controllers\Bible\ReaderController::chapter
- * @see app/Http/Controllers/Bible/ReaderController.php:53
+ * @see app/Http/Controllers/Bible/ReaderController.php:63
  * @route '/leer/{book}/{chapter}'
  */
         chapterForm.get = (args: { book: string | number, chapter: string | number } | [book: string | number, chapter: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -255,7 +255,7 @@ chapter.head = (args: { book: string | number, chapter: string | number } | [boo
         })
             /**
 * @see \App\Http\Controllers\Bible\ReaderController::chapter
- * @see app/Http/Controllers/Bible/ReaderController.php:53
+ * @see app/Http/Controllers/Bible/ReaderController.php:63
  * @route '/leer/{book}/{chapter}'
  */
         chapterForm.head = (args: { book: string | number, chapter: string | number } | [book: string | number, chapter: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -271,7 +271,7 @@ chapter.head = (args: { book: string | number, chapter: string | number } | [boo
     chapter.form = chapterForm
 /**
 * @see \App\Http\Controllers\Bible\ReaderController::favorites
- * @see app/Http/Controllers/Bible/ReaderController.php:95
+ * @see app/Http/Controllers/Bible/ReaderController.php:108
  * @route '/favoritos'
  */
 export const favorites = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -286,7 +286,7 @@ favorites.definition = {
 
 /**
 * @see \App\Http\Controllers\Bible\ReaderController::favorites
- * @see app/Http/Controllers/Bible/ReaderController.php:95
+ * @see app/Http/Controllers/Bible/ReaderController.php:108
  * @route '/favoritos'
  */
 favorites.url = (options?: RouteQueryOptions) => {
@@ -295,7 +295,7 @@ favorites.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Bible\ReaderController::favorites
- * @see app/Http/Controllers/Bible/ReaderController.php:95
+ * @see app/Http/Controllers/Bible/ReaderController.php:108
  * @route '/favoritos'
  */
 favorites.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -304,7 +304,7 @@ favorites.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Bible\ReaderController::favorites
- * @see app/Http/Controllers/Bible/ReaderController.php:95
+ * @see app/Http/Controllers/Bible/ReaderController.php:108
  * @route '/favoritos'
  */
 favorites.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -314,7 +314,7 @@ favorites.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Bible\ReaderController::favorites
- * @see app/Http/Controllers/Bible/ReaderController.php:95
+ * @see app/Http/Controllers/Bible/ReaderController.php:108
  * @route '/favoritos'
  */
     const favoritesForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -324,7 +324,7 @@ favorites.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Bible\ReaderController::favorites
- * @see app/Http/Controllers/Bible/ReaderController.php:95
+ * @see app/Http/Controllers/Bible/ReaderController.php:108
  * @route '/favoritos'
  */
         favoritesForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -333,7 +333,7 @@ favorites.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Bible\ReaderController::favorites
- * @see app/Http/Controllers/Bible/ReaderController.php:95
+ * @see app/Http/Controllers/Bible/ReaderController.php:108
  * @route '/favoritos'
  */
         favoritesForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -349,7 +349,7 @@ favorites.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     favorites.form = favoritesForm
 /**
 * @see \App\Http\Controllers\Bible\ReaderController::notes
- * @see app/Http/Controllers/Bible/ReaderController.php:105
+ * @see app/Http/Controllers/Bible/ReaderController.php:120
  * @route '/notas'
  */
 export const notes = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -364,7 +364,7 @@ notes.definition = {
 
 /**
 * @see \App\Http\Controllers\Bible\ReaderController::notes
- * @see app/Http/Controllers/Bible/ReaderController.php:105
+ * @see app/Http/Controllers/Bible/ReaderController.php:120
  * @route '/notas'
  */
 notes.url = (options?: RouteQueryOptions) => {
@@ -373,7 +373,7 @@ notes.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Bible\ReaderController::notes
- * @see app/Http/Controllers/Bible/ReaderController.php:105
+ * @see app/Http/Controllers/Bible/ReaderController.php:120
  * @route '/notas'
  */
 notes.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -382,7 +382,7 @@ notes.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Bible\ReaderController::notes
- * @see app/Http/Controllers/Bible/ReaderController.php:105
+ * @see app/Http/Controllers/Bible/ReaderController.php:120
  * @route '/notas'
  */
 notes.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -392,7 +392,7 @@ notes.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Bible\ReaderController::notes
- * @see app/Http/Controllers/Bible/ReaderController.php:105
+ * @see app/Http/Controllers/Bible/ReaderController.php:120
  * @route '/notas'
  */
     const notesForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -402,7 +402,7 @@ notes.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Bible\ReaderController::notes
- * @see app/Http/Controllers/Bible/ReaderController.php:105
+ * @see app/Http/Controllers/Bible/ReaderController.php:120
  * @route '/notas'
  */
         notesForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -411,7 +411,7 @@ notes.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Bible\ReaderController::notes
- * @see app/Http/Controllers/Bible/ReaderController.php:105
+ * @see app/Http/Controllers/Bible/ReaderController.php:120
  * @route '/notas'
  */
         notesForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

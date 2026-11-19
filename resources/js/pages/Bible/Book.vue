@@ -22,10 +22,10 @@ defineProps({
 <template>
   <Head :title="book.name" />
 
-  <BiblePageShell back-href="/leer" back-label="← Volver a libros" max-width-class="max-w-4xl">
+  <BiblePageShell back-href="/leer" back-label="← Volver a libros" max-width-class="max-w-7xl">
     <template #header>
       <h1 class="mt-1 font-bible-display text-3xl font-semibold text-bible-accent-bright">{{ book.name }}</h1>
-      <p class="text-sm text-bible-muted">Selecciona un capítulo para leerlo.</p>
+      <p class="text-sm text-bible-muted">Seleccioná un capítulo para leerlo.</p>
     </template>
 
     <div class="rounded-xl border border-bible-border bg-bible-panel/40 p-4 md:p-5">

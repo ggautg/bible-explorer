@@ -137,7 +137,7 @@ async function onToggleFavorite(v) {
   <BiblePageShell
     :back-href="`/leer/${book.code}`"
     :back-label="`← Volver a ${book.name}`"
-    max-width-class="max-w-4xl"
+    max-width-class="max-w-7xl"
   >
     <template #header>
       <p class="text-xs font-medium uppercase tracking-[0.18em] text-bible-accent">Capítulo</p>
@@ -244,7 +244,7 @@ async function onToggleFavorite(v) {
             v-model="draftText"
             rows="3"
             maxlength="5000"
-            placeholder="Escribe una reflexión breve sobre este versículo..."
+            placeholder="Escribí una reflexión breve sobre este versículo..."
             class="w-full resize-y rounded-md border border-bible-border bg-bible-panel/60 px-3 py-2 text-sm text-bible-text placeholder:text-bible-muted-dim focus:outline-none focus:ring-2 focus:ring-bible-accent"
           ></textarea>
           <div class="mt-3 flex flex-wrap items-center justify-between gap-2">

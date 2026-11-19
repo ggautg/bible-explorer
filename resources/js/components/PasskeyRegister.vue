@@ -66,7 +66,7 @@ const handleCancel = () => {
     </div>
 
     <Button v-else-if="!showForm" variant="outline" @click="showForm = true">
-        Añadir llave de acceso
+        Agregar llave de acceso
     </Button>
 
     <form

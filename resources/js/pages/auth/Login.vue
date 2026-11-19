@@ -25,8 +25,8 @@ defineProps<{
 
 <template>
     <AuthLayout
-        title="Iniciar sesión"
-        description="Ingresa tu correo y contraseña para acceder a tu cuenta"
+        title="Iniciá sesión"
+        description="Ingresá tu correo y contraseña para acceder a tu cuenta"
     >
         <div
             v-if="status"
@@ -93,14 +93,14 @@ defineProps<{
                     data-test="login-button"
                 >
                     <Spinner v-if="processing" />
-                    Iniciar sesión
+                    Iniciá sesión
                 </Button>
             </div>
         </Form>
 
         <template #footer>
-            ¿No tienes cuenta?
-            <TextLink :href="register()" :tabindex="6">Crear cuenta</TextLink>
+            ¿No tenés cuenta?
+            <TextLink :href="register()" :tabindex="6">Creá tu cuenta</TextLink>
         </template>
     </AuthLayout>
 </template>

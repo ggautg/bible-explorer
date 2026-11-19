@@ -49,10 +49,10 @@ const user = computed(() => page.props.auth?.user ?? null);
             href="/register"
             class="inline-flex items-center justify-center rounded-md bg-bible-accent px-5 py-3 text-sm font-medium text-bible-bg transition-colors hover:bg-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
           >
-            Crear cuenta para explorar
+            Creá tu cuenta para explorar
           </Link>
           <p class="max-w-sm text-sm leading-relaxed text-bible-muted">
-            Regístrate gratis para leer capítulos completos, guardar favoritos, escribir notas y explorar conexiones.
+            Registrate gratis para leer capítulos completos, guardar favoritos, escribir notas y explorar conexiones.
           </p>
           <Link
             href="/login"

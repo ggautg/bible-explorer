@@ -57,7 +57,7 @@ function submit() {
 <template>
   <Head title="Buscar en la Biblia" />
 
-  <BiblePageShell max-width-class="max-w-4xl">
+  <BiblePageShell max-width-class="max-w-7xl">
     <template #header>
       <h1 class="font-bible-display text-3xl font-semibold text-bible-accent-bright">Buscar en la Biblia</h1>
       <p class="text-sm text-bible-muted">Encuentra versículos por palabras o frases.</p>
@@ -82,7 +82,7 @@ function submit() {
           {{ isSubmitting ? 'Buscando...' : 'Buscar' }}
         </button>
       </div>
-      <p class="mt-2 text-xs text-bible-muted">Escribe al menos 3 caracteres para obtener resultados relevantes.</p>
+      <p class="mt-2 text-xs text-bible-muted">Escribí al menos 3 caracteres para obtener resultados relevantes.</p>
     </form>
 
     <div v-if="query && query.trim().length >= 3">
@@ -120,14 +120,14 @@ function submit() {
       <EmptyState
         v-else
         title="No se encontraron resultados"
-        description="Prueba con otra palabra, una frase más corta o un término diferente."
+        description="Probá con otra palabra, una frase más corta o un término diferente."
       />
     </div>
 
     <EmptyState
       v-else
-      title="Comienza una búsqueda"
-      description="Ingresa un término para explorar versículos relacionados en toda la Biblia."
+      title="Empezá una búsqueda"
+      description="Ingresá un término para explorar versículos relacionados en toda la Biblia."
     />
   </BiblePageShell>
 </template>

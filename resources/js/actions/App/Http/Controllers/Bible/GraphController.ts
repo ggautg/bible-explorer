@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Bible\GraphController::show
- * @see app/Http/Controllers/Bible/GraphController.php:25
+ * @see app/Http/Controllers/Bible/GraphController.php:32
  * @route '/bible/{book}/{chapter}/{verse}'
  */
 export const show = (args: { book: string | number, chapter: string | number, verse: string | number } | [book: string | number, chapter: string | number, verse: string | number ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\Bible\GraphController::show
- * @see app/Http/Controllers/Bible/GraphController.php:25
+ * @see app/Http/Controllers/Bible/GraphController.php:32
  * @route '/bible/{book}/{chapter}/{verse}'
  */
 show.url = (args: { book: string | number, chapter: string | number, verse: string | number } | [book: string | number, chapter: string | number, verse: string | number ], options?: RouteQueryOptions) => {
@@ -45,7 +45,7 @@ show.url = (args: { book: string | number, chapter: string | number, verse: stri
 
 /**
 * @see \App\Http\Controllers\Bible\GraphController::show
- * @see app/Http/Controllers/Bible/GraphController.php:25
+ * @see app/Http/Controllers/Bible/GraphController.php:32
  * @route '/bible/{book}/{chapter}/{verse}'
  */
 show.get = (args: { book: string | number, chapter: string | number, verse: string | number } | [book: string | number, chapter: string | number, verse: string | number ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -54,7 +54,7 @@ show.get = (args: { book: string | number, chapter: string | number, verse: stri
 })
 /**
 * @see \App\Http\Controllers\Bible\GraphController::show
- * @see app/Http/Controllers/Bible/GraphController.php:25
+ * @see app/Http/Controllers/Bible/GraphController.php:32
  * @route '/bible/{book}/{chapter}/{verse}'
  */
 show.head = (args: { book: string | number, chapter: string | number, verse: string | number } | [book: string | number, chapter: string | number, verse: string | number ], options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -64,7 +64,7 @@ show.head = (args: { book: string | number, chapter: string | number, verse: str
 
     /**
 * @see \App\Http\Controllers\Bible\GraphController::show
- * @see app/Http/Controllers/Bible/GraphController.php:25
+ * @see app/Http/Controllers/Bible/GraphController.php:32
  * @route '/bible/{book}/{chapter}/{verse}'
  */
     const showForm = (args: { book: string | number, chapter: string | number, verse: string | number } | [book: string | number, chapter: string | number, verse: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -74,7 +74,7 @@ show.head = (args: { book: string | number, chapter: string | number, verse: str
 
             /**
 * @see \App\Http\Controllers\Bible\GraphController::show
- * @see app/Http/Controllers/Bible/GraphController.php:25
+ * @see app/Http/Controllers/Bible/GraphController.php:32
  * @route '/bible/{book}/{chapter}/{verse}'
  */
         showForm.get = (args: { book: string | number, chapter: string | number, verse: string | number } | [book: string | number, chapter: string | number, verse: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -83,7 +83,7 @@ show.head = (args: { book: string | number, chapter: string | number, verse: str
         })
             /**
 * @see \App\Http\Controllers\Bible\GraphController::show
- * @see app/Http/Controllers/Bible/GraphController.php:25
+ * @see app/Http/Controllers/Bible/GraphController.php:32
  * @route '/bible/{book}/{chapter}/{verse}'
  */
         showForm.head = (args: { book: string | number, chapter: string | number, verse: string | number } | [book: string | number, chapter: string | number, verse: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

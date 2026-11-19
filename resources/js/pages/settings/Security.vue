@@ -28,13 +28,13 @@ defineProps<{
 </script>
 
 <template>
-    <SettingsLayout title="Seguridad" description="Administra tu contraseña, verificación en dos pasos y llaves de acceso.">
+    <SettingsLayout title="Seguridad" description="Administrá tu contraseña, verificación en dos pasos y llaves de acceso.">
         <div class="space-y-10">
             <section class="space-y-6">
                 <Heading
                     variant="small"
                     title="Actualizar contraseña"
-                    description="Usa una contraseña larga y aleatoria para mantener tu cuenta segura"
+                    description="Usá una contraseña larga y aleatoria para mantener tu cuenta segura"
                 />
 
                 <Form
@@ -74,7 +74,7 @@ defineProps<{
                             id="password_confirmation"
                             name="password_confirmation"
                             autocomplete="new-password"
-                            placeholder="Repite la nueva contraseña"
+                            placeholder="Repetí la nueva contraseña"
                         />
                         <InputError :message="errors.password_confirmation" />
                     </div>

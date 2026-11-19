@@ -5,8 +5,9 @@ namespace App\Http\Controllers;
 /**
  * Controlador base de la aplicación.
  *
- * Todos los controladores HTTP de la aplicación extienden de esta clase
- * abstracta para compartir comportamiento común cuando sea necesario.
+ * Punto de extensión común para todos los controladores HTTP. Aquí se puede
+ * agregar lógica compartida (helpers, traits o middleware base) cuando sea
+ * necesario, manteniendo los controladores concretos simples y enfocados.
  */
 abstract class Controller
 {

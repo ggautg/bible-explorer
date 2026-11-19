@@ -19,7 +19,11 @@ class TextSearchController extends Controller
     /**
      * Ejecuta una búsqueda de texto y muestra los resultados.
      *
-     * Requiere al menos 3 caracteres para evitar consultas poco útiles.
+     * Requiere al menos 3 caracteres para evitar consultas poco útiles. Usa
+     * búsqueda de texto completo (MySQL) sobre la traducción principal.
+     *
+     * @param  Request  $request  Solicitud con el parámetro `q`.
+     * @return Response Página Inertia con la consulta y resultados.
      */
     public function search(Request $request): Response
     {

@@ -33,7 +33,7 @@ onUnmounted(() => clearTwoFactorAuthData());
         <Heading
             variant="small"
             title="Verificación en dos pasos"
-            description="Administra la protección adicional de tu cuenta"
+            description="Administrá la protección adicional de tu cuenta"
         />
 
         <div
@@ -41,8 +41,8 @@ onUnmounted(() => clearTwoFactorAuthData());
             class="flex flex-col items-start justify-start space-y-4"
         >
             <p class="text-sm text-muted-foreground">
-                Al activar la verificación en dos pasos, se te pedirá un código
-                seguro al iniciar sesión. Puedes obtenerlo desde una aplicación
+                Al activar la verificación en dos pasos, se te va a pedir un código
+                seguro al iniciar sesión. Podés obtenerlo desde una aplicación
                 de autenticación compatible con códigos TOTP en tu teléfono.
             </p>
 
@@ -65,8 +65,8 @@ onUnmounted(() => clearTwoFactorAuthData());
 
         <div v-else class="flex flex-col items-start justify-start space-y-4">
             <p class="text-sm text-muted-foreground">
-                Al iniciar sesión se te solicitará un código seguro y temporal,
-                que podrás consultar en tu aplicación de autenticación.
+                Al iniciar sesión se te va a solicitar un código seguro y temporal,
+                que vas a poder consultar en tu aplicación de autenticación.
             </p>
 
             <div class="relative inline">

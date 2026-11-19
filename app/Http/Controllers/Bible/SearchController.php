@@ -20,11 +20,16 @@ class SearchController extends Controller
 {
     /**
      * Crea una nueva instancia del controlador.
+     *
+     * @param  BibleReferenceParser  $parser  Servicio de parseo/resolución de referencias.
      */
     public function __construct(private BibleReferenceParser $parser) {}
 
     /**
      * Busca libros por nombre para el autocompletado.
+     *
+     * @param  Request  $request  Solicitud con el parámetro `q`.
+     * @return JsonResponse Lista de libros coincidentes (máx. 8).
      */
     public function books(Request $request): JsonResponse
     {
@@ -47,6 +52,9 @@ class SearchController extends Controller
      * Resuelve una referencia bíblica en formato texto.
      *
      * Devuelve 422 si el formato es inválido o 404 si el libro/versículo no existe.
+     *
+     * @param  Request  $request  Solicitud con el parámetro `ref`.
+     * @return JsonResponse Referencia resuelta o error con código HTTP apropiado.
      */
     public function resolve(Request $request): JsonResponse
     {
