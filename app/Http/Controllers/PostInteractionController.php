@@ -7,12 +7,20 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 /**
- * Controlador de interacciones con publicaciones (like, rebibleo, etc.).
+ * Controlador de interacciones con publicaciones.
+ *
+ * Gestiona acciones sociales rápidas: me gusta y rebibleo (republicación).
+ * Todas las acciones devuelven redirección atrás para que Inertia conserve
+ * el scroll y actualice el estado con feedback.
  */
 class PostInteractionController extends Controller
 {
     /**
-     * Alterna "me gusta" en una publicación.
+     * Alterna el "me gusta" del usuario autenticado en una publicación.
+     *
+     * @param  Request  $request  Solicitud autenticada.
+     * @param  Post  $post  Publicación objetivo.
+     * @return RedirectResponse Redirección atrás con notificación.
      */
     public function toggleLike(Request $request, Post $post): RedirectResponse
     {
@@ -21,23 +29,31 @@ class PostInteractionController extends Controller
 
         if ($existing) {
             $post->likedBy()->detach($viewer->id);
+            $message = 'Quitaste tu me gusta.';
         } else {
             $post->likedBy()->attach($viewer->id);
+            $message = 'Te gustó esta publicación.';
         }
 
-        return back();
+        return back()->with('toast', ['type' => 'success', 'message' => $message]);
     }
 
     /**
-     * Alterna rebibleo (repost) de una publicación.
+     * Alterna el rebibleo (repost) de una publicación.
+     *
+     * Si el post ya es un rebibleo, se toma su publicación original como objetivo.
+     * No se permite rebiblear publicaciones propias.
+     *
+     * @param  Request  $request  Solicitud autenticada.
+     * @param  Post  $post  Publicación a rebiblear.
+     * @return RedirectResponse Redirección atrás con notificación.
      */
     public function toggleRebible(Request $request, Post $post): RedirectResponse
     {
         $viewer = $request->user();
 
-        // No se rebiblea un post propio en este flujo simple.
         if ($post->user_id === $viewer->id) {
-            return back();
+            return back()->with('toast', ['type' => 'info', 'message' => 'No podés rebiblear tu propia publicación.']);
         }
 
         $target = $post->isRebible() && $post->rebible_of_id ? $post->rebible_of_id : $post->id;
@@ -49,6 +65,7 @@ class PostInteractionController extends Controller
 
         if ($existing) {
             $existing->delete();
+            $message = 'Quitaste el rebibleo.';
         } else {
             Post::query()->create([
                 'user_id' => $viewer->id,
@@ -56,8 +73,9 @@ class PostInteractionController extends Controller
                 'rebible_of_id' => $target,
                 'body' => null,
             ]);
+            $message = 'Rebibleaste esta publicación.';
         }
 
-        return back();
+        return back()->with('toast', ['type' => 'success', 'message' => $message]);
     }
 }

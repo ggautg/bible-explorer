@@ -15,8 +15,8 @@ defineProps({
 </script>
 
 <template>
-  <div class="flex items-center gap-3 rounded-lg border border-bible-border bg-bible-panel/60 px-4 py-3 text-bible-muted" role="status" aria-live="polite">
-    <span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-bible-border border-t-bible-accent" aria-hidden="true"></span>
+  <div class="flex items-center gap-3 rounded-2xl border border-bible-border bg-bible-panel/50 px-5 py-4 text-bible-muted" role="status" aria-live="polite">
+    <span class="inline-block h-5 w-5 animate-spin rounded-full border-2 border-bible-border border-t-bible-accent" aria-hidden="true"></span>
     <span class="text-sm">{{ message }}</span>
   </div>
 </template>

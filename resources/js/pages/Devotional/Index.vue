@@ -29,7 +29,10 @@ const prompts = [
 
   <BiblePageShell max-width-class="max-w-7xl">
     <template #header>
-      <p class="mb-1 text-xs font-medium uppercase tracking-[0.2em] text-bible-accent">Espacio personal</p>
+      <p class="mb-1 inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-bible-accent">
+        <BookHeart class="h-4 w-4" aria-hidden="true" />
+        Espacio personal
+      </p>
       <h1 class="font-bible-display text-3xl font-semibold text-bible-accent-bright md:text-4xl">Mi devocionario</h1>
       <p class="mt-2 max-w-2xl text-sm text-bible-muted md:text-base">
         Un lugar tranquilo para leer, orar y anotar lo que Dios va haciendo en tu vida.

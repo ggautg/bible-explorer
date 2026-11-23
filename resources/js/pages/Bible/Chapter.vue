@@ -1,9 +1,9 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
-import axios from 'axios';
+import { BookOpen, ChevronLeft, ChevronRight, Copy, GitBranch, Heart, Languages, NotebookPen, Share2 } from '@lucide/vue';
 import BiblePageShell from '@/components/Bible/BiblePageShell.vue';
-import ToastContainer from '@/components/Bible/ToastContainer.vue';
+
 import { useFavorites } from '@/composables/useFavorites';
 import { useNotes } from '@/composables/useNotes';
 import { useToast } from '@/composables/useToast';
@@ -140,24 +140,38 @@ async function onToggleFavorite(v) {
     max-width-class="max-w-7xl"
   >
     <template #header>
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-bible-accent">Capítulo</p>
-      <h1 class="font-bible-display text-3xl font-semibold text-bible-accent-bright md:text-4xl">
-        {{ book.name }} {{ chapter }}
-      </h1>
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p class="mb-1 inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-bible-accent">
+            <BookOpen class="h-4 w-4" aria-hidden="true" />
+            Lectura
+          </p>
+          <h1 class="font-bible-display text-3xl font-semibold text-bible-accent-bright md:text-4xl">
+            {{ book.name }} {{ chapter }}
+          </h1>
+          <p class="mt-1 text-sm text-bible-muted">{{ verses.length }} versículos en este capítulo.</p>
+        </div>
+        <div class="inline-flex items-center gap-2 rounded-full border border-bible-border bg-bible-panel/40 px-3 py-1.5 text-xs text-bible-muted">
+          <Languages class="h-3.5 w-3.5 text-bible-accent" aria-hidden="true" />
+          RVG
+        </div>
+      </div>
     </template>
 
-    <div class="mb-6 flex flex-wrap items-center gap-3">
+    <div class="mb-6 flex flex-wrap items-center gap-3 rounded-2xl border border-bible-border bg-bible-panel/35 p-3 md:p-4">
       <button
         type="button"
         @click="showComparison = !showComparison"
-        class="rounded-md border border-bible-border bg-bible-panel/60 px-3.5 py-2 text-sm text-bible-text transition-colors hover:border-bible-accent hover:text-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
+        class="inline-flex items-center gap-2 rounded-xl border border-bible-border bg-bible-bg/40 px-3.5 py-2 text-sm text-bible-text transition-colors hover:border-bible-accent hover:text-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent disabled:cursor-not-allowed disabled:opacity-50"
         :disabled="!Object.keys(alternateVerses || {}).length"
       >
-        {{ showComparison ? 'Ocultar comparación' : 'Comparar con “Palabra de Dios para ti”' }}
+        <Languages class="h-4 w-4" aria-hidden="true" />
+        {{ showComparison ? 'Ocultar comparación' : 'Comparar traducción' }}
       </button>
       <p v-if="!Object.keys(alternateVerses || {}).length" class="text-xs text-bible-muted">
         No hay traducción alternativa disponible para este capítulo.
       </p>
+      <p v-else class="text-xs text-bible-muted">Podés comparar con “Palabra de Dios para ti”.</p>
     </div>
 
     <div v-if="favoritesLoading || notesLoading" class="mb-4 text-sm text-bible-muted">
@@ -168,12 +182,12 @@ async function onToggleFavorite(v) {
       <article
         v-for="v in verses"
         :key="v.verse"
-        class="rounded-xl border border-bible-border bg-bible-panel/50 p-4 md:p-5"
+        class="group rounded-2xl border border-bible-border bg-bible-panel/45 p-4 transition-colors hover:border-bible-accent/25 md:p-5"
       >
-        <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+        <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div class="min-w-0 flex-1">
             <p class="font-bible-display text-lg leading-relaxed text-bible-text md:text-xl">
-              <span class="mr-2 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-bible-bg/70 px-1.5 align-middle font-bible-body text-xs font-medium text-bible-accent">
+              <span class="mr-2 inline-flex h-7 min-w-7 items-center justify-center rounded-lg border border-bible-accent/20 bg-bible-bg/60 px-1.5 align-middle font-bible-body text-xs font-semibold text-bible-accent">
                 {{ v.verse }}
               </span>
               {{ v.text }}
@@ -181,53 +195,59 @@ async function onToggleFavorite(v) {
 
             <p
               v-if="showComparison && alternateVerses[v.verse]"
-              class="mt-3 rounded-md border-l-2 border-bible-accent/50 bg-bible-bg/30 px-3 py-2 font-bible-body text-sm leading-relaxed text-bible-muted italic"
+              class="mt-3 rounded-xl border-l-2 border-bible-accent/50 bg-bible-bg/30 px-4 py-3 font-bible-body text-sm leading-relaxed text-bible-muted italic"
             >
+              <span class="mb-1 block text-[11px] font-medium uppercase tracking-wide not-italic text-bible-accent/80">Palabra de Dios para ti</span>
               {{ alternateVerses[v.verse] }}
             </p>
           </div>
 
-          <div class="flex flex-wrap items-center gap-2 md:max-w-[220px] md:justify-end">
+          <!-- Acciones por versículo: notas, favoritos, grafo y compartir. -->
+          <div class="flex flex-wrap items-center gap-2 md:max-w-[260px] md:justify-end">
             <button
               type="button"
               @click="toggleNoteBox(v)"
-              class="rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
+              class="inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
               :class="noteFor(versePayload(v))
-                ? 'border-bible-accent/60 bg-bible-accent/10 text-bible-accent-bright'
+                ? 'border-bible-accent/50 bg-bible-accent/10 text-bible-accent-bright'
                 : 'border-bible-border text-bible-muted hover:border-bible-accent hover:text-bible-accent-bright'"
               :aria-label="noteFor(versePayload(v)) ? 'Editar nota' : 'Agregar nota'"
             >
-              {{ noteFor(versePayload(v)) ? 'Nota' : 'Agregar nota' }}
+              <NotebookPen class="h-3.5 w-3.5" aria-hidden="true" />
+              {{ noteFor(versePayload(v)) ? 'Nota' : 'Nota' }}
             </button>
 
             <button
               type="button"
               @click="onToggleFavorite(v)"
-              class="rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
+              class="inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
               :class="isFavorite(versePayload(v))
-                ? 'border-bible-accent/60 bg-bible-accent/10 text-bible-accent-bright'
+                ? 'border-bible-accent/50 bg-bible-accent/10 text-bible-accent-bright'
                 : 'border-bible-border text-bible-muted hover:border-bible-accent hover:text-bible-accent-bright'"
               :disabled="favoriteBusyVerse === v.verse"
               :aria-label="isFavorite(versePayload(v)) ? 'Quitar de favoritos' : 'Guardar en favoritos'"
             >
-              {{ isFavorite(versePayload(v)) ? '★ Favorito' : '☆ Favorito' }}
+              <Heart class="h-3.5 w-3.5" :class="isFavorite(versePayload(v)) ? 'fill-current' : ''" aria-hidden="true" />
+              {{ isFavorite(versePayload(v)) ? 'Guardado' : 'Guardar' }}
             </button>
 
             <Link
               :href="`/bible/${book.code}/${chapter}/${v.verse}`"
-              class="rounded-md border border-bible-border px-2.5 py-1.5 text-xs font-medium text-bible-muted transition-colors hover:border-bible-accent hover:text-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
+              class="inline-flex items-center gap-1.5 rounded-lg border border-bible-border px-2.5 py-1.5 text-xs font-medium text-bible-muted transition-colors hover:border-bible-accent hover:text-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
               aria-label="Ver conexiones del versículo"
             >
-              Conexiones
+              <GitBranch class="h-3.5 w-3.5" aria-hidden="true" />
+              Grafo
             </Link>
 
             <button
               type="button"
               @click="shareVerse(v)"
-              class="rounded-md border border-bible-border px-2.5 py-1.5 text-xs font-medium text-bible-muted transition-colors hover:border-bible-accent hover:text-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
+              class="inline-flex items-center gap-1.5 rounded-lg border border-bible-border px-2.5 py-1.5 text-xs font-medium text-bible-muted transition-colors hover:border-bible-accent hover:text-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
               :aria-label="copiedVerse === v.verse ? 'Versículo copiado' : 'Copiar versículo'"
             >
-              {{ copiedVerse === v.verse ? 'Copiado' : 'Copiar' }}
+              <component :is="copiedVerse === v.verse ? Copy : Share2" class="h-3.5 w-3.5" aria-hidden="true" />
+              {{ copiedVerse === v.verse ? 'Copiado' : 'Compartir' }}
             </button>
           </div>
         </div>
@@ -281,25 +301,26 @@ async function onToggleFavorite(v) {
       </article>
     </section>
 
-    <nav class="mt-10 flex items-center justify-between gap-4 border-t border-bible-border/70 pt-5 text-sm">
+    <nav class="mt-10 flex items-center justify-between gap-4 border-t border-bible-border/70 pt-6 text-sm" aria-label="Navegación de capítulos">
       <Link
         v-if="hasPrev"
         :href="`/leer/${book.code}/${chapter - 1}`"
-        class="rounded-md border border-bible-border px-4 py-2 text-bible-text transition-colors hover:border-bible-accent hover:text-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
+        class="inline-flex items-center gap-2 rounded-xl border border-bible-border bg-bible-panel/30 px-4 py-2.5 text-bible-text transition-colors hover:border-bible-accent hover:text-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
       >
-        ← Capítulo anterior
+        <ChevronLeft class="h-4 w-4" aria-hidden="true" />
+        Capítulo anterior
       </Link>
       <span v-else></span>
 
       <Link
         v-if="hasNext"
         :href="`/leer/${book.code}/${chapter + 1}`"
-        class="rounded-md border border-bible-border px-4 py-2 text-bible-text transition-colors hover:border-bible-accent hover:text-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
+        class="inline-flex items-center gap-2 rounded-xl border border-bible-border bg-bible-panel/30 px-4 py-2.5 text-bible-text transition-colors hover:border-bible-accent hover:text-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
       >
-        Capítulo siguiente →
+        Capítulo siguiente
+        <ChevronRight class="h-4 w-4" aria-hidden="true" />
       </Link>
     </nav>
 
-    <ToastContainer />
   </BiblePageShell>
 </template>

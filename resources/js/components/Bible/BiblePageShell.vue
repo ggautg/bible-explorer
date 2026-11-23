@@ -1,52 +1,68 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
+import { ref } from 'vue';
+import { Menu, X } from '@lucide/vue';
 import NavHeader from '@/components/Bible/NavHeader.vue';
 
 /**
  * Contenedor de página con navegación lateral vertical.
  *
- * Organiza la navegación en un menú lateral (opciones apiladas) y el contenido
- * principal en una columna flexible, manteniendo coherencia visual.
+ * - Desktop: menú lateral fijo (sticky) con opciones apiladas.
+ * - Mobile: menú colapsable para no ocupar toda la pantalla.
+ * Mantiene coherencia visual, ancho máximo y cabecera de contenido.
  */
 defineProps({
   /** Enlace de retroceso opcional para la cabecera del contenido. */
-  backHref: {
-    type: String,
-    default: null,
-  },
+  backHref: { type: String, default: null },
   /** Texto visible del enlace de retroceso. */
-  backLabel: {
-    type: String,
-    default: '← Volver',
-  },
+  backLabel: { type: String, default: '← Volver' },
   /** Ancho máximo del contenido (columna principal). */
-  maxWidthClass: {
-    type: String,
-    default: 'max-w-5xl',
-  },
+  maxWidthClass: { type: String, default: 'max-w-5xl' },
   /** Oculta la navegación lateral cuando no es necesaria. */
-  hideNav: {
-    type: Boolean,
-    default: false,
-  },
+  hideNav: { type: Boolean, default: false },
 });
+
+/** Estado del menú móvil. */
+const mobileOpen = ref(false);
 </script>
 
 <template>
   <div class="min-h-screen bg-bible-bg text-bible-text font-bible-body">
-    <div class="mx-auto w-full max-w-[1400px] px-4 py-6 md:px-6 md:py-8">
+    <div class="mx-auto w-full max-w-[1400px] px-4 py-4 md:px-6 md:py-8">
+      <!-- Barra superior móvil -->
+      <div v-if="!hideNav" class="mb-4 flex items-center justify-between rounded-2xl border border-bible-border bg-bible-panel/50 px-4 py-3 lg:hidden">
+        <div>
+          <p class="font-bible-display text-lg font-semibold leading-tight text-bible-accent-bright">Explorador Bíblico</p>
+          <p class="text-xs text-bible-muted">Comunidad y herramientas</p>
+        </div>
+        <button
+          type="button"
+          class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-bible-border text-bible-muted transition-colors hover:bg-bible-bg/50 hover:text-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
+          :aria-expanded="mobileOpen ? 'true' : 'false'"
+          aria-controls="mobile-nav"
+          aria-label="Abrir menú de navegación"
+          @click="mobileOpen = !mobileOpen"
+        >
+          <component :is="mobileOpen ? X : Menu" class="h-5 w-5" aria-hidden="true" />
+        </button>
+      </div>
+
       <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8">
         <aside
           v-if="!hideNav"
-          class="w-full shrink-0 lg:sticky lg:top-8 lg:w-64 lg:self-start"
+          id="mobile-nav"
+          :class="[
+            'w-full shrink-0 lg:block lg:sticky lg:top-8 lg:w-64 lg:self-start',
+            mobileOpen ? 'block' : 'hidden',
+          ]"
           aria-label="Menú lateral"
         >
           <div class="rounded-2xl border border-bible-border bg-bible-panel/50 p-3 md:p-4">
-            <div class="mb-4 px-3">
+            <div class="mb-4 hidden px-3 lg:block">
               <p class="font-bible-display text-lg font-semibold leading-tight text-bible-accent-bright">Explorador Bíblico</p>
               <p class="text-xs text-bible-muted">Comunidad y herramientas</p>
             </div>
-            <NavHeader />
+            <NavHeader @navigate="mobileOpen = false" />
           </div>
         </aside>
 

@@ -1,6 +1,7 @@
 <script setup>
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
+import { ArrowRight, BookOpen, HeartHandshake, MessageCircle, Sparkles, Users } from '@lucide/vue';
 import { logout } from '@/routes';
 import testimonials from '@/helpers/testimonials.js';
 import TestimonialCard from '@/components/Bible/TestimonialCard.vue';
@@ -20,6 +21,25 @@ const props = defineProps({
 
 const page = usePage();
 const user = computed(() => page.props.auth?.user ?? null);
+
+/** Pilares principales mostrados en la sección de propuesta. */
+const highlights = [
+  {
+    icon: Users,
+    title: 'Comunidad viva',
+    description: 'Compartí reflexiones, seguí a otros creyentes y crecé junto a tu iglesia.',
+  },
+  {
+    icon: BookOpen,
+    title: 'Biblia conectada',
+    description: 'Leé, buscá y descubrí relaciones entre pasajes con herramientas simples.',
+  },
+  {
+    icon: Sparkles,
+    title: 'Hábito diario',
+    description: 'Volvé cada día al versículo destacado y sostené tu ritmo de lectura y oración.',
+  },
+];
 </script>
 
 <template>
@@ -28,135 +48,257 @@ const user = computed(() => page.props.auth?.user ?? null);
   <div class="relative min-h-screen overflow-hidden bg-bible-bg text-bible-text font-bible-body">
     <StarfieldBackground />
 
-    <main class="relative mx-auto grid max-w-7xl grid-cols-1 items-start gap-12 px-6 py-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-16 lg:py-16">
-      <!-- Columna principal: presentación y acciones -->
-      <section class="flex flex-col items-center text-center lg:sticky lg:top-16">
-        <svg width="220" height="140" viewBox="0 0 220 140" class="mb-8" aria-hidden="true">
-          <g stroke="#C9A227" stroke-opacity="0.45" stroke-width="1">
-            <line x1="110" y1="70" x2="40" y2="30" />
-            <line x1="110" y1="70" x2="180" y2="25" />
-            <line x1="110" y1="70" x2="60" y2="115" />
-            <line x1="110" y1="70" x2="165" y2="105" />
-            <line x1="40" y1="30" x2="180" y2="25" />
-            <line x1="60" y1="115" x2="165" y2="105" />
-          </g>
-          <circle cx="110" cy="70" r="6" fill="#E8C87A" />
-          <circle cx="40" cy="30" r="3" fill="#8A7B54" />
-          <circle cx="180" cy="25" r="3" fill="#8A7B54" />
-          <circle cx="60" cy="115" r="3" fill="#8A7B54" />
-          <circle cx="165" cy="105" r="3" fill="#8A7B54" />
-        </svg>
+    <!-- Capa decorativa suave para dar profundidad sin perder legibilidad. -->
+    <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(201,162,39,0.10),transparent_55%),radial-gradient(ellipse_at_bottom_right,rgba(201,162,39,0.06),transparent_45%)]" aria-hidden="true" />
 
-        <p class="mb-3 text-xs font-medium uppercase tracking-[0.2em] text-bible-accent">Explorador bíblico</p>
-        <h1 class="mb-4 max-w-2xl font-bible-display text-4xl font-semibold leading-tight text-bible-accent-bright md:text-5xl">
-          Cada versículo tiene su constelación
-        </h1>
-        <p class="mb-8 max-w-xl text-base leading-relaxed text-bible-muted md:text-lg">
-          Explorá la Biblia como una red de conexiones. Descubrí citas, ecos y referencias entre pasajes,
-          y seguí el hilo desde cualquier versículo.
-        </p>
-
-        <div class="mb-8 w-full max-w-xl rounded-xl border border-bible-border bg-bible-panel/90 p-5 text-left shadow-sm">
-          <p class="text-xs font-medium uppercase tracking-wide text-bible-accent">Versículo del día</p>
-
-          <template v-if="verseOfTheDay">
-            <p class="mt-3 font-bible-display text-xl leading-relaxed text-bible-text">
-              “{{ verseOfTheDay.text }}”
-            </p>
-            <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
-              <p class="text-sm text-bible-muted">
-                {{ verseOfTheDay.bookName }} {{ verseOfTheDay.chapter }}:{{ verseOfTheDay.verse }}
-              </p>
-              <Link
-                :href="`/bible/${verseOfTheDay.book}/${verseOfTheDay.chapter}/${verseOfTheDay.verse}`"
-                class="text-sm font-medium text-bible-accent-bright transition-colors hover:text-bible-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent rounded"
-              >
-                Ver conexiones →
-              </Link>
-            </div>
-          </template>
-
-          <template v-else>
-            <p class="mt-3 text-sm leading-relaxed text-bible-muted">
-              El versículo del día estará disponible cuando se cargue el contenido bíblico en la base de datos.
-            </p>
-          </template>
+    <!-- Navegación superior: marca y accesos de cuenta. -->
+    <header class="relative z-10 mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-6 lg:px-8">
+      <Link href="/" class="flex items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent">
+        <span class="flex h-10 w-10 items-center justify-center rounded-xl border border-bible-accent/30 bg-bible-panel/70 text-bible-accent-bright shadow-sm">
+          <BookOpen class="h-5 w-5" aria-hidden="true" />
+        </span>
+        <div class="leading-tight">
+          <p class="font-bible-display text-lg font-semibold text-bible-accent-bright">Explorador Bíblico</p>
+          <p class="text-xs text-bible-muted">Comunidad y Palabra</p>
         </div>
+      </Link>
 
-        <!-- Maquetado: contacto con un pastor de la iglesia -->
-        <div class="mb-8 w-full max-w-xl rounded-xl border border-bible-accent/30 bg-bible-panel/90 p-5 text-left shadow-sm">
-          <p class="text-xs font-medium uppercase tracking-wide text-bible-accent">Comunidad</p>
-          <h2 class="mt-2 font-bible-display text-xl font-semibold text-bible-accent-bright">Hablar con un pastor de mi iglesia</h2>
-          <p class="mt-2 text-sm leading-relaxed text-bible-muted">
-            ¿Necesitás consejo, oración o una charla? Conectate con un pastor de tu iglesia de forma simple y cercana.
-          </p>
-          <div class="mt-4 flex flex-wrap gap-2.5">
-            <button
-              type="button"
-              class="inline-flex items-center justify-center rounded-md bg-bible-accent px-4 py-2.5 text-sm font-medium text-bible-bg transition-colors hover:bg-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
-            >
-              Iniciar conversación
-            </button>
-            <button
-              type="button"
-              class="inline-flex items-center justify-center rounded-md border border-bible-border px-4 py-2.5 text-sm font-medium text-bible-text transition-colors hover:border-bible-accent hover:text-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
-            >
-              Pedir oración
-            </button>
-          </div>
-          <p class="mt-3 text-xs text-bible-muted-dim">Maquetado de interfaz (próximamente disponible).</p>
-        </div>
-
-        <div class="flex flex-wrap justify-center gap-3">
+      <nav class="flex items-center gap-2 text-sm" aria-label="Accesos principales">
+        <template v-if="user">
+          <span class="hidden text-bible-muted sm:inline">Hola, <span class="font-medium text-bible-text">{{ user.name }}</span></span>
           <Link
-            href="/leer"
-            class="inline-flex items-center justify-center rounded-md bg-bible-accent px-5 py-3 text-sm font-medium text-bible-bg transition-colors hover:bg-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
+            href="/comunidad"
+            class="inline-flex items-center justify-center rounded-full border border-bible-border px-4 py-2 font-medium text-bible-text transition-colors hover:border-bible-accent hover:text-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
           >
-            Empezar a leer
+            Ir a la comunidad
           </Link>
-          <Link
-            href="/bible/GEN/1/1"
-            class="inline-flex items-center justify-center rounded-md border border-bible-border px-5 py-3 text-sm font-medium text-bible-text transition-colors hover:border-bible-accent hover:text-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
-          >
-            Explorar un ejemplo
-          </Link>
-        </div>
-
-        <div v-if="user" class="mt-8 rounded-lg border border-bible-border/70 bg-bible-panel/50 px-4 py-3 text-sm text-bible-muted">
-          Iniciaste sesión como <span class="font-medium text-bible-accent-bright">{{ user.name }}</span>.
           <Link
             :href="logout()"
             method="post"
             as="button"
-            class="ml-2 text-bible-muted underline-offset-2 transition-colors hover:text-bible-error hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent rounded"
+            class="inline-flex items-center justify-center rounded-full px-4 py-2 font-medium text-bible-muted transition-colors hover:text-bible-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
           >
             Cerrar sesión
           </Link>
-        </div>
-
-        <div v-else class="mt-8 flex flex-wrap justify-center gap-4 text-sm">
+        </template>
+        <template v-else>
           <Link
             href="/login"
-            class="text-bible-muted transition-colors hover:text-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent rounded"
+            class="inline-flex items-center justify-center rounded-full px-4 py-2 font-medium text-bible-muted transition-colors hover:text-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
           >
-            Iniciá sesión
+            Iniciar sesión
           </Link>
           <Link
             href="/register"
-            class="text-bible-muted transition-colors hover:text-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent rounded"
+            class="inline-flex items-center justify-center rounded-full bg-bible-accent px-4 py-2 font-medium text-bible-bg transition-colors hover:bg-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
           >
-            Creá tu cuenta
+            Crear cuenta
           </Link>
+        </template>
+      </nav>
+    </header>
+
+    <main class="relative z-10 mx-auto w-full max-w-7xl px-6 pb-16 lg:px-8 lg:pb-24">
+      <!-- Hero: mensaje principal, acciones y versículo del día. -->
+      <section class="grid items-center gap-10 py-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14 lg:py-14">
+        <div class="max-w-2xl">
+          <p class="mb-4 inline-flex items-center gap-2 rounded-full border border-bible-accent/25 bg-bible-panel/60 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-bible-accent">
+            <span class="h-1.5 w-1.5 rounded-full bg-bible-accent" aria-hidden="true" />
+            Red social cristiana
+          </p>
+
+          <h1 class="font-bible-display text-4xl font-semibold leading-[1.1] tracking-tight text-bible-accent-bright sm:text-5xl lg:text-6xl">
+            Leé la Biblia.
+            <span class="block text-bible-text">Compartí lo que Dios te habla.</span>
+          </h1>
+
+          <p class="mt-6 max-w-xl text-base leading-relaxed text-bible-muted md:text-lg">
+            Un espacio moderno para leer las Escrituras, conectar con otros creyentes y mantener viva tu vida espiritual, todos los días.
+          </p>
+
+          <div class="mt-8 flex flex-wrap gap-3">
+            <Link
+              href="/register"
+              class="inline-flex items-center justify-center gap-2 rounded-full bg-bible-accent px-6 py-3 text-sm font-semibold text-bible-bg transition-all hover:bg-bible-accent-bright hover:shadow-[0_0_0_4px_rgba(201,162,39,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
+            >
+              Empezar gratis
+              <ArrowRight class="h-4 w-4" aria-hidden="true" />
+            </Link>
+            <Link
+              href="/leer"
+              class="inline-flex items-center justify-center gap-2 rounded-full border border-bible-border bg-bible-panel/30 px-6 py-3 text-sm font-semibold text-bible-text transition-colors hover:border-bible-accent hover:text-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
+            >
+              Explorar la Biblia
+            </Link>
+          </div>
+
+          <!-- Indicadores rápidos de confianza/producto. -->
+          <div class="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm text-bible-muted">
+            <div class="flex items-center gap-2">
+              <Users class="h-4 w-4 text-bible-accent" aria-hidden="true" />
+              Comunidad y perfiles
+            </div>
+            <div class="flex items-center gap-2">
+              <BookOpen class="h-4 w-4 text-bible-accent" aria-hidden="true" />
+              Lectura y búsqueda
+            </div>
+            <div class="flex items-center gap-2">
+              <HeartHandshake class="h-4 w-4 text-bible-accent" aria-hidden="true" />
+              Acompañamiento
+            </div>
+          </div>
+        </div>
+
+        <!-- Tarjeta destacada: versículo del día con acción directa. -->
+        <div class="relative">
+          <div class="absolute -inset-4 rounded-[2rem] bg-bible-accent/5 blur-2xl" aria-hidden="true" />
+          <article class="relative overflow-hidden rounded-3xl border border-bible-border bg-bible-panel/75 p-6 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.45)] backdrop-blur-sm md:p-8">
+            <div class="flex items-center justify-between gap-4">
+              <p class="text-xs font-semibold uppercase tracking-[0.2em] text-bible-accent">Versículo del día</p>
+              <span class="rounded-full border border-bible-border bg-bible-bg/40 px-3 py-1 text-xs text-bible-muted">Reina Valera Gómez</span>
+            </div>
+
+            <template v-if="verseOfTheDay">
+              <blockquote class="mt-6">
+                <p class="font-bible-display text-2xl leading-relaxed text-bible-text md:text-[2rem] md:leading-snug">
+                  “{{ verseOfTheDay.text }}”
+                </p>
+              </blockquote>
+              <div class="mt-8 flex flex-wrap items-end justify-between gap-4 border-t border-bible-border/70 pt-5">
+                <div>
+                  <p class="text-sm text-bible-muted">Referencia</p>
+                  <p class="text-base font-semibold text-bible-accent-bright">
+                    {{ verseOfTheDay.bookName }} {{ verseOfTheDay.chapter }}:{{ verseOfTheDay.verse }}
+                  </p>
+                </div>
+                <Link
+                  :href="`/bible/${verseOfTheDay.book}/${verseOfTheDay.chapter}/${verseOfTheDay.verse}`"
+                  class="inline-flex items-center gap-2 rounded-full border border-bible-accent/30 px-4 py-2 text-sm font-medium text-bible-accent-bright transition-colors hover:bg-bible-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
+                >
+                  Leer en contexto
+                  <ArrowRight class="h-4 w-4" aria-hidden="true" />
+                </Link>
+              </div>
+            </template>
+
+            <template v-else>
+              <p class="mt-6 text-base leading-relaxed text-bible-muted">
+                El versículo del día estará disponible cuando se cargue el contenido bíblico en la base de datos.
+              </p>
+              <Link
+                href="/leer"
+                class="mt-6 inline-flex items-center gap-2 text-sm font-medium text-bible-accent-bright hover:underline"
+              >
+                Ir a la lectura
+                <ArrowRight class="h-4 w-4" aria-hidden="true" />
+              </Link>
+            </template>
+          </article>
         </div>
       </section>
 
-      <!-- Columna secundaria: testimonios -->
-      <section class="w-full">
-        <h2 class="mb-4 text-center text-sm font-medium uppercase tracking-[0.18em] text-bible-muted lg:text-left">
-          Lo que dicen quienes ya lo usan
-        </h2>
-        <div class="grid grid-cols-1 gap-4">
+      <!-- Propuesta de valor: tres pilares claros y escaneables. -->
+      <section class="py-10 lg:py-14" aria-labelledby="propuesta-title">
+        <div class="mb-8 max-w-2xl">
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-bible-accent">Todo en un solo lugar</p>
+          <h2 id="propuesta-title" class="mt-2 font-bible-display text-3xl font-semibold text-bible-accent-bright md:text-4xl">
+            Una experiencia simple, moderna y centrada en la Palabra
+          </h2>
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-3">
+          <article
+            v-for="item in highlights"
+            :key="item.title"
+            class="group rounded-2xl border border-bible-border bg-bible-panel/55 p-6 transition-colors hover:border-bible-accent/35 hover:bg-bible-panel/75"
+          >
+            <div class="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl border border-bible-accent/20 bg-bible-bg/40 text-bible-accent">
+              <component :is="item.icon" class="h-5 w-5" aria-hidden="true" />
+            </div>
+            <h3 class="text-lg font-semibold text-bible-text">{{ item.title }}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-bible-muted">{{ item.description }}</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- Comunidad y acompañamiento: bloque de acción humana, maquetado funcional. -->
+      <section class="py-10 lg:py-14">
+        <div class="grid gap-6 rounded-3xl border border-bible-border bg-bible-panel/45 p-6 md:grid-cols-[1fr_auto] md:items-center md:p-8">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-bible-accent">Acompañamiento</p>
+            <h2 class="mt-2 font-bible-display text-2xl font-semibold text-bible-accent-bright md:text-3xl">
+              ¿Necesitás hablar con alguien de tu iglesia?
+            </h2>
+            <p class="mt-3 max-w-2xl text-sm leading-relaxed text-bible-muted md:text-base">
+              Estamos preparando un espacio para conectarte con pastores y pedir oración de forma cercana y confidencial.
+            </p>
+            <p class="mt-3 text-xs text-bible-muted-dim">Maquetado de interfaz (próximamente disponible).</p>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button
+              type="button"
+              class="inline-flex items-center justify-center gap-2 rounded-full bg-bible-accent px-5 py-3 text-sm font-medium text-bible-bg transition-colors hover:bg-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
+            >
+              <MessageCircle class="h-4 w-4" aria-hidden="true" />
+              Iniciar conversación
+            </button>
+            <button
+              type="button"
+              class="inline-flex items-center justify-center gap-2 rounded-full border border-bible-border px-5 py-3 text-sm font-medium text-bible-text transition-colors hover:border-bible-accent hover:text-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
+            >
+              <HeartHandshake class="h-4 w-4" aria-hidden="true" />
+              Pedir oración
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Testimonios: prueba social con el mismo componente existente. -->
+      <section class="py-10 lg:py-14" aria-labelledby="testimonios-title">
+        <div class="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div class="max-w-2xl">
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-bible-accent">Testimonios</p>
+            <h2 id="testimonios-title" class="mt-2 font-bible-display text-3xl font-semibold text-bible-accent-bright md:text-4xl">
+              Personas reales, fe en movimiento
+            </h2>
+          </div>
+          <p class="max-w-sm text-sm text-bible-muted">
+            Historias de quienes encontraron en la Palabra un lugar para volver.
+          </p>
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           <TestimonialCard v-for="(testimonial, index) in testimonials" :key="index" :testimonial="testimonial" />
+        </div>
+      </section>
+
+      <!-- Cierre con CTA final, claro y sin fricción. -->
+      <section class="pt-6 lg:pt-10">
+        <div class="relative overflow-hidden rounded-3xl border border-bible-accent/20 bg-gradient-to-br from-bible-panel/80 to-bible-panel/40 p-8 text-center md:p-12">
+          <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(201,162,39,0.12),transparent_50%)]" aria-hidden="true" />
+          <div class="relative">
+            <h2 class="font-bible-display text-3xl font-semibold text-bible-accent-bright md:text-4xl">
+              Empezá hoy tu recorrido en la Biblia
+            </h2>
+            <p class="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-bible-muted md:text-base">
+              Creá tu cuenta, seguí a otros creyentes y convertí la lectura en un hábito compartido.
+            </p>
+            <div class="mt-7 flex flex-wrap justify-center gap-3">
+              <Link
+                href="/register"
+                class="inline-flex items-center justify-center gap-2 rounded-full bg-bible-accent px-6 py-3 text-sm font-semibold text-bible-bg transition-colors hover:bg-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
+              >
+                Crear mi cuenta
+                <ArrowRight class="h-4 w-4" aria-hidden="true" />
+              </Link>
+              <Link
+                href="/login"
+                class="inline-flex items-center justify-center rounded-full border border-bible-border px-6 py-3 text-sm font-semibold text-bible-text transition-colors hover:border-bible-accent hover:text-bible-accent-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bible-accent"
+              >
+                Ya tengo cuenta
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
     </main>

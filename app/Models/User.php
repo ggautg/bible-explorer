@@ -155,4 +155,48 @@ class User extends Authenticatable implements PasskeyUser
     {
         $this->following()->detach($user->id);
     }
+
+    /**
+     * Devuelve la URL del avatar conocido para el usuario.
+     *
+     * Centraliza el mapeo para evitar duplicarlo en controladores.
+     */
+    public function avatarUrl(): ?string
+    {
+        $byEmail = [
+            'giovanni.arestivo@example.test' => '/images/testimonials/giovanni-arestivo.png',
+            'piero.arestivo@example.test' => '/images/testimonials/piero-arestivo.png',
+            'jose.britez@example.test' => '/images/testimonials/jose-britez.jpg',
+        ];
+
+        if (isset($byEmail[$this->email])) {
+            return $byEmail[$this->email];
+        }
+
+        $byName = [
+            'Giovanni Arestivo' => '/images/testimonials/giovanni-arestivo.png',
+            'Piero Arestivo' => '/images/testimonials/piero-arestivo.png',
+            'José Brítez' => '/images/testimonials/jose-britez.jpg',
+        ];
+
+        return $byName[$this->name] ?? null;
+    }
+
+    /**
+     * Devuelve la iglesia del usuario, con fallback a datos conocidos.
+     */
+    public function churchName(): ?string
+    {
+        if (! empty($this->church)) {
+            return $this->church;
+        }
+
+        $known = [
+            'giovanni.arestivo@example.test' => 'Iglesia Menonita Concordia',
+            'piero.arestivo@example.test' => 'Iglesia Menonita Concordia',
+            'jose.britez@example.test' => 'Iglesia Pentecostal de Factorio',
+        ];
+
+        return $known[$this->email] ?? null;
+    }
 }

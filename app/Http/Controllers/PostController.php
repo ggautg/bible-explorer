@@ -17,6 +17,11 @@ class PostController extends Controller
     /**
      * Muestra el feed principal (Comunidad / Inicio).
      *
+     * Pestañas:
+     * - para_ti: publicaciones de toda la comunidad.
+     * - siguiendo: publicaciones de personas seguidas + las propias.
+     * - mios: publicaciones propias.
+     *
      * @param  Request  $request  Solicitud autenticada.
      * @return Response Página Inertia del feed.
      */
@@ -41,9 +46,9 @@ class PostController extends Controller
         } elseif ($tab === 'mios') {
             $query->where('user_id', $viewer->id);
         }
-        // para_ti: todas las publicaciones
 
         $posts = $query->latest()->limit(60)->get();
+        $viewerState = $this->viewerStateFor($posts, $viewer);
 
         $people = User::query()
             ->where('id', '!=', $viewer->id)
@@ -56,7 +61,7 @@ class PostController extends Controller
         return inertia('Community/Feed', [
             'tab' => $tab,
             'people' => $people,
-            'posts' => $posts->map(fn (Post $post) => $this->serializePost($post, $viewer))->values()->all(),
+            'posts' => $posts->map(fn (Post $post) => $this->serializePost($post, $viewer, $viewerState))->values()->all(),
         ]);
     }
 
@@ -68,26 +73,32 @@ class PostController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $data = $request->validate([
-            'body' => 'required|string|max:2000',
-            'book_code' => 'nullable|string|max:10',
-            'book_name' => 'nullable|string|max:120',
-            'chapter' => 'nullable|integer|min:1',
-            'verse' => 'nullable|integer|min:1',
-        ]);
+        $data = $request->validate(
+            [
+                'body' => 'required|string|max:2000',
+                'book_code' => 'nullable|string|max:10',
+                'book_name' => 'nullable|string|max:120',
+                'chapter' => 'nullable|integer|min:1',
+                'verse' => 'nullable|integer|min:1',
+            ],
+            [
+                'body.required' => 'Escribí algo antes de publicar.',
+                'body.max' => 'La publicación no puede superar los 2000 caracteres.',
+            ],
+        );
 
         Post::query()->create([
             'user_id' => $request->user()->id,
             'parent_id' => null,
             'rebible_of_id' => null,
-            'body' => $data['body'],
+            'body' => trim($data['body']),
             'book_code' => $data['book_code'] ?? null,
             'book_name' => $data['book_name'] ?? null,
             'chapter' => $data['chapter'] ?? null,
             'verse' => $data['verse'] ?? null,
         ]);
 
-        return back();
+        return back()->with('toast', ['type' => 'success', 'message' => 'Tu publicación se compartió.']);
     }
 
     /**
@@ -110,9 +121,12 @@ class PostController extends Controller
             ->oldest()
             ->get();
 
+        $allPosts = collect([$post])->concat($replies);
+        $viewerState = $this->viewerStateFor($allPosts, $viewer);
+
         return inertia('Posts/Show', [
-            'post' => $this->serializePost($post, $viewer),
-            'replies' => $replies->map(fn (Post $reply) => $this->serializePost($reply, $viewer))->values()->all(),
+            'post' => $this->serializePost($post, $viewer, $viewerState),
+            'replies' => $replies->map(fn (Post $reply) => $this->serializePost($reply, $viewer, $viewerState))->values()->all(),
         ]);
     }
 
@@ -125,26 +139,32 @@ class PostController extends Controller
      */
     public function reply(Request $request, Post $post): RedirectResponse
     {
-        $data = $request->validate([
-            'body' => 'required|string|max:2000',
-            'book_code' => 'nullable|string|max:10',
-            'book_name' => 'nullable|string|max:120',
-            'chapter' => 'nullable|integer|min:1',
-            'verse' => 'nullable|integer|min:1',
-        ]);
+        $data = $request->validate(
+            [
+                'body' => 'required|string|max:2000',
+                'book_code' => 'nullable|string|max:10',
+                'book_name' => 'nullable|string|max:120',
+                'chapter' => 'nullable|integer|min:1',
+                'verse' => 'nullable|integer|min:1',
+            ],
+            [
+                'body.required' => 'Escribí una respuesta antes de enviarla.',
+                'body.max' => 'La respuesta no puede superar los 2000 caracteres.',
+            ],
+        );
 
         Post::query()->create([
             'user_id' => $request->user()->id,
             'parent_id' => $post->id,
             'rebible_of_id' => null,
-            'body' => $data['body'],
+            'body' => trim($data['body']),
             'book_code' => $data['book_code'] ?? null,
             'book_name' => $data['book_name'] ?? null,
             'chapter' => $data['chapter'] ?? null,
             'verse' => $data['verse'] ?? null,
         ]);
 
-        return back();
+        return back()->with('toast', ['type' => 'success', 'message' => 'Tu respuesta se publicó.']);
     }
 
     /**
@@ -165,19 +185,28 @@ class PostController extends Controller
     /**
      * Serializa una publicación para Inertia/Vue.
      *
+     * @param  array{likedIds: array<int,bool>, rebibledIds: array<int,bool>}|null  $viewerState  Estado precalculado del visor.
      * @return array<string, mixed>
      */
-    public function serializePost(Post $post, ?User $viewer): array
+    public function serializePost(Post $post, ?User $viewer, ?array $viewerState = null): array
     {
         $viewerId = $viewer?->id;
-        $likedByViewer = $viewerId ? $post->likedBy()->where('users.id', $viewerId)->exists() : false;
-        $rebibledByViewer = $viewerId ? $post->rebibles()->where('user_id', $viewerId)->exists() : false;
+        $likedByViewer = $viewerState
+            ? isset($viewerState['likedIds'][$post->id])
+            : ($viewerId ? $post->likedBy()->where('users.id', $viewerId)->exists() : false);
+        $rebibledByViewer = $viewerState
+            ? isset($viewerState['rebibledIds'][$post->id])
+            : ($viewerId ? $post->rebibles()->where('user_id', $viewerId)->exists() : false);
 
         $original = null;
         if ($post->isRebible() && $post->relationLoaded('rebibleOf') && $post->rebibleOf) {
             $orig = $post->rebibleOf;
-            $origLiked = $viewerId ? $orig->likedBy()->where('users.id', $viewerId)->exists() : false;
-            $origRebibled = $viewerId ? $orig->rebibles()->where('user_id', $viewerId)->exists() : false;
+            $origLiked = $viewerState
+                ? isset($viewerState['likedIds'][$orig->id])
+                : ($viewerId ? $orig->likedBy()->where('users.id', $viewerId)->exists() : false);
+            $origRebibled = $viewerState
+                ? isset($viewerState['rebibledIds'][$orig->id])
+                : ($viewerId ? $orig->rebibles()->where('user_id', $viewerId)->exists() : false);
             $original = $this->serializePostCore($orig, $viewer, $origLiked, $origRebibled);
         }
 
@@ -186,6 +215,40 @@ class PostController extends Controller
         $data['isRebible'] = $post->isRebible();
 
         return $data;
+    }
+
+    /**
+     * Precálcula likes/rebibleos del visor para un conjunto de posts.
+     * Evita consultas N+1 al serializar feeds.
+     *
+     * @param  iterable<Post>  $posts
+     * @return array{likedIds: array<int,bool>, rebibledIds: array<int,bool>}
+     */
+    public function viewerStateFor(iterable $posts, ?User $viewer): array
+    {
+        $ids = [];
+        foreach ($posts as $post) {
+            $ids[] = $post->id;
+            if ($post->relationLoaded('rebibleOf') && $post->rebibleOf) {
+                $ids[] = $post->rebibleOf->id;
+            }
+        }
+        $ids = array_values(array_unique(array_filter($ids)));
+
+        if (! $viewer || empty($ids)) {
+            return ['likedIds' => [], 'rebibledIds' => []];
+        }
+
+        $likedIds = $viewer->likedPosts()->whereIn('posts.id', $ids)->pluck('posts.id')->flip()->map(fn () => true)->all();
+        $rebibledIds = Post::query()
+            ->where('user_id', $viewer->id)
+            ->whereIn('rebible_of_id', $ids)
+            ->pluck('rebible_of_id')
+            ->flip()
+            ->map(fn () => true)
+            ->all();
+
+        return ['likedIds' => $likedIds, 'rebibledIds' => $rebibledIds];
     }
 
     /**
@@ -235,7 +298,7 @@ class PostController extends Controller
     }
 
     /**
-     * Serializa una persona para listados.
+     * Serializa una persona para listados (personas a seguir, seguidores, etc.).
      *
      * @return array<string, mixed>
      */
@@ -245,14 +308,14 @@ class PostController extends Controller
             'id' => $user->id,
             'name' => $user->name,
             'slug' => $user->slug,
-            'avatar' => $this->avatarFor($user),
-            'church' => $this->churchFor($user),
+            'avatar' => $user->avatarUrl(),
+            'church' => $user->churchName(),
             'following' => $viewer ? $viewer->isFollowing($user) : false,
         ];
     }
 
     /**
-     * Serializa autor.
+     * Serializa el autor de una publicación.
      *
      * @return array<string, mixed>
      */
@@ -266,57 +329,8 @@ class PostController extends Controller
             'id' => $user->id,
             'name' => $user->name,
             'slug' => $user->slug,
-            'avatar' => $this->avatarFor($user),
-            'church' => $this->churchFor($user),
+            'avatar' => $user->avatarUrl(),
+            'church' => $user->churchName(),
         ];
-    }
-
-    public function avatarFor(?User $user): ?string
-    {
-        if (! $user) {
-            return null;
-        }
-
-        $byEmail = [
-            'giovanni.arestivo@example.test' => '/images/testimonials/giovanni-arestivo.png',
-            'piero.arestivo@example.test' => '/images/testimonials/piero-arestivo.png',
-            'jose.britez@example.test' => '/images/testimonials/jose-britez.jpg',
-        ];
-        if (isset($byEmail[$user->email])) {
-            return $byEmail[$user->email];
-        }
-
-        $byName = [
-            'Giovanni Arestivo' => '/images/testimonials/giovanni-arestivo.png',
-            'Piero Arestivo' => '/images/testimonials/piero-arestivo.png',
-            'José Brítez' => '/images/testimonials/jose-britez.jpg',
-        ];
-
-        return $byName[$user->name] ?? null;
-    }
-
-    public function churchFor(?User $user): ?string
-    {
-        if (! $user) {
-            return null;
-        }
-        if (! empty($user->church)) {
-            return $user->church;
-        }
-
-        $isGiovanni = $user->slug === 'giovanni-arestivo' || $user->email === 'giovanni.arestivo@example.test' || $user->name === 'Giovanni Arestivo';
-        if ($isGiovanni) {
-            return 'Iglesia Menonita Concordia';
-        }
-        $isPiero = $user->slug === 'piero-arestivo' || $user->email === 'piero.arestivo@example.test' || $user->name === 'Piero Arestivo';
-        if ($isPiero) {
-            return 'Iglesia Menonita Concordia';
-        }
-        $isJose = $user->slug === 'jose-britez' || $user->email === 'jose.britez@example.test' || $user->name === 'José Brítez';
-        if ($isJose) {
-            return 'Iglesia Pentecostal de Factorio';
-        }
-
-        return null;
     }
 }

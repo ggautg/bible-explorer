@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\PostController::feed
- * @see app/Http/Controllers/PostController.php:23
+ * @see app/Http/Controllers/PostController.php:28
  * @route '/comunidad'
  */
 export const feed = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ feed.definition = {
 
 /**
 * @see \App\Http\Controllers\PostController::feed
- * @see app/Http/Controllers/PostController.php:23
+ * @see app/Http/Controllers/PostController.php:28
  * @route '/comunidad'
  */
 feed.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ feed.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\PostController::feed
- * @see app/Http/Controllers/PostController.php:23
+ * @see app/Http/Controllers/PostController.php:28
  * @route '/comunidad'
  */
 feed.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ feed.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\PostController::feed
- * @see app/Http/Controllers/PostController.php:23
+ * @see app/Http/Controllers/PostController.php:28
  * @route '/comunidad'
  */
 feed.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ feed.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\PostController::feed
- * @see app/Http/Controllers/PostController.php:23
+ * @see app/Http/Controllers/PostController.php:28
  * @route '/comunidad'
  */
     const feedForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ feed.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\PostController::feed
- * @see app/Http/Controllers/PostController.php:23
+ * @see app/Http/Controllers/PostController.php:28
  * @route '/comunidad'
  */
         feedForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ feed.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\PostController::feed
- * @see app/Http/Controllers/PostController.php:23
+ * @see app/Http/Controllers/PostController.php:28
  * @route '/comunidad'
  */
         feedForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

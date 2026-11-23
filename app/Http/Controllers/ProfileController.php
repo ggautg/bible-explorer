@@ -39,13 +39,14 @@ class ProfileController extends Controller
         }
 
         $posts = $query->latest()->limit(60)->get();
+        $viewerState = $this->postPresenter->viewerStateFor($posts, $viewer);
 
         $followersCount = $user->followers()->count();
         $followingCount = $user->following()->count();
         $postsCount = Post::query()->where('user_id', $user->id)->whereNull('parent_id')->count();
 
         $profileGoals = null;
-        $isGiovanni = $user->slug === 'giovanni-arestivo' || $user->email === 'giovanni.arestivo@example.test' || $user->name === 'Giovanni Arestivo';
+        $isGiovanni = $user->slug === 'giovanni-arestivo' || $user->email === 'giovanni.arestivo@example.test';
         if ($isGiovanni) {
             $supporters = User::query()
                 ->whereIn('email', ['piero.arestivo@example.test', 'jose.britez@example.test'])
@@ -69,8 +70,8 @@ class ProfileController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'slug' => $user->slug,
-                'avatar' => $this->postPresenter->avatarFor($user),
-                'church' => $this->postPresenter->churchFor($user),
+                'avatar' => $user->avatarUrl(),
+                'church' => $user->churchName(),
                 'followersCount' => $followersCount,
                 'followingCount' => $followingCount,
                 'postsCount' => $postsCount,
@@ -78,7 +79,7 @@ class ProfileController extends Controller
                 'isOwn' => $viewer?->id === $user->id,
             ],
             'tab' => $tab,
-            'posts' => $posts->map(fn (Post $post) => $this->postPresenter->serializePost($post, $viewer))->values()->all(),
+            'posts' => $posts->map(fn (Post $post) => $this->postPresenter->serializePost($post, $viewer, $viewerState))->values()->all(),
             'profileGoals' => $profileGoals,
         ]);
     }

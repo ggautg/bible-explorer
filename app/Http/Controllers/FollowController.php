@@ -16,7 +16,7 @@ class FollowController extends Controller
      *
      * @param  Request  $request  Solicitud autenticada.
      * @param  User  $user  Usuario a seguir o dejar de seguir.
-     * @return RedirectResponse Redirección de vuelta.
+     * @return RedirectResponse Redirección atrás con notificación.
      */
     public function toggle(Request $request, User $user): RedirectResponse
     {
@@ -28,10 +28,12 @@ class FollowController extends Controller
 
         if ($viewer->isFollowing($user)) {
             $viewer->unfollow($user);
+            $message = "Dejaste de seguir a {$user->name}.";
         } else {
             $viewer->follow($user);
+            $message = "Ahora seguís a {$user->name}.";
         }
 
-        return back();
+        return back()->with('toast', ['type' => 'success', 'message' => $message]);
     }
 }

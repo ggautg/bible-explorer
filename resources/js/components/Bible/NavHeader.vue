@@ -10,6 +10,7 @@ import { logout } from '@/routes';
  * Prioriza la experiencia social (inicio y perfil) y mantiene accesibles
  * las herramientas bíblicas como grupo aparte.
  */
+const emit = defineEmits(['navigate']);
 const page = usePage();
 const currentUser = computed(() => page.props.auth?.user ?? null);
 
@@ -66,6 +67,7 @@ function linkClass(href) {
           :key="item.href"
           :href="item.href"
           :class="linkClass(item.href)"
+          @click="emit('navigate')"
         >
           <component :is="item.icon" class="h-4.5 w-4.5 shrink-0" aria-hidden="true" />
           <span>{{ item.label }}</span>
@@ -81,6 +83,7 @@ function linkClass(href) {
           :key="item.href"
           :href="item.href"
           :class="linkClass(item.href)"
+          @click="emit('navigate')"
         >
           <component :is="item.icon" class="h-4.5 w-4.5 shrink-0" aria-hidden="true" />
           <span>{{ item.label }}</span>
@@ -95,6 +98,7 @@ function linkClass(href) {
           :class="currentPath.startsWith('/settings')
             ? `${linkBase} bg-bible-panel text-bible-accent-bright border border-bible-border font-medium`
             : `${linkBase} text-bible-muted hover:bg-bible-panel/60 hover:text-bible-accent-bright`"
+          @click="emit('navigate')"
         >
           <Settings class="h-4.5 w-4.5 shrink-0" aria-hidden="true" />
           <span>Configuración</span>
