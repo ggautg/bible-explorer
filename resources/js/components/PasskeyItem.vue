@@ -64,9 +64,10 @@ const handleDelete = () => {
                 <Button
                     variant="ghost"
                     size="sm"
+                    :aria-label="`Eliminar llave de acceso ${passkey.name}`"
                     class="text-destructive hover:bg-destructive/10 hover:text-destructive"
                 >
-                    <Trash2 class="h-4 w-4" />
+                    <Trash2 class="h-4 w-4" aria-hidden="true" />
                     <span class="sr-only">Eliminar</span>
                 </Button>
             </DialogTrigger>

@@ -41,6 +41,7 @@ const previews: Record<string, string[]> = {
                     :key="item.id"
                     type="button"
                     @click="setTheme(item.id)"
+                    :aria-pressed="theme === item.id"
                     class="rounded-xl border p-3 text-left transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                     :class="
                         theme === item.id
@@ -80,6 +81,7 @@ const previews: Record<string, string[]> = {
                     :key="item.id"
                     type="button"
                     @click="setTheme(item.id)"
+                    :aria-pressed="theme === item.id"
                     class="rounded-xl border p-3 text-left transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                     :class="
                         theme === item.id

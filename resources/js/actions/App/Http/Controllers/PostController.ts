@@ -236,7 +236,7 @@ show.head = (args: { post: number | { id: number } } | [post: number | { id: num
     show.form = showForm
 /**
 * @see \App\Http\Controllers\PostController::reply
- * @see app/Http/Controllers/PostController.php:148
+ * @see app/Http/Controllers/PostController.php:164
  * @route '/posts/{post}/responder'
  */
 export const reply = (args: { post: number | { id: number } } | [post: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -251,7 +251,7 @@ reply.definition = {
 
 /**
 * @see \App\Http\Controllers\PostController::reply
- * @see app/Http/Controllers/PostController.php:148
+ * @see app/Http/Controllers/PostController.php:164
  * @route '/posts/{post}/responder'
  */
 reply.url = (args: { post: number | { id: number } } | [post: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -284,7 +284,7 @@ reply.url = (args: { post: number | { id: number } } | [post: number | { id: num
 
 /**
 * @see \App\Http\Controllers\PostController::reply
- * @see app/Http/Controllers/PostController.php:148
+ * @see app/Http/Controllers/PostController.php:164
  * @route '/posts/{post}/responder'
  */
 reply.post = (args: { post: number | { id: number } } | [post: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -294,7 +294,7 @@ reply.post = (args: { post: number | { id: number } } | [post: number | { id: nu
 
     /**
 * @see \App\Http\Controllers\PostController::reply
- * @see app/Http/Controllers/PostController.php:148
+ * @see app/Http/Controllers/PostController.php:164
  * @route '/posts/{post}/responder'
  */
     const replyForm = (args: { post: number | { id: number } } | [post: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -304,7 +304,7 @@ reply.post = (args: { post: number | { id: number } } | [post: number | { id: nu
 
             /**
 * @see \App\Http\Controllers\PostController::reply
- * @see app/Http/Controllers/PostController.php:148
+ * @see app/Http/Controllers/PostController.php:164
  * @route '/posts/{post}/responder'
  */
         replyForm.post = (args: { post: number | { id: number } } | [post: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

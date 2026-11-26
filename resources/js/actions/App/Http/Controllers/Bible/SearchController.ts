@@ -79,7 +79,7 @@ books.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     books.form = booksForm
 /**
 * @see \App\Http\Controllers\Bible\SearchController::structure
- * @see app/Http/Controllers/Bible/SearchController.php:62
+ * @see app/Http/Controllers/Bible/SearchController.php:65
  * @route '/api/bible/structure'
  */
 export const structure = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ structure.definition = {
 
 /**
 * @see \App\Http\Controllers\Bible\SearchController::structure
- * @see app/Http/Controllers/Bible/SearchController.php:62
+ * @see app/Http/Controllers/Bible/SearchController.php:65
  * @route '/api/bible/structure'
  */
 structure.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ structure.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Bible\SearchController::structure
- * @see app/Http/Controllers/Bible/SearchController.php:62
+ * @see app/Http/Controllers/Bible/SearchController.php:65
  * @route '/api/bible/structure'
  */
 structure.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -112,7 +112,7 @@ structure.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Bible\SearchController::structure
- * @see app/Http/Controllers/Bible/SearchController.php:62
+ * @see app/Http/Controllers/Bible/SearchController.php:65
  * @route '/api/bible/structure'
  */
 structure.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -122,7 +122,7 @@ structure.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Bible\SearchController::structure
- * @see app/Http/Controllers/Bible/SearchController.php:62
+ * @see app/Http/Controllers/Bible/SearchController.php:65
  * @route '/api/bible/structure'
  */
     const structureForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ structure.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Bible\SearchController::structure
- * @see app/Http/Controllers/Bible/SearchController.php:62
+ * @see app/Http/Controllers/Bible/SearchController.php:65
  * @route '/api/bible/structure'
  */
         structureForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -141,7 +141,7 @@ structure.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Bible\SearchController::structure
- * @see app/Http/Controllers/Bible/SearchController.php:62
+ * @see app/Http/Controllers/Bible/SearchController.php:65
  * @route '/api/bible/structure'
  */
         structureForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -157,7 +157,7 @@ structure.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     structure.form = structureForm
 /**
 * @see \App\Http\Controllers\Bible\SearchController::resolve
- * @see app/Http/Controllers/Bible/SearchController.php:107
+ * @see app/Http/Controllers/Bible/SearchController.php:110
  * @route '/api/bible/resolve'
  */
 export const resolve = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -172,7 +172,7 @@ resolve.definition = {
 
 /**
 * @see \App\Http\Controllers\Bible\SearchController::resolve
- * @see app/Http/Controllers/Bible/SearchController.php:107
+ * @see app/Http/Controllers/Bible/SearchController.php:110
  * @route '/api/bible/resolve'
  */
 resolve.url = (options?: RouteQueryOptions) => {
@@ -181,7 +181,7 @@ resolve.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Bible\SearchController::resolve
- * @see app/Http/Controllers/Bible/SearchController.php:107
+ * @see app/Http/Controllers/Bible/SearchController.php:110
  * @route '/api/bible/resolve'
  */
 resolve.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -190,7 +190,7 @@ resolve.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Bible\SearchController::resolve
- * @see app/Http/Controllers/Bible/SearchController.php:107
+ * @see app/Http/Controllers/Bible/SearchController.php:110
  * @route '/api/bible/resolve'
  */
 resolve.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -200,7 +200,7 @@ resolve.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Bible\SearchController::resolve
- * @see app/Http/Controllers/Bible/SearchController.php:107
+ * @see app/Http/Controllers/Bible/SearchController.php:110
  * @route '/api/bible/resolve'
  */
     const resolveForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -210,7 +210,7 @@ resolve.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Bible\SearchController::resolve
- * @see app/Http/Controllers/Bible/SearchController.php:107
+ * @see app/Http/Controllers/Bible/SearchController.php:110
  * @route '/api/bible/resolve'
  */
         resolveForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -219,7 +219,7 @@ resolve.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Bible\SearchController::resolve
- * @see app/Http/Controllers/Bible/SearchController.php:107
+ * @see app/Http/Controllers/Bible/SearchController.php:110
  * @route '/api/bible/resolve'
  */
         resolveForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

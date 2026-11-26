@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Bible\FavoriteController::index
- * @see app/Http/Controllers/Bible/FavoriteController.php:24
+ * @see app/Http/Controllers/Bible/FavoriteController.php:27
  * @route '/api/favorites'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\Bible\FavoriteController::index
- * @see app/Http/Controllers/Bible/FavoriteController.php:24
+ * @see app/Http/Controllers/Bible/FavoriteController.php:27
  * @route '/api/favorites'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Bible\FavoriteController::index
- * @see app/Http/Controllers/Bible/FavoriteController.php:24
+ * @see app/Http/Controllers/Bible/FavoriteController.php:27
  * @route '/api/favorites'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Bible\FavoriteController::index
- * @see app/Http/Controllers/Bible/FavoriteController.php:24
+ * @see app/Http/Controllers/Bible/FavoriteController.php:27
  * @route '/api/favorites'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Bible\FavoriteController::index
- * @see app/Http/Controllers/Bible/FavoriteController.php:24
+ * @see app/Http/Controllers/Bible/FavoriteController.php:27
  * @route '/api/favorites'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Bible\FavoriteController::index
- * @see app/Http/Controllers/Bible/FavoriteController.php:24
+ * @see app/Http/Controllers/Bible/FavoriteController.php:27
  * @route '/api/favorites'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Bible\FavoriteController::index
- * @see app/Http/Controllers/Bible/FavoriteController.php:24
+ * @see app/Http/Controllers/Bible/FavoriteController.php:27
  * @route '/api/favorites'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\Bible\FavoriteController::store
- * @see app/Http/Controllers/Bible/FavoriteController.php:41
+ * @see app/Http/Controllers/Bible/FavoriteController.php:44
  * @route '/api/favorites'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -94,7 +94,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\Bible\FavoriteController::store
- * @see app/Http/Controllers/Bible/FavoriteController.php:41
+ * @see app/Http/Controllers/Bible/FavoriteController.php:44
  * @route '/api/favorites'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Bible\FavoriteController::store
- * @see app/Http/Controllers/Bible/FavoriteController.php:41
+ * @see app/Http/Controllers/Bible/FavoriteController.php:44
  * @route '/api/favorites'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -113,7 +113,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\Bible\FavoriteController::store
- * @see app/Http/Controllers/Bible/FavoriteController.php:41
+ * @see app/Http/Controllers/Bible/FavoriteController.php:44
  * @route '/api/favorites'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -123,7 +123,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\Bible\FavoriteController::store
- * @see app/Http/Controllers/Bible/FavoriteController.php:41
+ * @see app/Http/Controllers/Bible/FavoriteController.php:44
  * @route '/api/favorites'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -134,7 +134,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\Bible\FavoriteController::destroy
- * @see app/Http/Controllers/Bible/FavoriteController.php:72
+ * @see app/Http/Controllers/Bible/FavoriteController.php:71
  * @route '/api/favorites'
  */
 export const destroy = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -149,7 +149,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\Bible\FavoriteController::destroy
- * @see app/Http/Controllers/Bible/FavoriteController.php:72
+ * @see app/Http/Controllers/Bible/FavoriteController.php:71
  * @route '/api/favorites'
  */
 destroy.url = (options?: RouteQueryOptions) => {
@@ -158,7 +158,7 @@ destroy.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Bible\FavoriteController::destroy
- * @see app/Http/Controllers/Bible/FavoriteController.php:72
+ * @see app/Http/Controllers/Bible/FavoriteController.php:71
  * @route '/api/favorites'
  */
 destroy.delete = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -168,7 +168,7 @@ destroy.delete = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
 
     /**
 * @see \App\Http\Controllers\Bible\FavoriteController::destroy
- * @see app/Http/Controllers/Bible/FavoriteController.php:72
+ * @see app/Http/Controllers/Bible/FavoriteController.php:71
  * @route '/api/favorites'
  */
     const destroyForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -183,7 +183,7 @@ destroy.delete = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
 
             /**
 * @see \App\Http\Controllers\Bible\FavoriteController::destroy
- * @see app/Http/Controllers/Bible/FavoriteController.php:72
+ * @see app/Http/Controllers/Bible/FavoriteController.php:71
  * @route '/api/favorites'
  */
         destroyForm.delete = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

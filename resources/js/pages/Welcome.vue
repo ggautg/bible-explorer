@@ -357,21 +357,23 @@ const highlights = [
                             pastores y pedir oración de forma cercana y
                             confidencial.
                         </p>
-                        <p class="mt-3 text-xs text-bible-muted-dim">
+                        <p class="mt-3 text-xs text-bible-muted">
                             Maquetado de interfaz (próximamente disponible).
                         </p>
                     </div>
                     <div class="flex flex-wrap gap-3">
                         <button
                             type="button"
-                            class="inline-flex items-center justify-center gap-2 rounded-full bg-bible-accent px-5 py-3 text-sm font-medium text-bible-bg transition-colors hover:bg-bible-accent-bright focus-visible:ring-2 focus-visible:ring-bible-accent focus-visible:outline-none"
+                            disabled
+                            class="inline-flex items-center justify-center gap-2 rounded-full bg-bible-accent px-5 py-3 text-sm font-medium text-bible-bg opacity-60 transition-colors hover:bg-bible-accent-bright focus-visible:ring-2 focus-visible:ring-bible-accent focus-visible:outline-none disabled:cursor-not-allowed"
                         >
                             <MessageCircle class="h-4 w-4" aria-hidden="true" />
                             Iniciar conversación
                         </button>
                         <button
                             type="button"
-                            class="inline-flex items-center justify-center gap-2 rounded-full border border-bible-border px-5 py-3 text-sm font-medium text-bible-text transition-colors hover:border-bible-accent hover:text-bible-accent-bright focus-visible:ring-2 focus-visible:ring-bible-accent focus-visible:outline-none"
+                            disabled
+                            class="inline-flex items-center justify-center gap-2 rounded-full border border-bible-border px-5 py-3 text-sm font-medium text-bible-text opacity-60 transition-colors hover:border-bible-accent hover:text-bible-accent-bright focus-visible:ring-2 focus-visible:ring-bible-accent focus-visible:outline-none disabled:cursor-not-allowed"
                         >
                             <HeartHandshake
                                 class="h-4 w-4"

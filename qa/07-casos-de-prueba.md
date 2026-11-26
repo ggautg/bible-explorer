@@ -1,0 +1,231 @@
+# 07 — Casos de prueba ejecutados
+
+## Índice
+- [Casos de Fase 1](#casos-de-fase-1)
+- [Casos de Fase 2 — autenticación, seguridad y throttles](#casos-de-fase-2--autenticación-seguridad-y-throttles)
+- [Casos de Fase 3 — social](#casos-de-fase-3--social)
+- [Casos de Fase 4 — notas, favoritos y compartir](#casos-de-fase-4--notas-favoritos-y-compartir)
+- [Casos de Fase 5 — lectura, búsqueda y grafo](#casos-de-fase-5--lectura-búsqueda-y-grafo)
+- [Casos de Fase 6 — settings, frontend estático e integridad](#casos-de-fase-6--settings-frontend-estático-e-integridad)
+- [Suite heredada](#suite-heredada)
+- [Verificación de correcciones (ronda 1)](#verificación-de-correcciones-ronda-1)
+- [Verificación de correcciones (ronda 2)](#verificación-de-correcciones-ronda-2)
+- [Verificación en navegador, rendimiento y seguridad (rondas 3 a 6)](#verificación-en-navegador-ronda-3)
+- [Casos no ejecutados](#casos-no-ejecutados)
+
+<a id="casos-de-fase-1"></a>
+
+## Casos de Fase 1
+| ID | Caso | Datos / entorno | Esperado | Real | Estado |
+| --- | --- | --- | --- | --- | --- |
+| CP-001 | Instalar dependencias desde lockfiles | `composer install`, `npm ci` | Sin cambios en lockfiles | 177 paquetes PHP y 453 Node; lockfiles intactos | Pasó |
+| CP-002 | Levantar BD de testing desde cero | SQLite `:memory:`, `migrate:fresh --seed` | 23 migraciones y seeder sin errores | 23 DONE + seeding OK | Pasó |
+| CP-003 | Migraciones hacia arriba | SQLite archivo temporal | 23 aplicadas | 23 aplicadas | Pasó |
+| CP-004 | Migraciones hacia abajo | `migrate:reset` sobre el mismo archivo | 0 aplicadas, salida 0 | 0 aplicadas, exit 0 | Pasó |
+| CP-005 | Re-aplicar migraciones tras rollback | Mismo archivo SQLite | 23 aplicadas | 23 aplicadas | Pasó |
+| CP-006 | Suite existente | `php artisan test --compact` | 54/54 | 54/54, 226 aserciones, 2,8 s | Pasó |
+| CP-007 | Suite QA de entorno | `php artisan test tests/QA --compact` | 2/2 | 2/2, 7 aserciones, 0,24 s | Pasó |
+| CP-008 | Estilo PHP | `./vendor/bin/pint --dirty --test` | Sin diferencias | Sin diferencias | Pasó |
+| CP-009 | Análisis estático PHP | `phpstan --memory-limit=1G` | 0 errores | 0 errores | Pasó |
+| CP-010 | Lint y formato JS/Vue | `lint:check`, `format:check` | Sin hallazgos | Sin hallazgos | Pasó |
+| CP-011 | Tipos Vue | `npm run types:check` | Sin errores | Sin errores | Pasó |
+| CP-012 | Build de producción | `npm run build` | Manifest generado | 77 assets, 0,92 MB, 2,61 s | Pasó (con BUG-001) |
+| CP-013 | Validar composer | `composer validate --no-check-publish` | Válido | Válido | Pasó |
+| CP-014 | Auditoría de dependencias | `composer audit` | 0 avisos | 0 avisos | Pasó |
+| CP-015 | Revisión de logs | Últimas 200 líneas de `laravel.log` | Sin errores nuevos | 8 entradas antiguas de setup; ninguna nueva | Pasó |
+| CP-016 | Build sin `.env` | Checkout limpio, sin `.env` | Build OK | `MissingAppKeyException` | **Falló** → BUG-002 |
+
+<a id="casos-de-fase-2--autenticación-seguridad-y-throttles"></a>
+
+## Casos de Fase 2 — autenticación, seguridad y throttles
+| ID | Caso | Datos / entorno | Esperado | Real | Estado |
+| --- | --- | --- | --- | --- | --- |
+| CP-017 | Registro con nombre Unicode genera slug | `María José Ñandú`, `maria@example.com` | `maria-jose-nandu` | `slug = NULL` | **Falló** → BUG-003 |
+| CP-018 | Enlace de perfil tras registro | `GET /perfil/` con el slug devuelto | 200 | 404 | **Falló** → BUG-003 |
+| CP-019 | Cambiar nombre regenera slug | `juan-perez` → `Ana María Ñandú` | `ana-maria-nandu` | `juan-perez` | **Falló** → BUG-004 |
+| CP-020 | Correo duplicado con distinta capitalización | `unico@example.com` vs `UNICO@example.com` | Error de validación `email` | Error de validación; 1 solo usuario | Pasó |
+| CP-021 | Throttle de login | 5 intentos fallidos + 1 correcto | 6º responde 429 | 429 | Pasó |
+| CP-022 | Challenge 2FA con TOTP válido | Secreto real generado con Google2FA | Redirect a `/comunidad` y sesión autenticada | Igual | Pasó |
+| CP-023 | Throttle del challenge 2FA | 5 códigos `000000` + 1 extra | 6º responde 429 | 429 | Pasó |
+| CP-024 | Activar y desactivar 2FA | Usuario autenticado con password confirmado | `two_factor_secret` se crea y se borra | Igual | Pasó |
+| CP-025 | Borrado de cuenta con contenido | Usuario con post, nota y favorito | Usuario y dependencias eliminados por cascada | Igual | Pasó |
+| CP-026 | Regresión de la suite heredada | `php artisan test --compact` tras los tests QA | 54/54 | 54/54, 226 aserciones | Pasó |
+| CP-027 | Estilo del nuevo archivo QA | `./vendor/bin/pint --dirty --test` | Sin diferencias | Sin diferencias | Pasó |
+
+<a id="casos-de-fase-3--social"></a>
+
+## Casos de Fase 3 — social
+| ID | Caso | Datos / entorno | Esperado | Real | Estado |
+| --- | --- | --- | --- | --- | --- |
+| CP-028 | Publicación con solo espacios/saltos | `"   \n\t  "` | Error de validación `body`, 0 posts | Igual | Pasó |
+| CP-029 | Respuesta con solo espacios | `"    "` | Error de validación `body`, 0 respuestas | Igual | Pasó |
+| CP-030 | Cuerpo de exactamente 2000 caracteres Unicode | `str_repeat('á', 2000)` | Se crea el post | Igual | Pasó |
+| CP-031 | Auto-seguimiento | Usuario se sigue a sí mismo | 0 filas en `follows` | Igual | Pasó |
+| CP-032 | Auto-rebibleo | Usuario rebiblea su propio post | 0 rebibleos creados | Igual | Pasó |
+| CP-033 | Alternar rebibleo | Usuario rebiblea dos veces | 1 y luego 0 rebibleos | Igual | Pasó |
+| CP-034 | Feed solo con posts raíz | Raíz + respuesta | Solo la raíz en `posts` | Igual | Pasó |
+| CP-035 | Pestaña `siguiendo` | Propios + seguidos + extraño | Solo propios y seguidos | Igual | Pasó |
+| CP-036 | Acceso de invitados | GET feed, POST post, POST like | Redirect a login en los tres | Igual | Pasó |
+| CP-037 | Unicode, emoji y `<script>` en el cuerpo | `Gracias, Jesús 🙏 — <script>…</script> ñandú` | Se guarda verbatim | Igual | Pasó |
+| CP-038 | Respuesta a una respuesta visible en el hilo | Raíz → respuesta → anidada | Anidada en `replies.1` | `replies.1` no existe | **Falló** → BUG-005 |
+
+<a id="casos-de-fase-4--notas-favoritos-y-compartir"></a>
+
+## Casos de Fase 4 — notas, favoritos y compartir
+| ID | Caso | Datos / entorno | Esperado | Real | Estado |
+| --- | --- | --- | --- | --- | --- |
+| CP-039 | Notas aisladas por usuario | Usuario A crea nota; usuario B consulta y borra | B ve 0 notas y no afecta la de A | Igual | Pasó |
+| CP-040 | Favoritos aislados por usuario | Usuario A crea favorito; usuario B consulta y borra | B ve 0 favoritos y no afecta el de A | Igual | Pasó |
+| CP-041 | Upsert de nota | Dos `PUT /api/notes` para el mismo versículo | 1 fila con el texto de la segunda versión | Igual | Pasó |
+| CP-042 | Crear favorito dos veces | Dos `POST /api/favorites` iguales | 1 fila | Igual | Pasó |
+| CP-043 | Nota con cuerpo en blanco | `"   \n"` | 422 con error en `body` | Igual | Pasó |
+| CP-044 | Nota para versículo inexistente | `GEN 99:1` | 422, sin nota creada | Igual | Pasó |
+| CP-045 | Tipos inválidos en nota | `book_code` array y `chapter` texto | 422 con errores en ambos campos | Igual | Pasó |
+| CP-046 | Borrar nota con capítulo 0 | `DELETE /api/notes` con `chapter=0` | 422 con error en `chapter` | 200 `{"ok": true}` | **Falló** → BUG-006 |
+| CP-047 | Borrar favorito con versículo 0 | `DELETE /api/favorites` con `verse=0` | 422 con error en `verse` | 200 `{"ok": true}` | **Falló** → BUG-006 |
+| CP-048 | Throttle de escritura de notas | 31 `PUT /api/notes` seguidos | El 31º responde 429 | 429 | Pasó |
+| CP-049 | Invitados en APIs bíblicas | GET/POST/PUT/DELETE sin sesión | 401 en los cuatro | Igual | Pasó |
+| CP-050 | Página compartida pública | `GET /compartido/GEN/1/1` sin sesión | Inertia `Bible/Shared` con texto y nombre del servidor | Igual | Pasó |
+| CP-051 | Página compartida con referencia inexistente | `GEN 99:99` y `XXX 1:1` | 404 en ambos | Igual | Pasó |
+| CP-052 | Borrado selectivo de notas | Dos notas en `GEN 1:1` y `GEN 1:2`; borrar la primera | Queda solo `GEN 1:2` | Igual | Pasó |
+
+<a id="casos-de-fase-5--lectura-búsqueda-y-grafo"></a>
+
+## Casos de Fase 5 — lectura, búsqueda y grafo
+| ID | Caso | Datos / entorno | Esperado | Real | Estado |
+| --- | --- | --- | --- | --- | --- |
+| CP-053 | Listado de libros en orden canónico | GEN, EXO, JHN con `order` 1, 2, 3 | Inertia `Bible/Books` en ese orden | Igual | Pasó |
+| CP-054 | Capítulos de libro inexistente | `GET /bible/XXX/1` | 404 | 404 | Pasó |
+| CP-055 | Capítulo sin versículos | `GET /bible/GEN/99` | 404 | 404 | Pasó |
+| CP-056 | Versículo con traducción alterna | `GEN 1:1` y `GEN 1:2` en RVA + PDT | `alternateVerses.1` con el texto PDT | Igual | Pasó |
+| CP-057 | Navegación entre capítulos | `GEN 1` y `GEN 2` presentes | `hasNext`/`hasPrev` correctos | Igual | Pasó |
+| CP-058 | Último capítulo sin “siguiente” | `GET /bible/GEN/2` | `hasNext=false`, `hasPrev=true` | Igual | Pasó |
+| CP-059 | Autocompletado con `q` vacío | `q=%20%20` | `[]` | `[]` | Pasó |
+| CP-060 | Autocompletado parcial y límite | 9 libros “Prueba N”, `q=Prueba` | 8 resultados, PR1…PR8 | Igual | Pasó |
+| CP-061 | `%` literal en autocompletado | `q=%25` | `[]` | GEN, EXO y JHN | **Falló** → BUG-007 |
+| CP-062 | Validación de `structure` | `chapter=0` y `book` de 20 caracteres | 422 en ambos campos | Igual | Pasó |
+| CP-063 | Resolver referencia acentuada | `Génesis 1:2` | `{book: GEN, chapter: 1, verse: 2}` | Igual | Pasó |
+| CP-064 | Referencia malformada | `Genesis 1` | 422 con mensaje de formato | Igual | Pasó |
+| CP-065 | Libro o versículo inexistente al resolver | `Marcos 1:1`, `Génesis 99:1` | 404 en ambos | Igual | Pasó |
+| CP-066 | Grafo con aristas entrantes y salientes | GEN→JHN y EXO→GEN | Centro `GEN-1-1`, nodo central, dos aristas | Igual | Pasó |
+| CP-067 | Grafo sin referencias | `JHN 3:16` | Solo nodo central, `edges=[]` | Igual | Pasó |
+| CP-068 | Grafo con centro inexistente | `GET /bible/GEN/99/99` | 404 | 404 | Pasó |
+| CP-069 | Límite de conexiones del grafo | 30 referencias salientes | 25 aristas ordenadas por `score` | Igual | Pasó |
+| CP-070 | Aristas con nodo existente | Referencia hacia `XXX 9:9` sin versículo | Sin extremos huérfanos | `XXX-9-9` sin nodo | **Falló** → BUG-008 |
+| CP-071 | Búsqueda de texto con `q < 3` | `q=ab` | Inertia `Bible/Search`, `results=[]` | Igual | Pasó |
+| CP-072 | Búsqueda de texto con `q >= 3` | `q=Dios`, SQLite `:memory:` | Resultados con el término | 500 en el navegador; el test estaba omitido por FULLTEXT | **Falló** → BUG-014 (reactivado en ronda 3) |
+
+<a id="casos-de-fase-6--settings-frontend-estático-e-integridad"></a>
+
+## Casos de Fase 6 — settings, frontend estático e integridad
+| ID | Caso | Datos / entorno | Esperado | Real | Estado |
+| --- | --- | --- | --- | --- | --- |
+| CP-073 | Invitados redirigidos desde settings | GET profile, appearance y security sin sesión | Redirect a login en los tres | Igual | Pasó |
+| CP-074 | Redirect de `/settings` | Usuario autenticado | Redirect a `route('profile.edit')` | Igual | Pasó |
+| CP-075 | Props Inertia de perfil y apariencia | Usuario con correo sin verificar | `settings/Profile` con `mustVerifyEmail=true`; `settings/Appearance` | `mustVerifyEmail=false` | **Falló** → BUG-009 |
+| CP-076 | Usuario sin verificar en rutas `verified` y borrado | `email_verified_at=NULL`, password correcta | Redirect a `verification.notice`; cuenta intacta | 200 en ambas; cuenta borrada | **Falló** → BUG-009 |
+| CP-077 | Correo ajeno en actualización de perfil | `otra@example.com` ya existente | Error de validación en `email`; correo propio intacto | Igual | Pasó |
+| CP-078 | Throttle de cambio de contraseña | 6 intentos con password actual incorrecta + 1 correcto | El 7º responde 429 y la contraseña no cambia | Igual | Pasó |
+| CP-079 | Contraseña nueva débil o sin confirmar | `abc` / confirmación distinta | 422 con error en `password`; contraseña intacta | Igual | Pasó |
+| CP-080 | Endpoint público de passkeys | `GET /.well-known/passkey-endpoints` | JSON con `enroll` y `manage` hacia `security.edit` | Igual | Pasó |
+| CP-081 | Authenticator expuesto en props de seguridad | Passkey con AAGUID de Windows Hello | `passkeys.0.authenticator = 'Windows Hello'` | Igual | Pasó |
+| CP-082 | Precedencia de cookie de tema | `theme=olivo` + `appearance=patmos`, solo `appearance`, sin cookies | `olivo`, `patmos`, `getsemani` | Igual | Pasó |
+| CP-083 | Índices de integridad presentes | `getIndexes()` sobre cross-references y posts | Índice entrante, único de referencia y único de rebibleos | Iguales | Pasó |
+| CP-084 | Referencia cruzada duplicada | Insertar dos veces la misma fila | `QueryException`; queda 1 fila | Igual | Pasó |
+| CP-085 | Rebibleo duplicado del mismo post | Crear dos veces el mismo `rebible_of_id` | `QueryException`; quedan 2 filas | Igual | Pasó |
+| CP-086 | Cascada de passkeys al borrar usuario | Usuario con passkey, `$user->delete()` | 0 passkeys huérfanas | Igual | Pasó |
+| CP-087 | Controles alcanzables por teclado (estático) | `PasswordInput`, `VerseReferencePicker`, `Graph` | Ojo de contraseña tabulable; combobox con flechas/Enter/Escape; foco visible en nodos | `tabindex="-1"`, sin navegación por teclado, sin foco en `<g>` | **Falló** → BUG-010 (CONFIRMADO estático) |
+| CP-088 | Estado de toggles y pestañas (estático) | `AppearanceTabs`, `Chapter`, `Feed`, `Show`, `SettingsLayout`, `NavHeader` | `aria-pressed`/`aria-expanded`/`aria-current` en el control activo | Solo color/borde; sin atributos de estado | **Falló** → BUG-011 (CONFIRMADO estático) |
+| CP-089 | Contenido sensible y mensajes dinámicos (estático) | `TwoFactorRecoveryCodes`, `TwoFactorSetupModal`, `InputError`, mensajes de estado | Códigos fuera del árbol accesible; errores con `role=alert` y `aria-describedby`; botón de copiar con nombre | `h-0 opacity-0` sin `hidden`, `<p>` sin rol, icono sin etiqueta | **Falló** → BUG-012 (CONFIRMADO estático) |
+| CP-090 | Placeholders y nombres ambiguos (estático) | `Welcome`, `Feed`, `PostCard`, `Book`, `Search`, `Favorites`, `Notes`, `PasskeyItem` | Controles no disponibles deshabilitados; nombres únicos por ítem | Botones sin handler, `href="#"` y nombres repetidos | **Falló** → BUG-013 (CONFIRMADO estático) |
+| CP-091 | Regresión de la suite heredada | `php artisan test --compact` tras Fase 6 | 54/54 | 54/54, 226 aserciones, 2,6 s | Pasó |
+| CP-092 | Estilo del nuevo archivo QA | `./vendor/bin/pint --dirty --test` | Sin diferencias | Sin diferencias (tras aplicar `new_with_parentheses`) | Pasó |
+
+<a id="suite-heredada"></a>
+
+## Suite heredada
+Los 54 tests existentes se ejecutaron en bloque y pasaron. Distribución: autenticación/verificación/reset 25, settings 10, social 8, integridad bíblica 6, dashboard 2, seeder 1, ejemplos 2. Detalle caso por caso en `php artisan test --compact` (salida registrada en `11-anexos.md`).
+
+<a id="verificación-de-correcciones-ronda-1"></a>
+
+## Verificación de correcciones (ronda 1)
+Los mismos tests que fallaron se conservaron activos y se rerun tras la corrección. Los casos de Fase 2 a 6 que figuran como “Falló” son el registro histórico del hallazgo; el estado actual está acá.
+
+| ID | Caso | Esperado | Real | Estado |
+| --- | --- | --- | --- | --- |
+| CP-093 | Slug generado al registrar `María José Ñandú` | `maria-jose-nandu` | Igual | Pasó |
+| CP-094 | Perfil por slug tras registro | `GET /perfil/maria-jose-nandu` → 200 | 200 | Pasó |
+| CP-095 | Slug al cambiar el nombre | `ana-maria-nandu` | Igual | Pasó |
+| CP-096 | Verificación por correo exigida | `mustVerifyEmail=true`, rutas `verified` redirigen y borrado bloqueado | Igual | Pasó |
+| CP-097 | Respuesta anidada visible en el hilo | `replies.1.id` presente | Presente | Pasó |
+| CP-098 | Borrado de nota/favorito con 0 | 422 en `chapter` y `verse` | Igual | Pasó |
+| CP-099 | `%` literal en autocompletado | `q=%25` → `[]` | `[]` | Pasó |
+| CP-100 | Grafo sin aristas huérfanas | Sin `XXX-9-9` | Sin ese extremo | Pasó |
+| CP-101 | Regresión y estático tras correcciones | 54/54, Pint sin diferencias, PHPStan 0 errores | Igual | Pasó |
+
+Suite QA tras la ronda 1: 70 tests, 69 pasan, 1 omitido (FULLTEXT), 391 aserciones, 3,1 s.
+
+<a id="verificación-de-correcciones-ronda-2"></a>
+
+## Verificación de correcciones (ronda 2)
+Los hallazgos estáticos CP-087 a CP-090 se cubren ahora con `tests/QA/FrontendIntegrityRound2Test.php` y se confirmaron con teclado y axe/Lighthouse en la ronda 3 (CP-108 a CP-120).
+
+| ID | Caso | Esperado | Real | Estado |
+| --- | --- | --- | --- | --- |
+| CP-102 | Teclado en password, combobox y grafo | `aria-pressed`, flechas/Enter/Escape en ambos combobox, error anunciado, foco visible en nodos | Marcadores presentes en el código | Pasó (estático) |
+| CP-103 | Estado de toggles y pestañas | `aria-pressed`, `aria-expanded` y `aria-current` | Marcadores presentes en los componentes | Pasó (estático) |
+| CP-104 | Contenido 2FA y mensajes dinámicos | Códigos con `v-if`, errores `role=alert`, estados `role=status`, botón con nombre | Igual | Pasó (estático) |
+| CP-105 | Placeholders y nombres únicos | Botones sin handler deshabilitados, sin `href="#"`, `aria-label` por ítem | Igual | Pasó (estático) |
+| CP-106 | Build sin `.env` | Build OK y sin cambios nuevos en artefactos Wayfinder | 1,79 s; hash estable antes/después del build | Pasó |
+| CP-107 | Calidad final del frontend y PHP | `lint:check`, `format:check`, `types:check`, Pint, PHPStan | Todos en verde | Pasó |
+
+Suite QA tras la ronda 2: 74 tests, 73 pasan, 1 omitido (FULLTEXT), 429 aserciones, 3,1 s.
+
+<a id="verificación-en-navegador-ronda-3"></a>
+
+## Verificación en navegador, rendimiento y seguridad (rondas 3 a 6)
+Se levantó la app con `artisan serve` sobre un SQLite temporal fuera del repo (`C:\Users\Desarrollo\AppData\Local\Temp\opencode\`), sin Vite dev ni MySQL. Se usaron el navegador integrado, su árbol de accesibilidad, teclado y Lighthouse; no se agregó ningún runner JS.
+
+| ID | Caso | Esperado | Real | Estado |
+| --- | --- | --- | --- | --- |
+| CP-108 | Orden de foco en `/login` desde el correo | Correo → “¿Olvidaste tu contraseña?” → password → ojo → recordarme → enviar | Secuencia idéntica medida con Tab real | Pasó (BUG-010) |
+| CP-109 | Ojo de contraseña en `/login` | `aria-pressed` pasa de `false` a `true` y el input cambia a `text` | Igual con Enter | Pasó (BUG-010) |
+| CP-110 | Error de credenciales | `role=alert` con `aria-live=polite`, `aria-invalid=true` y `aria-describedby=error-email` | Igual | Pasó |
+| CP-111 | Login con `test@example.com` / `password` | Redirect a `/comunidad` | Igual | Pasó |
+| CP-112 | Combobox del grafo con “Juan” | `aria-expanded`, `role=option`, `aria-activedescendant` con ArrowDown y cierre con Enter | Igual | Pasó (BUG-010) |
+| CP-113 | Combobox del grafo con Escape | Lista cerrada (`expanded=false`, 0 opciones) | Igual | Pasó |
+| CP-114 | Nodo del grafo al recibir foco | `stroke` blanco y `stroke-width=3`; `<svg role="group">` con etiqueta | Igual | Pasó (BUG-010) |
+| CP-115 | Formato inválido en `/api/bible/resolve` | 422 esperado y error anunciado con `role=alert` | Igual; el 422 en consola es la respuesta esperada | Pasó |
+| CP-116 | `/buscar?q=Dios` sobre SQLite | 2 resultados, sin 500 ni errores de consola | Igual | Pasó (BUG-014) |
+| CP-117 | Lighthouse sobre 11 páginas | 1,0 en accesibilidad, buenas prácticas y SEO, sin fallos | Igual | Pasó (BUG-015, BUG-016) |
+| CP-118 | Combobox del compositor (Libro/Capítulo/Versículo) | Flechas/Enter/Escape, `aria-activedescendant` y campos dependientes habilitados | Igual | Pasó |
+| CP-119 | Logout desde la navegación | Redirect a `/` | Igual | Pasó |
+| CP-120 | Suites y build tras la ronda 3 | 77/77 QA, 54/54 heredados, Pint, PHPStan, lint/format/types y build en verde | Igual | Pasó |
+| CP-121 | Tiempos de navegación en Chromium | `loadEventEnd` medido en 7 URLs con caché falsa | 297–896 ms; `responseEnd` 207–784 ms; 8 KB transferidos por página | Pasó (medición única) |
+| CP-122 | Trace del renderer en 5 páginas | Sin tareas largas que bloqueen la interacción | 0 en `/login`, lectura, grafo, búsqueda y notas; 1 tarea de 3,2 ms en `/comunidad` | Pasó |
+| CP-123 | Carga ligera con 15.000 versículos | 5 concurrentes × 10 peticiones en 5 rutas, sin errores | 50/50 respuestas 200; promedio 660–772 ms, p95 1114–1276 ms | Pasó |
+| CP-124 | Pico corto de concurrencia | 20 concurrentes × 40 peticiones en 3 rutas, sin errores | 120/120 respuestas 200; promedio 2232–2389 ms, p95 4149–4375 ms (encolamiento del servidor monoprocreso) | Pasó |
+| CP-125 | `PATCH /settings/profile` con campos extra | Solo se aplican `name` y `email`; sin `is_admin`, `role`, `church` ni `email_verified_at` manipulados | Igual; el slug se deriva del nombre, no del payload | Pasó |
+| CP-126 | `POST /posts` con `user_id`, `parent_id`, `rebible_of_id` y `book_name` ajenos | Servidor impone autoría, relaciones nulas y nombre derivado | Igual | Pasó |
+| CP-127 | `POST /posts` con `kind=rebibleada` | 422, tipo no elegible | Igual | Pasó |
+| CP-128 | `PUT /api/notes` y `POST /api/favorites` con `user_id` ajeno | Fila creada para el usuario autenticado | Igual | Pasó |
+| CP-129 | Upsert de nota con la misma referencia desde dos usuarios | Dos filas, cada una con su cuerpo | Igual | Pasó |
+| CP-130 | Cuerpo de nota con `<script>` | Viaja como texto plano en la API | Igual; `book_name` derivado del servidor | Pasó |
+| CP-131 | Búsqueda de `v-html`/`innerHTML` en `resources/js` | Ningún render de HTML crudo | 0 coincidencias | Pasó |
+| CP-132 | Suites y build tras la ronda 6 | 85/85 QA y 54/54 heredados sin regresiones | Igual | Pasó |
+
+Suite QA final: 85 tests, 85 pasan, 0 fallos, 0 omitidos, 488 aserciones, 3,4 s.
+
+<a id="casos-no-ejecutados"></a>
+
+## Casos no ejecutados
+| Área | Motivo |
+| --- | --- |
+| Passkeys (registro y autenticación WebAuthn) | Requiere emulador de autenticador; solo se revisó la config de throttles |
+| E2E automatizado (Playwright/Dusk) | No hay runners instalados; el flujo login → navegación → logout se verificó manualmente en la ronda 3 |
+| Tests de componentes Vue | No hay Vitest/jsdom en `package.json` |
+| Viewports 375/768/1366/1920 | Sin revisión manual de tamaños: sigue **NO VERIFICADO** |
+| Carga con `ab`/`k6` y servidor real | La ronda 5 cubrió carga ligera y pico corto con `curl_multi` sobre el servidor integrado; sigue sin medirse con FPM/Apache ni de forma sostenida |
+| Lector de pantalla dedicado (NVDA/VoiceOver) | Solo se revisó el árbol accesible del navegador |
+| Firefox / WebKit | Solo se dispuso de Chromium |
+| Búsqueda FULLTEXT (`q >= 3`) sobre MySQL real | `MATCH ... AGAINST` no existe en SQLite; se validó el fallback `LIKE` y el test quedó reactivado |

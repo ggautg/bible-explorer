@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Bible\NoteController::index
- * @see app/Http/Controllers/Bible/NoteController.php:24
+ * @see app/Http/Controllers/Bible/NoteController.php:27
  * @route '/api/notes'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\Bible\NoteController::index
- * @see app/Http/Controllers/Bible/NoteController.php:24
+ * @see app/Http/Controllers/Bible/NoteController.php:27
  * @route '/api/notes'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Bible\NoteController::index
- * @see app/Http/Controllers/Bible/NoteController.php:24
+ * @see app/Http/Controllers/Bible/NoteController.php:27
  * @route '/api/notes'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Bible\NoteController::index
- * @see app/Http/Controllers/Bible/NoteController.php:24
+ * @see app/Http/Controllers/Bible/NoteController.php:27
  * @route '/api/notes'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Bible\NoteController::index
- * @see app/Http/Controllers/Bible/NoteController.php:24
+ * @see app/Http/Controllers/Bible/NoteController.php:27
  * @route '/api/notes'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Bible\NoteController::index
- * @see app/Http/Controllers/Bible/NoteController.php:24
+ * @see app/Http/Controllers/Bible/NoteController.php:27
  * @route '/api/notes'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Bible\NoteController::index
- * @see app/Http/Controllers/Bible/NoteController.php:24
+ * @see app/Http/Controllers/Bible/NoteController.php:27
  * @route '/api/notes'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\Bible\NoteController::upsert
- * @see app/Http/Controllers/Bible/NoteController.php:39
+ * @see app/Http/Controllers/Bible/NoteController.php:42
  * @route '/api/notes'
  */
 export const upsert = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -94,7 +94,7 @@ upsert.definition = {
 
 /**
 * @see \App\Http\Controllers\Bible\NoteController::upsert
- * @see app/Http/Controllers/Bible/NoteController.php:39
+ * @see app/Http/Controllers/Bible/NoteController.php:42
  * @route '/api/notes'
  */
 upsert.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ upsert.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Bible\NoteController::upsert
- * @see app/Http/Controllers/Bible/NoteController.php:39
+ * @see app/Http/Controllers/Bible/NoteController.php:42
  * @route '/api/notes'
  */
 upsert.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -113,7 +113,7 @@ upsert.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
 
     /**
 * @see \App\Http\Controllers\Bible\NoteController::upsert
- * @see app/Http/Controllers/Bible/NoteController.php:39
+ * @see app/Http/Controllers/Bible/NoteController.php:42
  * @route '/api/notes'
  */
     const upsertForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -128,7 +128,7 @@ upsert.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
 
             /**
 * @see \App\Http\Controllers\Bible\NoteController::upsert
- * @see app/Http/Controllers/Bible/NoteController.php:39
+ * @see app/Http/Controllers/Bible/NoteController.php:42
  * @route '/api/notes'
  */
         upsertForm.put = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -144,7 +144,7 @@ upsert.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
     upsert.form = upsertForm
 /**
 * @see \App\Http\Controllers\Bible\NoteController::destroy
- * @see app/Http/Controllers/Bible/NoteController.php:74
+ * @see app/Http/Controllers/Bible/NoteController.php:75
  * @route '/api/notes'
  */
 export const destroy = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -159,7 +159,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\Bible\NoteController::destroy
- * @see app/Http/Controllers/Bible/NoteController.php:74
+ * @see app/Http/Controllers/Bible/NoteController.php:75
  * @route '/api/notes'
  */
 destroy.url = (options?: RouteQueryOptions) => {
@@ -168,7 +168,7 @@ destroy.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Bible\NoteController::destroy
- * @see app/Http/Controllers/Bible/NoteController.php:74
+ * @see app/Http/Controllers/Bible/NoteController.php:75
  * @route '/api/notes'
  */
 destroy.delete = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -178,7 +178,7 @@ destroy.delete = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
 
     /**
 * @see \App\Http\Controllers\Bible\NoteController::destroy
- * @see app/Http/Controllers/Bible/NoteController.php:74
+ * @see app/Http/Controllers/Bible/NoteController.php:75
  * @route '/api/notes'
  */
     const destroyForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -193,7 +193,7 @@ destroy.delete = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
 
             /**
 * @see \App\Http\Controllers\Bible\NoteController::destroy
- * @see app/Http/Controllers/Bible/NoteController.php:74
+ * @see app/Http/Controllers/Bible/NoteController.php:75
  * @route '/api/notes'
  */
         destroyForm.delete = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

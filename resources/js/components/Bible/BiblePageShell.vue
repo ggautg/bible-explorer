@@ -49,7 +49,11 @@ const mobileOpen = ref(false);
                     class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-bible-border text-bible-muted transition-colors hover:bg-bible-bg/50 hover:text-bible-accent-bright focus-visible:ring-2 focus-visible:ring-bible-accent focus-visible:outline-none"
                     :aria-expanded="mobileOpen ? 'true' : 'false'"
                     aria-controls="mobile-nav"
-                    aria-label="Abrir menú de navegación"
+                    :aria-label="
+                        mobileOpen
+                            ? 'Cerrar menú de navegación'
+                            : 'Abrir menú de navegación'
+                    "
                     @click="mobileOpen = !mobileOpen"
                 >
                     <component

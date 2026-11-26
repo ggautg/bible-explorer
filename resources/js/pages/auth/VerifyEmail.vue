@@ -22,6 +22,7 @@ defineProps<{
     >
         <div
             v-if="status === 'verification-link-sent'"
+            role="status"
             class="mb-4 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-center text-sm font-medium text-emerald-400"
         >
             Te enviamos un nuevo enlace de verificación a tu correo electrónico.

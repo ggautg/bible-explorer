@@ -39,7 +39,6 @@ defineProps<{
                         name="name"
                         required
                         autofocus
-                        :tabindex="1"
                         autocomplete="name"
                         placeholder="Tu nombre"
                     />
@@ -53,7 +52,6 @@ defineProps<{
                         type="email"
                         name="email"
                         required
-                        :tabindex="2"
                         autocomplete="email"
                         placeholder="correo@ejemplo.com"
                     />
@@ -66,7 +64,6 @@ defineProps<{
                         id="password"
                         name="password"
                         required
-                        :tabindex="3"
                         autocomplete="new-password"
                         placeholder="Contraseña"
                     />
@@ -87,7 +84,6 @@ defineProps<{
                         id="password_confirmation"
                         name="password_confirmation"
                         required
-                        :tabindex="4"
                         autocomplete="new-password"
                         placeholder="Repetí la contraseña"
                     />
@@ -97,7 +93,6 @@ defineProps<{
                 <Button
                     type="submit"
                     class="mt-1 w-full"
-                    :tabindex="5"
                     :disabled="processing"
                     data-test="register-button"
                 >
@@ -109,7 +104,7 @@ defineProps<{
 
         <template #footer>
             ¿Ya tenés cuenta?
-            <TextLink :href="login()" :tabindex="6">Iniciá sesión</TextLink>
+            <TextLink :href="login()">Iniciá sesión</TextLink>
         </template>
     </AuthLayout>
 </template>

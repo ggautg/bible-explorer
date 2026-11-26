@@ -97,6 +97,7 @@ async function removeNote(note) {
                     <button
                         type="button"
                         @click="removeNote(n)"
+                        :aria-label="`Eliminar nota de ${n.book_name} ${n.chapter}:${n.verse}`"
                         class="inline-flex items-center gap-2 rounded-xl border border-bible-border px-3 py-2 text-sm text-bible-muted transition-colors hover:border-bible-error/50 hover:bg-bible-error/5 hover:text-bible-error focus-visible:ring-2 focus-visible:ring-bible-accent focus-visible:outline-none"
                     >
                         <Trash2 class="h-4 w-4" aria-hidden="true" />

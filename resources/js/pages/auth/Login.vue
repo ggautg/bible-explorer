@@ -30,6 +30,7 @@ defineProps<{
     >
         <div
             v-if="status"
+            role="status"
             class="mb-4 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-center text-sm font-medium text-emerald-400"
         >
             {{ status }}
@@ -50,11 +51,12 @@ defineProps<{
                         name="email"
                         required
                         autofocus
-                        :tabindex="1"
                         autocomplete="email"
                         placeholder="correo@ejemplo.com"
+                        aria-describedby="error-email"
+                        :aria-invalid="!!errors.email"
                     />
-                    <InputError :message="errors.email" />
+                    <InputError id="error-email" :message="errors.email" />
                 </div>
 
                 <div class="grid gap-2">
@@ -64,7 +66,6 @@ defineProps<{
                             v-if="canResetPassword"
                             :href="request()"
                             class="text-sm"
-                            :tabindex="5"
                         >
                             ¿Olvidaste tu contraseña?
                         </TextLink>
@@ -73,22 +74,25 @@ defineProps<{
                         id="password"
                         name="password"
                         required
-                        :tabindex="2"
                         autocomplete="current-password"
                         placeholder="Contraseña"
+                        aria-describedby="error-password"
+                        :aria-invalid="!!errors.password"
                     />
-                    <InputError :message="errors.password" />
+                    <InputError
+                        id="error-password"
+                        :message="errors.password"
+                    />
                 </div>
 
                 <label class="flex items-center gap-3 text-sm">
-                    <Checkbox id="remember" name="remember" :tabindex="3" />
+                    <Checkbox id="remember" name="remember" />
                     <span>Recordarme</span>
                 </label>
 
                 <Button
                     type="submit"
                     class="mt-1 w-full"
-                    :tabindex="4"
                     :disabled="processing"
                     data-test="login-button"
                 >
@@ -100,7 +104,7 @@ defineProps<{
 
         <template #footer>
             ¿No tenés cuenta?
-            <TextLink :href="register()" :tabindex="6">Creá tu cuenta</TextLink>
+            <TextLink :href="register()">Creá tu cuenta</TextLink>
         </template>
     </AuthLayout>
 </template>

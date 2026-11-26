@@ -30,6 +30,7 @@ const props = defineProps({
 const svgRef = ref(null);
 const selected = ref(null);
 const copied = ref(false);
+const activeSuggestion = ref(-1);
 let copiedTimer = null;
 
 onUnmounted(() => clearTimeout(copiedTimer));
@@ -49,6 +50,44 @@ const {
 const { trail, visit, clear } = useExplorationTrail();
 const { isFavorite, toggleFavorite } = useFavorites();
 const { showToast } = useToast();
+
+watch(suggestions, () => {
+    activeSuggestion.value = -1;
+});
+
+/** Navegación por teclado de las sugerencias del grafo (patrón combobox). */
+function onSearchKeydown(event) {
+    if (event.key === 'Escape') {
+        suggestions.value = [];
+        activeSuggestion.value = -1;
+
+        return;
+    }
+
+    if (!suggestions.value.length) {
+        return;
+    }
+
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        event.preventDefault();
+        const total = suggestions.value.length;
+        const step = event.key === 'ArrowDown' ? 1 : -1;
+
+        activeSuggestion.value =
+            activeSuggestion.value < 0
+                ? step > 0
+                    ? 0
+                    : total - 1
+                : (activeSuggestion.value + step + total) % total;
+
+        return;
+    }
+
+    if (event.key === 'Enter' && activeSuggestion.value >= 0) {
+        event.preventDefault();
+        pickSuggestion(suggestions.value[activeSuggestion.value]);
+    }
+}
 
 const pageTitle = computed(() => {
     if (!props.center) {
@@ -180,23 +219,44 @@ watch(
                                 id="buscar-referencia-grafo"
                                 v-model="searchQuery"
                                 type="text"
+                                role="combobox"
+                                aria-autocomplete="list"
+                                :aria-expanded="suggestions.length > 0"
+                                aria-controls="graph-book-suggestions"
+                                :aria-activedescendant="
+                                    activeSuggestion >= 0
+                                        ? `graph-book-option-${suggestions[activeSuggestion]?.code}`
+                                        : undefined
+                                "
                                 autocomplete="off"
                                 placeholder="Escribí una referencia, por ejemplo: Juan 3:16"
-                                class="w-full rounded-xl border border-bible-border bg-bible-bg/40 py-2.5 pr-4 pl-10 text-sm text-bible-text placeholder:text-bible-muted-dim focus:ring-2 focus:ring-bible-accent focus:outline-none"
+                                class="w-full rounded-xl border border-bible-border bg-bible-bg/40 py-2.5 pr-4 pl-10 text-sm text-bible-text placeholder:text-bible-muted focus:ring-2 focus:ring-bible-accent focus:outline-none"
+                                @keydown="onSearchKeydown"
                             />
 
                             <ul
                                 v-if="suggestions.length"
+                                id="graph-book-suggestions"
                                 class="absolute top-full right-0 left-0 z-10 mt-1 max-h-60 overflow-auto rounded-md border border-bible-border bg-bible-panel p-1 shadow-lg"
                                 role="listbox"
                             >
                                 <li
-                                    v-for="book in suggestions"
+                                    v-for="(book, index) in suggestions"
                                     :key="book.code"
                                 >
                                     <button
+                                        :id="`graph-book-option-${book.code}`"
                                         type="button"
-                                        class="w-full rounded px-3 py-2 text-left text-sm text-bible-text transition-colors hover:bg-bible-bg/60 hover:text-bible-accent-bright"
+                                        role="option"
+                                        :aria-selected="
+                                            activeSuggestion === index
+                                        "
+                                        :class="
+                                            index === activeSuggestion
+                                                ? 'bg-bible-bg/60 text-bible-accent-bright'
+                                                : ''
+                                        "
+                                        class="w-full rounded px-3 py-2 text-left text-sm text-bible-text transition-colors hover:bg-bible-bg/60 hover:text-bible-accent-bright focus-visible:ring-2 focus-visible:ring-bible-accent focus-visible:outline-none"
                                         @click="pickSuggestion(book)"
                                     >
                                         {{ book.name }}
@@ -217,7 +277,11 @@ watch(
                         </button>
                     </form>
 
-                    <p v-if="searchError" class="mt-2 text-sm text-bible-error">
+                    <p
+                        v-if="searchError"
+                        role="alert"
+                        class="mt-2 text-sm text-bible-error"
+                    >
                         {{ searchError }}
                     </p>
                     <p class="mt-2 text-xs text-bible-muted">
@@ -254,7 +318,7 @@ watch(
                         </Link>
                         <span
                             v-if="i < trail.length - 1"
-                            class="text-bible-muted-dim"
+                            class="text-bible-muted"
                             >→</span
                         >
                     </template>
@@ -276,7 +340,7 @@ watch(
                         viewBox="0 0 900 640"
                         preserveAspectRatio="xMidYMid meet"
                         class="h-[420px] w-full rounded-xl bg-bible-bg md:h-[640px]"
-                        role="img"
+                        role="group"
                         aria-label="Grafo interactivo de conexiones bíblicas"
                     ></svg>
                 </div>
@@ -373,7 +437,7 @@ watch(
                         todavía no se hayan importado las referencias cruzadas.
                     </p>
                     <p
-                        class="mt-4 inline-flex items-center gap-2 rounded-full border border-bible-border bg-bible-bg/30 px-3 py-1.5 text-xs text-bible-muted-dim"
+                        class="mt-4 inline-flex items-center gap-2 rounded-full border border-bible-border bg-bible-bg/30 px-3 py-1.5 text-xs text-bible-muted"
                     >
                         Nodos: {{ nodes.length }} · Conexiones:
                         {{ edges.length }}

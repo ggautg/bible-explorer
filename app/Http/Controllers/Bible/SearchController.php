@@ -41,8 +41,11 @@ class SearchController extends Controller
             return response()->json([]);
         }
 
+        // Los caracteres comodín del usuario son literales, no patrones LIKE.
+        $escaped = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $query);
+
         $books = BibleBook::query()
-            ->where('name', 'like', "%{$query}%")
+            ->whereRaw('name LIKE ? ESCAPE ?', ['%'.$escaped.'%', '\\'])
             ->orderBy('order')
             ->limit(8)
             ->get(['code', 'name']);

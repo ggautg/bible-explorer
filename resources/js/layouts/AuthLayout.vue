@@ -14,7 +14,7 @@ defineProps<{
 <template>
     <Head :title="title" />
 
-    <div
+    <main
         class="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 text-foreground md:p-10"
     >
         <div class="w-full max-w-md space-y-6">
@@ -50,5 +50,5 @@ defineProps<{
                 <slot name="footer" />
             </div>
         </div>
-    </div>
+    </main>
 </template>

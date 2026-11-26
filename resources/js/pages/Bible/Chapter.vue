@@ -201,6 +201,8 @@ async function onToggleFavorite(v) {
             <button
                 type="button"
                 @click="showComparison = !showComparison"
+                :aria-expanded="showComparison"
+                aria-controls="chapter-verses"
                 class="inline-flex items-center gap-2 rounded-xl border border-bible-border bg-bible-bg/40 px-3.5 py-2 text-sm text-bible-text transition-colors hover:border-bible-accent hover:text-bible-accent-bright focus-visible:ring-2 focus-visible:ring-bible-accent focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                 :disabled="!Object.keys(alternateVerses || {}).length"
             >
@@ -229,7 +231,7 @@ async function onToggleFavorite(v) {
             Cargando tus favoritos y notas...
         </div>
 
-        <section class="space-y-3">
+        <section id="chapter-verses" class="space-y-3">
             <article
                 v-for="v in verses"
                 :key="v.verse"
@@ -280,6 +282,9 @@ async function onToggleFavorite(v) {
                                     ? 'Editar nota'
                                     : 'Agregar nota'
                             "
+                            :aria-pressed="Boolean(noteFor(versePayload(v)))"
+                            :aria-expanded="openNoteVerse === v.verse"
+                            :aria-controls="`note-box-${v.verse}`"
                         >
                             <NotebookPen
                                 class="h-3.5 w-3.5"
@@ -300,9 +305,10 @@ async function onToggleFavorite(v) {
                             :disabled="favoriteBusyVerse === v.verse"
                             :aria-label="
                                 isFavorite(versePayload(v))
-                                    ? 'Quitar de favoritos'
-                                    : 'Guardar en favoritos'
+                                    ? `Guardado: quitar ${book.name} ${chapter}:${v.verse} de favoritos`
+                                    : `Guardar ${book.name} ${chapter}:${v.verse} en favoritos`
                             "
+                            :aria-pressed="Boolean(isFavorite(versePayload(v)))"
                         >
                             <Heart
                                 class="h-3.5 w-3.5"
@@ -323,7 +329,7 @@ async function onToggleFavorite(v) {
                         <Link
                             :href="`/bible/${book.code}/${chapter}/${v.verse}`"
                             class="inline-flex items-center gap-1.5 rounded-lg border border-bible-border px-2.5 py-1.5 text-xs font-medium text-bible-muted transition-colors hover:border-bible-accent hover:text-bible-accent-bright focus-visible:ring-2 focus-visible:ring-bible-accent focus-visible:outline-none"
-                            aria-label="Ver conexiones del versículo"
+                            :aria-label="`Grafo de ${book.name} ${chapter}:${v.verse}`"
                         >
                             <GitBranch class="h-3.5 w-3.5" aria-hidden="true" />
                             Grafo
@@ -335,8 +341,8 @@ async function onToggleFavorite(v) {
                             class="inline-flex items-center gap-1.5 rounded-lg border border-bible-border px-2.5 py-1.5 text-xs font-medium text-bible-muted transition-colors hover:border-bible-accent hover:text-bible-accent-bright focus-visible:ring-2 focus-visible:ring-bible-accent focus-visible:outline-none"
                             :aria-label="
                                 copiedVerse === v.verse
-                                    ? 'Versículo copiado'
-                                    : 'Copiar versículo'
+                                    ? `Copiado: ${book.name} ${chapter}:${v.verse}`
+                                    : `Compartir ${book.name} ${chapter}:${v.verse}`
                             "
                         >
                             <component
@@ -355,6 +361,7 @@ async function onToggleFavorite(v) {
 
                 <div
                     v-if="openNoteVerse === v.verse"
+                    :id="`note-box-${v.verse}`"
                     class="mt-4 rounded-lg border border-bible-border bg-bible-bg/40 p-3"
                 >
                     <label
@@ -369,7 +376,7 @@ async function onToggleFavorite(v) {
                         rows="3"
                         maxlength="5000"
                         placeholder="Escribí una reflexión breve sobre este versículo..."
-                        class="w-full resize-y rounded-md border border-bible-border bg-bible-panel/60 px-3 py-2 text-sm text-bible-text placeholder:text-bible-muted-dim focus:ring-2 focus:ring-bible-accent focus:outline-none"
+                        class="w-full resize-y rounded-md border border-bible-border bg-bible-panel/60 px-3 py-2 text-sm text-bible-text placeholder:text-bible-muted focus:ring-2 focus:ring-bible-accent focus:outline-none"
                     ></textarea>
                     <div
                         class="mt-3 flex flex-wrap items-center justify-between gap-2"

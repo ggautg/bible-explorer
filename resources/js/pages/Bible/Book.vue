@@ -82,6 +82,7 @@ defineProps({
                     v-for="c in chapters"
                     :key="c"
                     :href="`/leer/${book.code}/${c}`"
+                    :aria-label="`Capítulo ${c} de ${book.name}`"
                     class="group rounded-xl border border-bible-border bg-bible-bg/40 py-2.5 text-center font-bible-display text-base text-bible-text transition-all hover:-translate-y-0.5 hover:border-bible-accent/60 hover:bg-bible-accent/10 hover:text-bible-accent-bright focus-visible:ring-2 focus-visible:ring-bible-accent focus-visible:outline-none"
                 >
                     {{ c }}

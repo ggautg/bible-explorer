@@ -225,15 +225,28 @@ watch(
                                     <Spinner />
                                 </div>
                                 <template v-else>
+                                    <label
+                                        class="sr-only"
+                                        for="manual-setup-key"
+                                    >
+                                        Clave de configuración manual
+                                    </label>
                                     <input
+                                        id="manual-setup-key"
                                         type="text"
                                         readonly
                                         :value="manualSetupKey"
                                         class="h-full w-full bg-background p-3 text-foreground"
                                     />
                                     <button
+                                        type="button"
+                                        :aria-label="
+                                            copied
+                                                ? 'Clave copiada'
+                                                : 'Copiar clave de configuración manual'
+                                        "
                                         @click="copy(manualSetupKey || '')"
-                                        class="relative block h-auto border-l border-border px-3 hover:bg-muted"
+                                        class="relative block h-auto border-l border-border px-3 hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                                     >
                                         <Check
                                             v-if="copied"

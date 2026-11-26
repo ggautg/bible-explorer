@@ -110,6 +110,7 @@ function toggleFollow(person) {
                             :key="t.key"
                             :href="`/comunidad?tab=${t.key}`"
                             preserve-scroll
+                            :aria-current="tab === t.key ? 'page' : undefined"
                             class="rounded-xl px-4 py-2.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-bible-accent focus-visible:outline-none"
                             :class="
                                 tab === t.key
@@ -198,11 +199,12 @@ function toggleFollow(person) {
                             <div
                                 class="flex items-center gap-3 rounded-xl border border-bible-border/60 bg-bible-bg/30 p-3"
                             >
-                                <Link
+                                <component
+                                    :is="person.slug ? Link : 'span'"
                                     :href="
                                         person.slug
                                             ? `/perfil/${person.slug}`
-                                            : '#'
+                                            : undefined
                                     "
                                     class="shrink-0"
                                 >
@@ -220,16 +222,17 @@ function toggleFollow(person) {
                                     >
                                         {{ initial(person.name) }}
                                     </div>
-                                </Link>
+                                </component>
                                 <div class="min-w-0 flex-1">
-                                    <Link
+                                    <component
+                                        :is="person.slug ? Link : 'span'"
                                         :href="
                                             person.slug
                                                 ? `/perfil/${person.slug}`
-                                                : '#'
+                                                : undefined
                                         "
                                         class="block truncate text-sm font-medium text-bible-text hover:text-bible-accent-bright"
-                                        >{{ person.name }}</Link
+                                        >{{ person.name }}</component
                                     >
                                     <p
                                         class="truncate text-xs text-bible-muted"
@@ -281,7 +284,7 @@ function toggleFollow(person) {
                     >
                         Hablar con un pastor de mi iglesia
                     </button>
-                    <p class="mt-2 text-xs text-bible-muted-dim">
+                    <p class="mt-2 text-xs text-bible-muted">
                         Maquetado de interfaz.
                     </p>
                 </div>

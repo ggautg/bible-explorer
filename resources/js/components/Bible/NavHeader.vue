@@ -86,7 +86,7 @@ function linkClass(href) {
     <nav class="flex flex-col gap-5" aria-label="Navegación principal">
         <div>
             <p
-                class="px-3 pb-1.5 text-[11px] font-semibold tracking-[0.16em] text-bible-muted/80 uppercase"
+                class="px-3 pb-1.5 text-[11px] font-semibold tracking-[0.16em] text-bible-muted uppercase"
             >
                 Comunidad
             </p>
@@ -95,6 +95,7 @@ function linkClass(href) {
                     v-for="item in socialItems"
                     :key="item.href"
                     :href="item.href"
+                    :aria-current="isActive(item.href) ? 'page' : undefined"
                     :class="linkClass(item.href)"
                     @click="emit('navigate')"
                 >
@@ -110,7 +111,7 @@ function linkClass(href) {
 
         <div>
             <p
-                class="px-3 pb-1.5 text-[11px] font-semibold tracking-[0.16em] text-bible-muted/80 uppercase"
+                class="px-3 pb-1.5 text-[11px] font-semibold tracking-[0.16em] text-bible-muted uppercase"
             >
                 Biblia
             </p>
@@ -119,6 +120,7 @@ function linkClass(href) {
                     v-for="item in bibleItems"
                     :key="item.href"
                     :href="item.href"
+                    :aria-current="isActive(item.href) ? 'page' : undefined"
                     :class="linkClass(item.href)"
                     @click="emit('navigate')"
                 >
@@ -136,6 +138,9 @@ function linkClass(href) {
             <div class="flex flex-col gap-1">
                 <Link
                     href="/settings/appearance"
+                    :aria-current="
+                        currentPath.startsWith('/settings') ? 'page' : undefined
+                    "
                     :class="
                         currentPath.startsWith('/settings')
                             ? `${linkBase} border border-bible-border bg-bible-panel font-medium text-bible-accent-bright`

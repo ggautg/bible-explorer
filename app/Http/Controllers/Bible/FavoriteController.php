@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Bible;
 
+use App\Concerns\VerseReferenceValidationRules;
 use App\Http\Controllers\Controller;
 use App\Services\VerseMetadata;
 use Illuminate\Http\JsonResponse;
@@ -15,6 +16,8 @@ use Illuminate\Http\Request;
  */
 class FavoriteController extends Controller
 {
+    use VerseReferenceValidationRules;
+
     /**
      * Devuelve todos los favoritos del usuario autenticado.
      *
@@ -40,11 +43,7 @@ class FavoriteController extends Controller
      */
     public function store(Request $request, VerseMetadata $metadata): JsonResponse
     {
-        $data = $request->validate([
-            'book_code' => 'required|string|max:10',
-            'chapter' => 'required|integer|min:1',
-            'verse' => 'required|integer|min:1',
-        ]);
+        $data = $request->validate($this->verseReferenceRules());
 
         $verse = $metadata->forReference($data['book_code'], (int) $data['chapter'], (int) $data['verse']);
         if (! $verse) {
@@ -71,11 +70,7 @@ class FavoriteController extends Controller
      */
     public function destroy(Request $request): JsonResponse
     {
-        $data = $request->validate([
-            'book_code' => 'required|string',
-            'chapter' => 'required|integer',
-            'verse' => 'required|integer',
-        ]);
+        $data = $request->validate($this->verseReferenceRules());
 
         $request->user()->favorites()
             ->where($data)

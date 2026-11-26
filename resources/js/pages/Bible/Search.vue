@@ -98,7 +98,7 @@ function submit() {
                         type="text"
                         autocomplete="off"
                         placeholder="Ejemplo: amor, esperanza, fe..."
-                        class="w-full rounded-xl border border-bible-border bg-bible-bg/40 py-3 pr-4 pl-10 text-bible-text placeholder:text-bible-muted-dim focus:ring-2 focus:ring-bible-accent focus:outline-none"
+                        class="w-full rounded-xl border border-bible-border bg-bible-bg/40 py-3 pr-4 pl-10 text-bible-text placeholder:text-bible-muted focus:ring-2 focus:ring-bible-accent focus:outline-none"
                     />
                 </div>
                 <button
@@ -130,7 +130,7 @@ function submit() {
                     }}”
                 </p>
                 <p
-                    class="inline-flex items-center gap-1.5 text-xs tracking-wide text-bible-muted-dim uppercase"
+                    class="inline-flex items-center gap-1.5 text-xs tracking-wide text-bible-muted uppercase"
                 >
                     <BookOpen class="h-3.5 w-3.5" aria-hidden="true" />
                     Referencias bíblicas
@@ -159,6 +159,7 @@ function submit() {
                         </Link>
                         <Link
                             :href="`/bible/${r.book}/${r.chapter}/${r.verse}`"
+                            :aria-label="`Ver conexiones de ${r.bookName} ${r.chapter}:${r.verse}`"
                             class="inline-flex items-center gap-1 text-sm text-bible-muted transition-colors hover:text-bible-accent-bright"
                         >
                             Ver conexiones

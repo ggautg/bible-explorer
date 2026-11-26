@@ -22,6 +22,7 @@ const bookQuery = ref('');
 const bookLabel = ref('');
 const suggestions = ref([]);
 const showSuggestions = ref(false);
+const activeSuggestion = ref(-1);
 const chapters = ref([]);
 const verses = ref([]);
 const loadingBooks = ref(false);
@@ -58,6 +59,44 @@ function emitChange() {
         chapter: localChapter.value ? Number(localChapter.value) : null,
         verse: localVerse.value ? Number(localVerse.value) : null,
     });
+}
+
+watch(suggestions, () => {
+    activeSuggestion.value = -1;
+});
+
+/** Navegación por teclado de la lista de sugerencias (patrón combobox). */
+function onBookKeydown(event) {
+    if (event.key === 'Escape') {
+        showSuggestions.value = false;
+        activeSuggestion.value = -1;
+
+        return;
+    }
+
+    if (!showSuggestions.value || suggestions.value.length === 0) {
+        return;
+    }
+
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        event.preventDefault();
+        const total = suggestions.value.length;
+        const step = event.key === 'ArrowDown' ? 1 : -1;
+
+        activeSuggestion.value =
+            activeSuggestion.value < 0
+                ? step > 0
+                    ? 0
+                    : total - 1
+                : (activeSuggestion.value + step + total) % total;
+
+        return;
+    }
+
+    if (event.key === 'Enter' && activeSuggestion.value >= 0) {
+        event.preventDefault();
+        selectBook(suggestions.value[activeSuggestion.value]);
+    }
 }
 
 watch(bookQuery, (value) => {
@@ -190,6 +229,7 @@ function selectBook(book) {
     bookQuery.value = book.name;
     suggestions.value = [];
     showSuggestions.value = false;
+    activeSuggestion.value = -1;
     localChapter.value = null;
     localVerse.value = null;
     chapters.value = [];
@@ -215,6 +255,7 @@ function selectChapter(value) {
 function selectVerse(value) {
     localVerse.value = value ? Number(value) : null;
     showSuggestions.value = false;
+    activeSuggestion.value = -1;
     emitChange();
 }
 </script>
@@ -235,23 +276,35 @@ function selectVerse(value) {
                     role="combobox"
                     aria-autocomplete="list"
                     :aria-expanded="showSuggestions && suggestions.length > 0"
-                    aria-controls="verse-book-suggestions"
+                    :aria-controls="`verse-book-suggestions-${bookCode || 'new'}`"
+                    :aria-activedescendant="
+                        activeSuggestion >= 0
+                            ? `verse-book-option-${bookCode || 'new'}-${suggestions[activeSuggestion]?.code}`
+                            : undefined
+                    "
                     autocomplete="off"
                     placeholder="Ej. Juan"
-                    class="w-full rounded-xl border border-bible-border bg-bible-bg/60 px-3 py-2 text-sm text-bible-text placeholder:text-bible-muted-dim focus-visible:ring-2 focus-visible:ring-bible-accent focus-visible:outline-none"
+                    class="w-full rounded-xl border border-bible-border bg-bible-bg/60 px-3 py-2 text-sm text-bible-text placeholder:text-bible-muted focus-visible:ring-2 focus-visible:ring-bible-accent focus-visible:outline-none"
+                    @keydown="onBookKeydown"
                 />
                 <div
                     v-if="showSuggestions && suggestions.length"
-                    id="verse-book-suggestions"
+                    :id="`verse-book-suggestions-${bookCode || 'new'}`"
                     role="listbox"
                     class="absolute top-full z-10 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-bible-border bg-bible-panel p-1 shadow-lg"
                 >
                     <button
-                        v-for="book in suggestions"
+                        v-for="(book, index) in suggestions"
                         :key="book.code"
+                        :id="`verse-book-option-${bookCode || 'new'}-${book.code}`"
                         type="button"
                         role="option"
                         :aria-selected="book.code === localBook"
+                        :class="
+                            index === activeSuggestion
+                                ? 'bg-bible-bg/60 text-bible-accent-bright'
+                                : ''
+                        "
                         class="w-full rounded-lg px-3 py-2 text-left text-sm text-bible-text hover:bg-bible-bg/60 hover:text-bible-accent-bright focus-visible:ring-2 focus-visible:ring-bible-accent focus-visible:outline-none"
                         @click="selectBook(book)"
                     >

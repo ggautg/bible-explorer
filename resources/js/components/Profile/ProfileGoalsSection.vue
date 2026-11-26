@@ -229,10 +229,13 @@ function initial(name) {
                 Los chicos lo están bancando
             </p>
             <div class="flex flex-wrap gap-3">
-                <Link
+                <component
                     v-for="supporter in goals.supporters"
                     :key="supporter.id || supporter.slug || supporter.name"
-                    :href="supporter.slug ? `/perfil/${supporter.slug}` : '#'"
+                    :is="supporter.slug ? Link : 'span'"
+                    :href="
+                        supporter.slug ? `/perfil/${supporter.slug}` : undefined
+                    "
                     class="group inline-flex items-center gap-3 rounded-2xl border border-bible-border/70 bg-bible-bg/35 px-3 py-2.5 transition-colors hover:border-bible-accent/40 hover:bg-bible-bg/50"
                 >
                     <img
@@ -259,7 +262,7 @@ function initial(name) {
                             Acompañando sus metas
                         </p>
                     </div>
-                </Link>
+                </component>
             </div>
         </div>
     </section>

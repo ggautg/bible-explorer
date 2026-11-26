@@ -58,8 +58,10 @@ const user = computed(
                             required
                             autocomplete="name"
                             placeholder="Tu nombre"
+                            aria-describedby="error-name"
+                            :aria-invalid="!!errors.name"
                         />
-                        <InputError :message="errors.name" />
+                        <InputError id="error-name" :message="errors.name" />
                     </div>
 
                     <div class="grid gap-2">
@@ -72,8 +74,10 @@ const user = computed(
                             required
                             autocomplete="username"
                             placeholder="correo@ejemplo.com"
+                            aria-describedby="error-email"
+                            :aria-invalid="!!errors.email"
                         />
-                        <InputError :message="errors.email" />
+                        <InputError id="error-email" :message="errors.email" />
                     </div>
 
                     <div
@@ -102,6 +106,7 @@ const user = computed(
                         </div>
                         <p
                             v-if="status === 'verification-link-sent'"
+                            role="status"
                             class="font-medium text-emerald-500"
                         >
                             Te enviamos un nuevo enlace de verificación a tu
@@ -116,6 +121,7 @@ const user = computed(
                         </Button>
                         <p
                             v-if="recentlySuccessful"
+                            role="status"
                             class="text-sm text-muted-foreground"
                         >
                             Guardado.

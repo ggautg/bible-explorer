@@ -122,12 +122,28 @@ class PostController extends Controller
 
         $post->load($this->feedRelations())->loadCount(['replies', 'likedBy', 'rebibles']);
 
-        $replies = Post::query()
-            ->where('parent_id', $post->id)
-            ->with($this->feedRelations())
-            ->withCount(['replies', 'likedBy', 'rebibles'])
-            ->oldest()
-            ->get();
+        // El hilo es plano en la UI: incluimos todos los descendientes, no solo
+        // las respuestas directas, para que ninguna respuesta quede invisible.
+        $replies = collect();
+        $parentIds = [$post->id];
+        $depth = 0;
+
+        while ($parentIds !== [] && $depth < 20) {
+            $batch = Post::query()
+                ->whereIn('parent_id', $parentIds)
+                ->with($this->feedRelations())
+                ->withCount(['replies', 'likedBy', 'rebibles'])
+                ->oldest()
+                ->get();
+
+            if ($batch->isEmpty()) {
+                break;
+            }
+
+            $replies = $replies->concat($batch);
+            $parentIds = $batch->pluck('id')->all();
+            $depth++;
+        }
 
         $allPosts = collect([$post])->concat($replies);
         $viewerState = $this->viewerStateFor($allPosts, $viewer);

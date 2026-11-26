@@ -55,8 +55,13 @@ defineProps<{
                             name="current_password"
                             autocomplete="current-password"
                             placeholder="Contraseña actual"
+                            aria-describedby="error-current_password"
+                            :aria-invalid="!!errors.current_password"
                         />
-                        <InputError :message="errors.current_password" />
+                        <InputError
+                            id="error-current_password"
+                            :message="errors.current_password"
+                        />
                     </div>
 
                     <div class="grid gap-2">
@@ -66,6 +71,8 @@ defineProps<{
                             name="password"
                             autocomplete="new-password"
                             placeholder="Nueva contraseña"
+                            aria-describedby="error-password"
+                            :aria-invalid="!!errors.password"
                         />
                         <p
                             v-if="passwordRules"
@@ -73,7 +80,10 @@ defineProps<{
                         >
                             {{ passwordRules }}
                         </p>
-                        <InputError :message="errors.password" />
+                        <InputError
+                            id="error-password"
+                            :message="errors.password"
+                        />
                     </div>
 
                     <div class="grid gap-2">
@@ -85,8 +95,13 @@ defineProps<{
                             name="password_confirmation"
                             autocomplete="new-password"
                             placeholder="Repetí la nueva contraseña"
+                            aria-describedby="error-password_confirmation"
+                            :aria-invalid="!!errors.password_confirmation"
                         />
-                        <InputError :message="errors.password_confirmation" />
+                        <InputError
+                            id="error-password_confirmation"
+                            :message="errors.password_confirmation"
+                        />
                     </div>
 
                     <div class="flex items-center gap-4">
@@ -96,6 +111,7 @@ defineProps<{
                         </Button>
                         <p
                             v-if="recentlySuccessful"
+                            role="status"
                             class="text-sm text-muted-foreground"
                         >
                             Guardado.

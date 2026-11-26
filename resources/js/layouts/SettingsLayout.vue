@@ -57,6 +57,7 @@ function isActive(href: string): boolean {
                     v-for="item in navItems"
                     :key="item.href"
                     :href="item.href"
+                    :aria-current="isActive(item.href) ? 'page' : undefined"
                     class="rounded-xl px-4 py-2.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-bible-accent focus-visible:outline-none"
                     :class="
                         isActive(item.href)

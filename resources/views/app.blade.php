@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="Explorador Bíblico: leé la Biblia, seguí conexiones entre versículos y compartí lo que Dios te habla.">
 
         {{-- Aplica el tema bíblico guardado antes de pintar para evitar parpadeos. --}}
         <script>

@@ -206,6 +206,7 @@ const emptyMessage = computed(() => {
                         :key="t.key"
                         :href="`/perfil/${profile.slug}?tab=${t.key}`"
                         preserve-scroll
+                        :aria-current="tab === t.key ? 'page' : undefined"
                         class="flex-1 px-4 py-3.5 text-center text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-bible-accent focus-visible:outline-none focus-visible:ring-inset"
                         :class="
                             tab === t.key

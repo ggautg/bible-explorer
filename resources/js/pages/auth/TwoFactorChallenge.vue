@@ -99,6 +99,7 @@ const description = computed(() =>
         <template #footer>
             <button
                 type="button"
+                :aria-pressed="recovery"
                 class="underline decoration-neutral-300 underline-offset-4 hover:decoration-current dark:decoration-neutral-500"
                 @click="
                     recovery = !recovery;

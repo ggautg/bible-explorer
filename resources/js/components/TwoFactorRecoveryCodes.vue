@@ -54,7 +54,13 @@ onMounted(async () => {
             <div
                 class="flex flex-col gap-3 select-none sm:flex-row sm:items-center sm:justify-between"
             >
-                <Button @click="toggleRecoveryCodesVisibility" class="w-fit">
+                <Button
+                    type="button"
+                    :aria-expanded="isRecoveryCodesVisible"
+                    aria-controls="recovery-codes-panel"
+                    @click="toggleRecoveryCodesVisibility"
+                    class="w-fit"
+                >
                     <component
                         :is="isRecoveryCodesVisible ? EyeOff : Eye"
                         class="size-4"
@@ -81,12 +87,9 @@ onMounted(async () => {
                 </Form>
             </div>
             <div
-                :class="[
-                    'relative overflow-hidden transition-all duration-300',
-                    isRecoveryCodesVisible
-                        ? 'h-auto opacity-100'
-                        : 'h-0 opacity-0',
-                ]"
+                v-if="isRecoveryCodesVisible"
+                id="recovery-codes-panel"
+                class="relative"
             >
                 <div v-if="errors?.length" class="mt-6">
                     <AlertError :errors="errors" />

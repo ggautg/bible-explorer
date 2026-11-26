@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Bible;
 
+use App\Concerns\VerseReferenceValidationRules;
 use App\Http\Controllers\Controller;
 use App\Services\VerseMetadata;
 use Illuminate\Http\JsonResponse;
@@ -15,6 +16,8 @@ use Illuminate\Http\Request;
  */
 class NoteController extends Controller
 {
+    use VerseReferenceValidationRules;
+
     /**
      * Devuelve todas las notas del usuario, ordenadas por última actualización.
      *
@@ -39,9 +42,7 @@ class NoteController extends Controller
     public function upsert(Request $request, VerseMetadata $metadata): JsonResponse
     {
         $data = $request->validate([
-            'book_code' => 'required|string|max:10',
-            'chapter' => 'required|integer|min:1',
-            'verse' => 'required|integer|min:1',
+            ...$this->verseReferenceRules(),
             'body' => 'required|string|max:5000',
         ]);
 
@@ -73,11 +74,7 @@ class NoteController extends Controller
      */
     public function destroy(Request $request): JsonResponse
     {
-        $data = $request->validate([
-            'book_code' => 'required|string',
-            'chapter' => 'required|integer',
-            'verse' => 'required|integer',
-        ]);
+        $data = $request->validate($this->verseReferenceRules());
 
         $request->user()->notes()->where($data)->delete();
 

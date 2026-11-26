@@ -113,6 +113,18 @@ export function useConstellationGraph(svgRef, selected) {
                     event.preventDefault();
                     selected.value = d;
                 }
+            })
+            .on('focus', function () {
+                select(this)
+                    .select('circle')
+                    .attr('stroke', '#FFFFFF')
+                    .attr('stroke-width', 3);
+            })
+            .on('blur', function () {
+                select(this)
+                    .select('circle')
+                    .attr('stroke', '#0B0E1A')
+                    .attr('stroke-width', 1.5);
             });
 
         node.append('circle')

@@ -101,17 +101,18 @@ function verseHref(verse) {
             >
             <span v-else>{{ actor?.name || 'Alguien' }}</span>
             <span>rebibleó</span>
-            <span v-if="post.time" class="text-bible-muted-dim"
+            <span v-if="post.time" class="text-bible-muted"
                 >· {{ post.time }}</span
             >
         </div>
 
         <div class="flex items-start gap-3">
-            <Link
+            <component
+                :is="displayPost.author?.slug ? Link : 'span'"
                 :href="
                     displayPost.author?.slug
                         ? `/perfil/${displayPost.author.slug}`
-                        : '#'
+                        : undefined
                 "
                 class="shrink-0"
             >
@@ -129,20 +130,21 @@ function verseHref(verse) {
                 >
                     {{ initial(displayPost.author?.name) }}
                 </div>
-            </Link>
+            </component>
 
             <div class="min-w-0 flex-1">
                 <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <Link
+                    <component
+                        :is="displayPost.author?.slug ? Link : 'span'"
                         :href="
                             displayPost.author?.slug
                                 ? `/perfil/${displayPost.author.slug}`
-                                : '#'
+                                : undefined
                         "
                         class="font-semibold text-bible-text hover:text-bible-accent-bright hover:underline"
                     >
                         {{ displayPost.author?.name || 'Usuario' }}
-                    </Link>
+                    </component>
                     <span
                         v-if="displayPost.author?.church"
                         class="text-xs text-bible-muted"
@@ -150,7 +152,7 @@ function verseHref(verse) {
                     >
                     <span
                         v-if="displayPost.time"
-                        class="text-xs text-bible-muted-dim"
+                        class="text-xs text-bible-muted"
                         >· {{ displayPost.time }}</span
                     >
                 </div>

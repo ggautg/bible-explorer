@@ -6,6 +6,11 @@ import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
 import { defineConfig } from 'vite';
 
+// Los artefactos de Wayfinder están versionados: regenerarlos en cada build
+// ensucia el árbol (CRLF → LF) y hace que Artisan exija APP_KEY. En dev se
+// siguen generando al cambiar rutas o controladores.
+const isBuild = process.argv.includes('build');
+
 export default defineConfig({
     plugins: [
         laravel({
@@ -27,8 +32,6 @@ export default defineConfig({
                 },
             },
         }),
-        wayfinder({
-            formVariants: true,
-        }),
+        ...(isBuild ? [] : [wayfinder({ formVariants: true })]),
     ],
 });

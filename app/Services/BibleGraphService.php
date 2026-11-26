@@ -38,10 +38,11 @@ class BibleGraphService
         $incoming = $this->fetchReferences('to', $book, $chapter, $verse);
 
         $connectedVerses = $this->fetchConnectedVerses($outgoing, $incoming);
+        $nodes = $this->buildNodes($centerVerse, $connectedVerses);
 
         return [
-            'nodes' => $this->buildNodes($centerVerse, $connectedVerses),
-            'edges' => $this->buildEdges($outgoing, $incoming),
+            'nodes' => $nodes,
+            'edges' => $this->buildEdges($outgoing, $incoming, collect($nodes)->pluck('id')->all()),
             'center' => "{$book}-{$chapter}-{$verse}",
         ];
     }
@@ -125,9 +126,10 @@ class BibleGraphService
      *
      * @param  Collection<int, \stdClass>  $outgoing
      * @param  Collection<int, \stdClass>  $incoming
+     * @param  array<int, string>  $nodeIds
      * @return array<int, array<string, mixed>>
      */
-    private function buildEdges(Collection $outgoing, Collection $incoming): array
+    private function buildEdges(Collection $outgoing, Collection $incoming, array $nodeIds): array
     {
         $mapEdge = fn ($r): array => [
             'source' => "{$r->from_book}-{$r->from_chapter}-{$r->from_verse}",
@@ -139,6 +141,7 @@ class BibleGraphService
             ->map($mapEdge)
             ->concat($incoming->map($mapEdge))
             ->unique(fn ($e) => $e['source'].'>'.$e['target'])
+            ->filter(fn ($e) => in_array($e['source'], $nodeIds, true) && in_array($e['target'], $nodeIds, true))
             ->values()
             ->all();
     }
