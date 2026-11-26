@@ -28,7 +28,10 @@ defineProps<{
 </script>
 
 <template>
-    <SettingsLayout title="Seguridad" description="Administrá tu contraseña, verificación en dos pasos y llaves de acceso.">
+    <SettingsLayout
+        title="Seguridad"
+        description="Administrá tu contraseña, verificación en dos pasos y llaves de acceso."
+    >
         <div class="space-y-10">
             <section class="space-y-6">
                 <Heading
@@ -64,12 +67,19 @@ defineProps<{
                             autocomplete="new-password"
                             placeholder="Nueva contraseña"
                         />
-                        <p v-if="passwordRules" class="text-xs text-muted-foreground">{{ passwordRules }}</p>
+                        <p
+                            v-if="passwordRules"
+                            class="text-xs text-muted-foreground"
+                        >
+                            {{ passwordRules }}
+                        </p>
                         <InputError :message="errors.password" />
                     </div>
 
                     <div class="grid gap-2">
-                        <Label for="password_confirmation">Confirmar nueva contraseña</Label>
+                        <Label for="password_confirmation"
+                            >Confirmar nueva contraseña</Label
+                        >
                         <PasswordInput
                             id="password_confirmation"
                             name="password_confirmation"
@@ -84,7 +94,12 @@ defineProps<{
                             <Spinner v-if="processing" />
                             Guardar contraseña
                         </Button>
-                        <p v-if="recentlySuccessful" class="text-sm text-muted-foreground">Guardado.</p>
+                        <p
+                            v-if="recentlySuccessful"
+                            class="text-sm text-muted-foreground"
+                        >
+                            Guardado.
+                        </p>
                     </div>
                 </Form>
             </section>

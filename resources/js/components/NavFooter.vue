@@ -19,12 +19,15 @@ const props = defineProps<Props>();
 /** Determina si el enlace apunta a un sitio externo. */
 function isExternal(href: unknown): boolean {
     const url = toUrl(href as any);
+
     return /^https?:\/\//i.test(url);
 }
 </script>
 
 <template>
-    <SidebarGroup :class="`group-data-[collapsible=icon]:p-0 ${props.class || ''}`">
+    <SidebarGroup
+        :class="`group-data-[collapsible=icon]:p-0 ${props.class || ''}`"
+    >
         <SidebarGroupContent>
             <SidebarMenu>
                 <SidebarMenuItem v-for="item in items" :key="item.title">
@@ -34,8 +37,14 @@ function isExternal(href: unknown): boolean {
                     >
                         <a
                             :href="toUrl(item.href)"
-                            :target="isExternal(item.href) ? '_blank' : undefined"
-                            :rel="isExternal(item.href) ? 'noopener noreferrer' : undefined"
+                            :target="
+                                isExternal(item.href) ? '_blank' : undefined
+                            "
+                            :rel="
+                                isExternal(item.href)
+                                    ? 'noopener noreferrer'
+                                    : undefined
+                            "
                         >
                             <component :is="item.icon" />
                             <span>{{ item.title }}</span>

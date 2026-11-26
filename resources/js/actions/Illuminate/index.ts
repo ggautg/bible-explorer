@@ -1,6 +1,8 @@
+import Foundation from './Foundation'
 import Routing from './Routing'
 const Illuminate = {
-    Routing: Object.assign(Routing, Routing),
+    Foundation: Object.assign(Foundation, Foundation),
+Routing: Object.assign(Routing, Routing),
 }
 
 export default Illuminate

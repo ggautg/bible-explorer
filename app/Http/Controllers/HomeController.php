@@ -60,7 +60,7 @@ class HomeController extends Controller
         return inertia('Welcome', [
             'verseOfTheDay' => [
                 'book' => $verse->book_code,
-                'bookName' => $book?->name ?? $verse->book_code,
+                'bookName' => $book->name ?? $verse->book_code,
                 'chapter' => $verse->chapter,
                 'verse' => $verse->verse,
                 'text' => $verse->text,

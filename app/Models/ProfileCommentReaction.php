@@ -10,9 +10,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * Tipos admitidos: amen, oracion, abstinencia, dislike.
  *
- * @property int    $id
- * @property int    $profile_comment_id
- * @property int    $user_id
+ * @property int $id
+ * @property int $profile_comment_id
+ * @property int $user_id
  * @property string $type
  */
 class ProfileCommentReaction extends Model
@@ -30,6 +30,8 @@ class ProfileCommentReaction extends Model
 
     /**
      * Comentario al que pertenece la reacción.
+     *
+     * @return BelongsTo<ProfileComment, $this>
      */
     public function comment(): BelongsTo
     {
@@ -38,6 +40,8 @@ class ProfileCommentReaction extends Model
 
     /**
      * Usuario que realizó la reacción.
+     *
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

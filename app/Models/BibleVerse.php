@@ -10,12 +10,12 @@ use Illuminate\Database\Eloquent\Model;
  * Almacena el texto de un versículo para una traducción, libro, capítulo y
  * número de versículo determinados.
  *
- * @property int         $id          Identificador autoincremental.
- * @property string      $translation Código de traducción (p. ej. "spa_rvg").
- * @property string      $book_code   Código del libro al que pertenece.
- * @property int         $chapter     Número de capítulo.
- * @property int         $verse       Número de versículo.
- * @property string|null $text        Texto del versículo.
+ * @property int $id Identificador autoincremental.
+ * @property string $translation Código de traducción (p. ej. "spa_rvg").
+ * @property string $book_code Código del libro al que pertenece.
+ * @property int $chapter Número de capítulo.
+ * @property int $verse Número de versículo.
+ * @property string|null $text Texto del versículo.
  */
 class BibleVerse extends Model
 {

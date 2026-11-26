@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Form } from '@inertiajs/vue3';
-import AuthLayout from '@/layouts/AuthLayout.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
+import AuthLayout from '@/layouts/AuthLayout.vue';
 import { logout } from '@/routes';
 import { send } from '@/routes/verification';
 
@@ -29,11 +29,15 @@ defineProps<{
 
         <div class="space-y-5 text-sm text-muted-foreground">
             <p>
-                Antes de seguir, revisá tu correo y hacé clic en el enlace de verificación que te enviamos.
-                Si no te llegó, podés pedir otro.
+                Antes de seguir, revisá tu correo y hacé clic en el enlace de
+                verificación que te enviamos. Si no te llegó, podés pedir otro.
             </p>
 
-            <Form v-bind="send.form()" v-slot="{ processing }" class="space-y-4">
+            <Form
+                v-bind="send.form()"
+                v-slot="{ processing }"
+                class="space-y-4"
+            >
                 <Button type="submit" class="w-full" :disabled="processing">
                     <Spinner v-if="processing" />
                     Reenviar correo de verificación
@@ -41,7 +45,9 @@ defineProps<{
             </Form>
 
             <div class="text-center">
-                <TextLink :href="logout()" method="post" as="button">Cerrar sesión</TextLink>
+                <TextLink :href="logout()" method="post" as="button"
+                    >Cerrar sesión</TextLink
+                >
             </div>
         </div>
     </AuthLayout>

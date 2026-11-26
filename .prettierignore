@@ -1,2 +1,6 @@
 resources/js/components/ui/*
 resources/views/mail/*
+# Generados por Wayfinder en cada build; no se formatean a mano.
+resources/js/actions/*
+resources/js/routes/*
+resources/js/wayfinder/*

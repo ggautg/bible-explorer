@@ -48,6 +48,8 @@ class BibleGraphService
 
     /**
      * Obtiene referencias cruzadas en una dirección específica.
+     *
+     * @return Collection<int, \stdClass>
      */
     private function fetchReferences(string $direction, string $book, int $chapter, int $verse): Collection
     {
@@ -62,6 +64,10 @@ class BibleGraphService
 
     /**
      * Carga los versículos conectados al nodo central.
+     *
+     * @param  Collection<int, \stdClass>  $outgoing
+     * @param  Collection<int, \stdClass>  $incoming
+     * @return Collection<int, BibleVerse>
      */
     private function fetchConnectedVerses(Collection $outgoing, Collection $incoming): Collection
     {
@@ -91,6 +97,7 @@ class BibleGraphService
     /**
      * Construye la lista de nodos del grafo.
      *
+     * @param  Collection<int, BibleVerse>  $connectedVerses
      * @return array<int, array<string, mixed>>
      */
     private function buildNodes(BibleVerse $centerVerse, Collection $connectedVerses): array
@@ -116,6 +123,8 @@ class BibleGraphService
     /**
      * Construye la lista de aristas del grafo.
      *
+     * @param  Collection<int, \stdClass>  $outgoing
+     * @param  Collection<int, \stdClass>  $incoming
      * @return array<int, array<string, mixed>>
      */
     private function buildEdges(Collection $outgoing, Collection $incoming): array

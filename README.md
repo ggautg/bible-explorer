@@ -46,10 +46,10 @@ DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=bible_explorer
 DB_USERNAME=root
-DB_PASSWORD=ionysmaster666
+DB_PASSWORD=cambiar-en-tu-entorno-local
 ```
 
-> Nota: las credenciales anteriores corresponden a la configuración solicitada para este entorno de desarrollo.
+> Nota: reemplazá `DB_PASSWORD` por tu credencial local. Nunca subas contraseñas reales al repositorio.
 
 Crear la base de datos en MySQL si aún no existe:
 

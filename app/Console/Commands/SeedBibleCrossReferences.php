@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\BibleBook;
 use Illuminate\Console\Command;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
@@ -43,7 +44,7 @@ class SeedBibleCrossReferences extends Command
             ->get('https://bible.helloao.org/api/d/open-cross-ref/books.json')
             ->json('books', []);
 
-        $totalChapters = collect($datasetBooks)->sum('numberOfChapters');
+        $totalChapters = collect(Arr::wrap($datasetBooks))->sum('numberOfChapters');
         $bar = $this->output->createProgressBar((int) $totalChapters);
 
         foreach ($datasetBooks as $datasetBook) {

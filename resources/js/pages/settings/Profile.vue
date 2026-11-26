@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Form, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
+import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import DeleteUser from '@/components/DeleteUser.vue';
 import Heading from '@/components/Heading.vue';
 import InputError from '@/components/InputError.vue';
@@ -10,7 +11,6 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import SettingsLayout from '@/layouts/SettingsLayout.vue';
 import { send } from '@/routes/verification';
-import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 
 /**
  * Página de configuración del perfil del usuario.
@@ -21,11 +21,21 @@ defineProps<{
 }>();
 
 const page = usePage();
-const user = computed(() => page.props.auth?.user as { name: string; email: string; email_verified_at: string | null } | null);
+const user = computed(
+    () =>
+        page.props.auth?.user as {
+            name: string;
+            email: string;
+            email_verified_at: string | null;
+        } | null,
+);
 </script>
 
 <template>
-    <SettingsLayout title="Perfil" description="Actualizá tu nombre y correo electrónico.">
+    <SettingsLayout
+        title="Perfil"
+        description="Actualizá tu nombre y correo electrónico."
+    >
         <div class="space-y-10">
             <section class="space-y-6">
                 <Heading
@@ -66,10 +76,21 @@ const user = computed(() => page.props.auth?.user as { name: string; email: stri
                         <InputError :message="errors.email" />
                     </div>
 
-                    <div v-if="mustVerifyEmail && user && !user.email_verified_at" class="space-y-2 text-sm">
-                        <p class="text-muted-foreground">
-                            Tu correo electrónico no está verificado.
-                            <Form v-bind="send.form()" class="inline" v-slot="{ processing: sending }">
+                    <div
+                        v-if="
+                            mustVerifyEmail && user && !user.email_verified_at
+                        "
+                        class="space-y-2 text-sm"
+                    >
+                        <div class="text-muted-foreground">
+                            <span
+                                >Tu correo electrónico no está verificado.</span
+                            >
+                            <Form
+                                v-bind="send.form()"
+                                class="inline"
+                                v-slot="{ processing: sending }"
+                            >
                                 <button
                                     type="submit"
                                     class="ml-1 underline underline-offset-4 hover:text-foreground"
@@ -78,12 +99,13 @@ const user = computed(() => page.props.auth?.user as { name: string; email: stri
                                     Reenviar correo de verificación
                                 </button>
                             </Form>
-                        </p>
+                        </div>
                         <p
                             v-if="status === 'verification-link-sent'"
                             class="font-medium text-emerald-500"
                         >
-                            Te enviamos un nuevo enlace de verificación a tu correo.
+                            Te enviamos un nuevo enlace de verificación a tu
+                            correo.
                         </p>
                     </div>
 
@@ -92,7 +114,12 @@ const user = computed(() => page.props.auth?.user as { name: string; email: stri
                             <Spinner v-if="processing" />
                             Guardar cambios
                         </Button>
-                        <p v-if="recentlySuccessful" class="text-sm text-muted-foreground">Guardado.</p>
+                        <p
+                            v-if="recentlySuccessful"
+                            class="text-sm text-muted-foreground"
+                        >
+                            Guardado.
+                        </p>
                     </div>
                 </Form>
             </section>

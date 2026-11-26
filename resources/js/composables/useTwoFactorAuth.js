@@ -58,7 +58,9 @@ export const useTwoFactorAuth = () => {
             clearErrors();
             recoveryCodesList.value = await http.submit(recoveryCodes());
         } catch {
-            errors.value.push('No se pudieron obtener los códigos de recuperación');
+            errors.value.push(
+                'No se pudieron obtener los códigos de recuperación',
+            );
             recoveryCodesList.value = [];
         }
     };

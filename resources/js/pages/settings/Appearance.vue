@@ -9,7 +9,10 @@ import SettingsLayout from '@/layouts/SettingsLayout.vue';
 </script>
 
 <template>
-    <SettingsLayout title="Apariencia" description="Configurá cómo se ve la aplicación.">
+    <SettingsLayout
+        title="Apariencia"
+        description="Configurá cómo se ve la aplicación."
+    >
         <section class="space-y-6">
             <Heading
                 variant="small"

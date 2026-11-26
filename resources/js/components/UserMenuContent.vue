@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link, router } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import { LogOut, Settings } from '@lucide/vue';
 import {
     DropdownMenuGroup,
@@ -14,11 +14,6 @@ import type { User } from '@/types';
 
 type Props = {
     user: User;
-};
-
-/** Limpia el estado de Inertia antes de cerrar sesión. */
-const handleLogout = () => {
-    router.flushAll();
 };
 
 defineProps<Props>();
@@ -44,7 +39,6 @@ defineProps<Props>();
         <Link
             class="block w-full cursor-pointer"
             :href="logout()"
-            @click="handleLogout"
             as="button"
             data-test="logout-button"
         >

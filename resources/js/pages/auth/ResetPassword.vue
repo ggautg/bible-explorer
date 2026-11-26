@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { Form } from '@inertiajs/vue3';
-import AuthLayout from '@/layouts/AuthLayout.vue';
 import InputError from '@/components/InputError.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import AuthLayout from '@/layouts/AuthLayout.vue';
 import { update } from '@/routes/password';
 
 /**
@@ -27,7 +27,9 @@ const props = defineProps<{
         <Form
             v-bind="update.form()"
             :reset-on-success="['password', 'password_confirmation']"
-            :transform="(data) => ({ ...data, token: props.token, email: props.email })"
+            :transform="
+                (data) => ({ ...data, token: props.token, email: props.email })
+            "
             v-slot="{ errors, processing }"
             class="flex flex-col gap-5"
         >
@@ -56,12 +58,19 @@ const props = defineProps<{
                         autocomplete="new-password"
                         placeholder="Nueva contraseña"
                     />
-                    <p v-if="passwordRules" class="text-xs text-muted-foreground">{{ passwordRules }}</p>
+                    <p
+                        v-if="passwordRules"
+                        class="text-xs text-muted-foreground"
+                    >
+                        {{ passwordRules }}
+                    </p>
                     <InputError :message="errors.password" />
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="password_confirmation">Confirmar nueva contraseña</Label>
+                    <Label for="password_confirmation"
+                        >Confirmar nueva contraseña</Label
+                    >
                     <PasswordInput
                         id="password_confirmation"
                         name="password_confirmation"

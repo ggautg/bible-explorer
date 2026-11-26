@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Controlador de interacciones con publicaciones.
@@ -25,13 +26,24 @@ class PostInteractionController extends Controller
     public function toggleLike(Request $request, Post $post): RedirectResponse
     {
         $viewer = $request->user();
-        $existing = $post->likedBy()->where('users.id', $viewer->id)->exists();
 
-        if ($existing) {
-            $post->likedBy()->detach($viewer->id);
+        // La clave única (user_id, post_id) hace idempotente la escritura:
+        // primero se intenta borrar y, si no había fila, se inserta ignorando
+        // colisiones. Así dos clics concurrentes no duplican ni pierden el like.
+        $removed = DB::table('post_likes')
+            ->where('user_id', $viewer->id)
+            ->where('post_id', $post->id)
+            ->delete();
+
+        if ($removed > 0) {
             $message = 'Quitaste tu me gusta.';
         } else {
-            $post->likedBy()->attach($viewer->id);
+            DB::table('post_likes')->insertOrIgnore([
+                'user_id' => $viewer->id,
+                'post_id' => $post->id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
             $message = 'Te gustó esta publicación.';
         }
 
@@ -58,21 +70,22 @@ class PostInteractionController extends Controller
 
         $target = $post->isRebible() && $post->rebible_of_id ? $post->rebible_of_id : $post->id;
 
-        $existing = Post::query()
+        $rebible = Post::query()
             ->where('user_id', $viewer->id)
-            ->where('rebible_of_id', $target)
-            ->first();
+            ->where('rebible_of_id', $target);
 
-        if ($existing) {
-            $existing->delete();
+        if ($rebible->exists()) {
+            $rebible->delete();
             $message = 'Quitaste el rebibleo.';
         } else {
-            Post::query()->create([
+            Post::query()->insertOrIgnore([[
                 'user_id' => $viewer->id,
                 'parent_id' => null,
                 'rebible_of_id' => $target,
                 'body' => null,
-            ]);
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]]);
             $message = 'Rebibleaste esta publicación.';
         }
 

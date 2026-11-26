@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Form } from '@inertiajs/vue3';
-import AuthLayout from '@/layouts/AuthLayout.vue';
 import InputError from '@/components/InputError.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
 import TextLink from '@/components/TextLink.vue';
@@ -8,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import AuthLayout from '@/layouts/AuthLayout.vue';
 import { login } from '@/routes';
 import register from '@/routes/register';
 
@@ -70,12 +70,19 @@ defineProps<{
                         autocomplete="new-password"
                         placeholder="Contraseña"
                     />
-                    <p v-if="passwordRules" class="text-xs text-muted-foreground">{{ passwordRules }}</p>
+                    <p
+                        v-if="passwordRules"
+                        class="text-xs text-muted-foreground"
+                    >
+                        {{ passwordRules }}
+                    </p>
                     <InputError :message="errors.password" />
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="password_confirmation">Confirmar contraseña</Label>
+                    <Label for="password_confirmation"
+                        >Confirmar contraseña</Label
+                    >
                     <PasswordInput
                         id="password_confirmation"
                         name="password_confirmation"

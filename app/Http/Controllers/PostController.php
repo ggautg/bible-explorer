@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\BibleVerse;
 use App\Models\Post;
 use App\Models\User;
+use App\Services\VerseMetadata;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Response;
 
 /**
@@ -53,7 +56,8 @@ class PostController extends Controller
         $people = User::query()
             ->where('id', '!=', $viewer->id)
             ->orderBy('name')
-            ->get(['id', 'name', 'email', 'slug', 'church'])
+            ->limit(20)
+            ->get(['id', 'name', 'slug', 'church'])
             ->map(fn (User $user) => $this->serializePerson($user, $viewer))
             ->values()
             ->all();
@@ -76,24 +80,28 @@ class PostController extends Controller
         $data = $request->validate(
             [
                 'body' => 'required|string|max:2000',
+                'kind' => ['nullable', Rule::in(Post::SELECTABLE_KINDS)],
                 'book_code' => 'nullable|string|max:10',
-                'book_name' => 'nullable|string|max:120',
                 'chapter' => 'nullable|integer|min:1',
                 'verse' => 'nullable|integer|min:1',
             ],
             [
                 'body.required' => 'Escribí algo antes de publicar.',
                 'body.max' => 'La publicación no puede superar los 2000 caracteres.',
+                'kind.in' => 'Elegí una opción válida de comunidad.',
             ],
         );
+
+        $metadata = $this->referenceMetadata($data);
 
         Post::query()->create([
             'user_id' => $request->user()->id,
             'parent_id' => null,
             'rebible_of_id' => null,
+            'kind' => $data['kind'] ?? 'reflexion',
             'body' => trim($data['body']),
             'book_code' => $data['book_code'] ?? null,
-            'book_name' => $data['book_name'] ?? null,
+            'book_name' => $metadata['book_name'] ?? null,
             'chapter' => $data['chapter'] ?? null,
             'verse' => $data['verse'] ?? null,
         ]);
@@ -143,7 +151,6 @@ class PostController extends Controller
             [
                 'body' => 'required|string|max:2000',
                 'book_code' => 'nullable|string|max:10',
-                'book_name' => 'nullable|string|max:120',
                 'chapter' => 'nullable|integer|min:1',
                 'verse' => 'nullable|integer|min:1',
             ],
@@ -153,13 +160,15 @@ class PostController extends Controller
             ],
         );
 
+        $metadata = $this->referenceMetadata($data);
+
         Post::query()->create([
             'user_id' => $request->user()->id,
             'parent_id' => $post->id,
             'rebible_of_id' => null,
             'body' => trim($data['body']),
             'book_code' => $data['book_code'] ?? null,
-            'book_name' => $data['book_name'] ?? null,
+            'book_name' => $metadata['book_name'] ?? null,
             'chapter' => $data['chapter'] ?? null,
             'verse' => $data['verse'] ?? null,
         ]);
@@ -168,9 +177,39 @@ class PostController extends Controller
     }
 
     /**
+     * Resuelve la referencia opcional de una publicación.
+     *
+     * El cliente envía sólamente códigos; el nombre del libro se deriva en el
+     * servidor para que un payload manipulado no pueda guardar otro texto.
+     *
+     * @param  array<string, mixed>  $data  Datos ya validados.
+     * @return array{book_name: string, text: string}|null Null si no hay referencia.
+     */
+    private function referenceMetadata(array $data): ?array
+    {
+        $bookCode = isset($data['book_code']) ? (string) $data['book_code'] : null;
+        $chapter = isset($data['chapter']) ? (int) $data['chapter'] : null;
+        $verse = isset($data['verse']) ? (int) $data['verse'] : null;
+
+        if (! $bookCode && ! $chapter && ! $verse) {
+            return null;
+        }
+
+        $metadata = (new VerseMetadata)->forReference($bookCode, $chapter, $verse);
+
+        if (! $metadata) {
+            throw ValidationException::withMessages([
+                'book_code' => 'Elegí un libro, capítulo y versículo válidos.',
+            ]);
+        }
+
+        return $metadata;
+    }
+
+    /**
      * Relaciones necesarias para serializar posts en feed.
      *
-     * @return array<int, mixed>
+     * @return array<int|string, mixed>
      */
     public function feedRelations(): array
     {
@@ -185,7 +224,7 @@ class PostController extends Controller
     /**
      * Serializa una publicación para Inertia/Vue.
      *
-     * @param  array{likedIds: array<int,bool>, rebibledIds: array<int,bool>}|null  $viewerState  Estado precalculado del visor.
+     * @param  array{likedIds: array<int,bool>, rebibledIds: array<int,bool>, verseTexts: array<string,string>}|null  $viewerState  Estado precalculado del visor.
      * @return array<string, mixed>
      */
     public function serializePost(Post $post, ?User $viewer, ?array $viewerState = null): array
@@ -207,10 +246,10 @@ class PostController extends Controller
             $origRebibled = $viewerState
                 ? isset($viewerState['rebibledIds'][$orig->id])
                 : ($viewerId ? $orig->rebibles()->where('user_id', $viewerId)->exists() : false);
-            $original = $this->serializePostCore($orig, $viewer, $origLiked, $origRebibled);
+            $original = $this->serializePostCore($orig, $viewer, $origLiked, $origRebibled, $viewerState['verseTexts'] ?? []);
         }
 
-        $data = $this->serializePostCore($post, $viewer, $likedByViewer, $rebibledByViewer);
+        $data = $this->serializePostCore($post, $viewer, $likedByViewer, $rebibledByViewer, $viewerState['verseTexts'] ?? []);
         $data['original'] = $original;
         $data['isRebible'] = $post->isRebible();
 
@@ -222,21 +261,37 @@ class PostController extends Controller
      * Evita consultas N+1 al serializar feeds.
      *
      * @param  iterable<Post>  $posts
-     * @return array{likedIds: array<int,bool>, rebibledIds: array<int,bool>}
+     * @return array{likedIds: array<int,bool>, rebibledIds: array<int,bool>, verseTexts: array<string,string>}
      */
     public function viewerStateFor(iterable $posts, ?User $viewer): array
     {
         $ids = [];
+        $references = [];
         foreach ($posts as $post) {
             $ids[] = $post->id;
+            if ($post->hasVerse()) {
+                $references[] = [
+                    'book_code' => $post->book_code,
+                    'chapter' => $post->chapter,
+                    'verse' => $post->verse,
+                ];
+            }
             if ($post->relationLoaded('rebibleOf') && $post->rebibleOf) {
                 $ids[] = $post->rebibleOf->id;
+                if ($post->rebibleOf->hasVerse()) {
+                    $references[] = [
+                        'book_code' => $post->rebibleOf->book_code,
+                        'chapter' => $post->rebibleOf->chapter,
+                        'verse' => $post->rebibleOf->verse,
+                    ];
+                }
             }
         }
         $ids = array_values(array_unique(array_filter($ids)));
+        $verseTexts = (new VerseMetadata)->textsFor($references);
 
         if (! $viewer || empty($ids)) {
-            return ['likedIds' => [], 'rebibledIds' => []];
+            return ['likedIds' => [], 'rebibledIds' => [], 'verseTexts' => $verseTexts];
         }
 
         $likedIds = $viewer->likedPosts()->whereIn('posts.id', $ids)->pluck('posts.id')->flip()->map(fn () => true)->all();
@@ -248,24 +303,28 @@ class PostController extends Controller
             ->map(fn () => true)
             ->all();
 
-        return ['likedIds' => $likedIds, 'rebibledIds' => $rebibledIds];
+        return ['likedIds' => $likedIds, 'rebibledIds' => $rebibledIds, 'verseTexts' => $verseTexts];
     }
 
     /**
      * Serializa campos base de un post.
      *
+     * @param  array<string, string>  $verseTexts  Textos precargados en lote (si faltan, se consulta uno).
      * @return array<string, mixed>
      */
-    private function serializePostCore(Post $post, ?User $viewer, bool $likedByViewer, bool $rebibledByViewer): array
+    private function serializePostCore(Post $post, ?User $viewer, bool $likedByViewer, bool $rebibledByViewer, array $verseTexts = []): array
     {
         $verse = null;
         if ($post->hasVerse()) {
-            $text = BibleVerse::query()
-                ->where('translation', 'spa_rvg')
-                ->where('book_code', $post->book_code)
-                ->where('chapter', $post->chapter)
-                ->where('verse', $post->verse)
-                ->value('text');
+            $key = VerseMetadata::key((string) $post->book_code, (int) $post->chapter, (int) $post->verse);
+            $text = array_key_exists($key, $verseTexts)
+                ? $verseTexts[$key]
+                : BibleVerse::query()
+                    ->where('translation', 'spa_rvg')
+                    ->where('book_code', $post->book_code)
+                    ->where('chapter', $post->chapter)
+                    ->where('verse', $post->verse)
+                    ->value('text');
             $name = $post->book_name ?: $post->book_code;
             $verse = [
                 'reference' => "{$name} {$post->chapter}:{$post->verse}",
@@ -294,6 +353,7 @@ class PostController extends Controller
             ],
             'parentId' => $post->parent_id,
             'rebibleOfId' => $post->rebible_of_id,
+            'kind' => $post->isRebible() ? 'rebibleada' : (in_array($post->kind, Post::KINDS, true) ? $post->kind : 'reflexion'),
         ];
     }
 

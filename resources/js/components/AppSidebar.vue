@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { Link } from '@inertiajs/vue3';
 import { BookOpen, Search } from '@lucide/vue';
+import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
@@ -12,8 +14,6 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import AppLogo from '@/components/AppLogo.vue';
-import { Link } from '@inertiajs/vue3';
 import type { NavItem } from '@/types';
 
 /** Elementos principales de navegación del panel. */

@@ -3,11 +3,13 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 
 class ListSpanishTranslations extends Command
 {
     protected $signature = 'bible:list-spanish';
+
     protected $description = 'Lista las traducciones bíblicas disponibles en español desde la API de helloao';
 
     public function handle(): int
@@ -16,16 +18,18 @@ class ListSpanishTranslations extends Command
 
         if ($response->failed()) {
             $this->error('No se pudo contactar la API.');
+
             return self::FAILURE;
         }
 
-        $spanish = collect($response->json('translations'))
+        $spanish = collect(Arr::wrap($response->json('translations')))
             ->filter(fn ($t) => $t['language'] === 'spa')
             ->sortBy('id')
             ->values();
 
         if ($spanish->isEmpty()) {
             $this->warn('No se encontraron traducciones en español.');
+
             return self::SUCCESS;
         }
 

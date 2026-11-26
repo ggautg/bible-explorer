@@ -11,13 +11,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * Cada usuario puede tener una nota por versículo (identificado por libro,
  * capítulo y versículo). El contenido se almacena en el campo "body".
  *
- * @property int    $id
- * @property int    $user_id    Usuario propietario de la nota.
- * @property string $book_code  Código del libro.
- * @property string $book_name  Nombre del libro (desnormalizado para mostrar rápido).
- * @property int    $chapter    Número de capítulo.
- * @property int    $verse      Número de versículo.
- * @property string $body       Contenido de la nota.
+ * @property int $id
+ * @property int $user_id Usuario propietario de la nota.
+ * @property string $book_code Código del libro.
+ * @property string $book_name Nombre del libro (desnormalizado para mostrar rápido).
+ * @property int $chapter Número de capítulo.
+ * @property int $verse Número de versículo.
+ * @property string $body Contenido de la nota.
  */
 class Note extends Model
 {
@@ -37,6 +37,8 @@ class Note extends Model
 
     /**
      * Usuario al que pertenece esta nota.
+     *
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

@@ -41,6 +41,13 @@ const { qrCodeSvg, manualSetupKey, clearSetupData, fetchSetupData, errors } =
 const showVerificationStep = ref(false);
 const code = ref<string>('');
 
+/** El QR se muestra como imagen: nunca se interpreta como HTML. */
+const qrDataUri = computed(() =>
+    qrCodeSvg.value
+        ? `data:image/svg+xml;charset=utf-8,${encodeURIComponent(qrCodeSvg.value)}`
+        : '',
+);
+
 const pinInputContainerRef = useTemplateRef('pinInputContainerRef');
 
 /** Textos del modal según el estado de configuración de 2FA. */
@@ -57,7 +64,8 @@ const modalConfig = computed<TwoFactorConfigContent>(() => {
     if (showVerificationStep.value) {
         return {
             title: 'Verificar código de autenticación',
-            description: 'Ingresá el código de 6 dígitos de tu aplicación de autenticación',
+            description:
+                'Ingresá el código de 6 dígitos de tu aplicación de autenticación',
             buttonText: 'Continuar',
         };
     }
@@ -171,9 +179,10 @@ watch(
                                     v-else
                                     class="relative z-10 overflow-hidden border p-5"
                                 >
-                                    <div
-                                        v-html="qrCodeSvg"
-                                        class="flex aspect-square size-full items-center justify-center"
+                                    <img
+                                        :src="qrDataUri"
+                                        alt="Código QR para configurar la verificación en dos pasos"
+                                        class="aspect-square size-full object-contain"
                                         :style="{
                                             filter:
                                                 resolvedAppearance === 'dark'
@@ -197,7 +206,8 @@ watch(
                             <div
                                 class="absolute inset-0 top-1/2 h-px w-full bg-border"
                             />
-                            <span class="relative bg-card px-2 py-1 text-xs text-muted-foreground"
+                            <span
+                                class="relative bg-card px-2 py-1 text-xs text-muted-foreground"
                                 >o ingresá el código manualmente</span
                             >
                         </div>

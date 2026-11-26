@@ -1,14 +1,18 @@
 <script setup lang="ts">
 import { Form } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
-import AuthLayout from '@/layouts/AuthLayout.vue';
 import InputError from '@/components/InputError.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+    InputOTP,
+    InputOTPGroup,
+    InputOTPSlot,
+} from '@/components/ui/input-otp';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
+import AuthLayout from '@/layouts/AuthLayout.vue';
 import { logout } from '@/routes';
 import twoFactorLogin from '@/routes/two-factor/login';
 
@@ -41,10 +45,22 @@ const description = computed(() =>
                 <template v-if="!recovery">
                     <input type="hidden" name="code" :value="code" />
                     <div class="flex flex-col items-center gap-3">
-                        <Label for="otp" class="sr-only">Código de autenticación</Label>
-                        <InputOTP id="otp" v-model="code" :maxlength="6" :disabled="processing" autofocus>
+                        <Label for="otp" class="sr-only"
+                            >Código de autenticación</Label
+                        >
+                        <InputOTP
+                            id="otp"
+                            v-model="code"
+                            :maxlength="6"
+                            :disabled="processing"
+                            autofocus
+                        >
                             <InputOTPGroup>
-                                <InputOTPSlot v-for="i in 6" :key="i" :index="i - 1" />
+                                <InputOTPSlot
+                                    v-for="i in 6"
+                                    :key="i"
+                                    :index="i - 1"
+                                />
                             </InputOTPGroup>
                         </InputOTP>
                         <InputError :message="errors.code" />
@@ -53,7 +69,9 @@ const description = computed(() =>
 
                 <template v-else>
                     <div class="grid gap-2">
-                        <Label for="recovery_code">Código de recuperación</Label>
+                        <Label for="recovery_code"
+                            >Código de recuperación</Label
+                        >
                         <Input
                             id="recovery_code"
                             name="recovery_code"
@@ -82,12 +100,21 @@ const description = computed(() =>
             <button
                 type="button"
                 class="underline decoration-neutral-300 underline-offset-4 hover:decoration-current dark:decoration-neutral-500"
-                @click="recovery = !recovery; code = ''"
+                @click="
+                    recovery = !recovery;
+                    code = '';
+                "
             >
-                {{ recovery ? 'Usar un código de autenticación' : 'Usar un código de recuperación' }}
+                {{
+                    recovery
+                        ? 'Usar un código de autenticación'
+                        : 'Usar un código de recuperación'
+                }}
             </button>
             <span class="mx-2 text-muted-foreground/50">·</span>
-            <TextLink :href="logout()" method="post" as="button">Cancelar</TextLink>
+            <TextLink :href="logout()" method="post" as="button"
+                >Cancelar</TextLink
+            >
         </template>
     </AuthLayout>
 </template>

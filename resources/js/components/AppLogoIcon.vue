@@ -1,11 +1,16 @@
 <script setup lang="ts">
 defineProps<{
-    class?: string
-}>()
+    class?: string;
+}>();
 </script>
 
 <template>
-    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" :class="$props.class">
+    <svg
+        viewBox="0 0 40 40"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        :class="$props.class"
+    >
         <g stroke="currentColor" stroke-width="1.3" stroke-opacity="0.55">
             <line x1="20" y1="20" x2="8" y2="12" />
             <line x1="20" y1="20" x2="32" y2="10" />

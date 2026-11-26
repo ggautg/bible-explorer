@@ -10,10 +10,10 @@ use Illuminate\Database\Eloquent\Model;
  * Representa un libro de la Biblia (por ejemplo, Génesis o Juan) con su
  * identificador corto, nombre visible, testamento y orden canónico.
  *
- * @property string $code       Código corto del libro (clave primaria, p. ej. "GEN").
- * @property string $name       Nombre del libro para mostrar al usuario.
- * @property string $testament  Testamento al que pertenece: "OT" o "NT".
- * @property int    $order      Posición del libro en el orden canónico.
+ * @property string $code Código corto del libro (clave primaria, p. ej. "GEN").
+ * @property string $name Nombre del libro para mostrar al usuario.
+ * @property string $testament Testamento al que pertenece: "OT" o "NT".
+ * @property int $order Posición del libro en el orden canónico.
  */
 class BibleBook extends Model
 {

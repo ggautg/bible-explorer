@@ -9,8 +9,12 @@ import { BIBLICAL_THEMES, useAppearance } from '@/composables/useAppearance';
  */
 const { theme, setTheme } = useAppearance();
 
-const lightThemes = computed(() => BIBLICAL_THEMES.filter((t) => t.mode === 'light'));
-const darkThemes = computed(() => BIBLICAL_THEMES.filter((t) => t.mode === 'dark'));
+const lightThemes = computed(() =>
+    BIBLICAL_THEMES.filter((t) => t.mode === 'light'),
+);
+const darkThemes = computed(() =>
+    BIBLICAL_THEMES.filter((t) => t.mode === 'dark'),
+);
 
 const previews: Record<string, string[]> = {
     pergamino: ['#f6efe1', '#e7d7b8', '#8a5a2b'],
@@ -25,7 +29,9 @@ const previews: Record<string, string[]> = {
 <template>
     <div class="space-y-6">
         <section class="space-y-3">
-            <div class="flex items-center gap-2 text-sm font-medium text-foreground">
+            <div
+                class="flex items-center gap-2 text-sm font-medium text-foreground"
+            >
                 <Sun class="h-4 w-4" aria-hidden="true" />
                 <h3>Temas claros</h3>
             </div>
@@ -35,10 +41,12 @@ const previews: Record<string, string[]> = {
                     :key="item.id"
                     type="button"
                     @click="setTheme(item.id)"
-                    class="rounded-xl border p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    :class="theme === item.id
-                        ? 'border-primary bg-accent/60'
-                        : 'border-border bg-card hover:border-primary/50 hover:bg-accent/30'"
+                    class="rounded-xl border p-3 text-left transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                    :class="
+                        theme === item.id
+                            ? 'border-primary bg-accent/60'
+                            : 'border-border bg-card hover:border-primary/50 hover:bg-accent/30'
+                    "
                 >
                     <div class="mb-3 flex gap-1.5">
                         <span
@@ -49,14 +57,20 @@ const previews: Record<string, string[]> = {
                             aria-hidden="true"
                         ></span>
                     </div>
-                    <p class="text-sm font-semibold text-foreground">{{ item.label }}</p>
-                    <p class="mt-0.5 text-xs text-muted-foreground">{{ item.description }}</p>
+                    <p class="text-sm font-semibold text-foreground">
+                        {{ item.label }}
+                    </p>
+                    <p class="mt-0.5 text-xs text-muted-foreground">
+                        {{ item.description }}
+                    </p>
                 </button>
             </div>
         </section>
 
         <section class="space-y-3">
-            <div class="flex items-center gap-2 text-sm font-medium text-foreground">
+            <div
+                class="flex items-center gap-2 text-sm font-medium text-foreground"
+            >
                 <Moon class="h-4 w-4" aria-hidden="true" />
                 <h3>Temas oscuros</h3>
             </div>
@@ -66,10 +80,12 @@ const previews: Record<string, string[]> = {
                     :key="item.id"
                     type="button"
                     @click="setTheme(item.id)"
-                    class="rounded-xl border p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    :class="theme === item.id
-                        ? 'border-primary bg-accent/60'
-                        : 'border-border bg-card hover:border-primary/50 hover:bg-accent/30'"
+                    class="rounded-xl border p-3 text-left transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                    :class="
+                        theme === item.id
+                            ? 'border-primary bg-accent/60'
+                            : 'border-border bg-card hover:border-primary/50 hover:bg-accent/30'
+                    "
                 >
                     <div class="mb-3 flex gap-1.5">
                         <span
@@ -80,8 +96,12 @@ const previews: Record<string, string[]> = {
                             aria-hidden="true"
                         ></span>
                     </div>
-                    <p class="text-sm font-semibold text-foreground">{{ item.label }}</p>
-                    <p class="mt-0.5 text-xs text-muted-foreground">{{ item.description }}</p>
+                    <p class="text-sm font-semibold text-foreground">
+                        {{ item.label }}
+                    </p>
+                    <p class="mt-0.5 text-xs text-muted-foreground">
+                        {{ item.description }}
+                    </p>
                 </button>
             </div>
         </section>

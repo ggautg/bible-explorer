@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $user_id
  * @property int|null $parent_id
  * @property int|null $rebible_of_id
+ * @property string $kind Tipo de publicación de comunidad: reflexion, versiculo, peticion_oracion, testimonio, agradecimiento o rebibleada.
  * @property string|null $body
  * @property string|null $book_code
  * @property string|null $book_name
@@ -25,6 +26,25 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Post extends Model
 {
+    /** Tipos permitidos en las opciones de comunidad. */
+    public const KINDS = [
+        'reflexion',
+        'versiculo',
+        'peticion_oracion',
+        'testimonio',
+        'agradecimiento',
+        'rebibleada',
+    ];
+
+    /** Tipos que el usuario puede elegir al publicar (la rebibleada es automática). */
+    public const SELECTABLE_KINDS = [
+        'reflexion',
+        'versiculo',
+        'peticion_oracion',
+        'testimonio',
+        'agradecimiento',
+    ];
+
     /**
      * @var list<string>
      */
@@ -32,6 +52,7 @@ class Post extends Model
         'user_id',
         'parent_id',
         'rebible_of_id',
+        'kind',
         'body',
         'book_code',
         'book_name',
@@ -52,6 +73,8 @@ class Post extends Model
 
     /**
      * Autor de la publicación.
+     *
+     * @return BelongsTo<User, $this>
      */
     public function author(): BelongsTo
     {
@@ -60,6 +83,8 @@ class Post extends Model
 
     /**
      * Publicación padre si es una respuesta.
+     *
+     * @return BelongsTo<self, $this>
      */
     public function parent(): BelongsTo
     {
@@ -68,6 +93,8 @@ class Post extends Model
 
     /**
      * Respuestas directas a esta publicación.
+     *
+     * @return HasMany<self, $this>
      */
     public function replies(): HasMany
     {
@@ -76,6 +103,8 @@ class Post extends Model
 
     /**
      * Publicación original si esto es un rebibleo.
+     *
+     * @return BelongsTo<self, $this>
      */
     public function rebibleOf(): BelongsTo
     {
@@ -84,6 +113,8 @@ class Post extends Model
 
     /**
      * Rebibleos que se hicieron de esta publicación.
+     *
+     * @return HasMany<self, $this>
      */
     public function rebibles(): HasMany
     {
@@ -92,6 +123,8 @@ class Post extends Model
 
     /**
      * Usuarios a los que les gusta esta publicación.
+     *
+     * @return BelongsToMany<User, $this>
      */
     public function likedBy(): BelongsToMany
     {

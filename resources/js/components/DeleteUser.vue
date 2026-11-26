@@ -28,7 +28,9 @@ const passwordInput = useTemplateRef('passwordInput');
             title="Eliminar cuenta"
             description="Eliminá tu cuenta y todos sus datos asociados"
         />
-        <div class="space-y-4 rounded-lg border border-red-200/40 bg-red-500/10 p-4">
+        <div
+            class="space-y-4 rounded-lg border border-red-200/40 bg-red-500/10 p-4"
+        >
             <div class="relative space-y-0.5 text-red-200">
                 <p class="font-medium">Advertencia</p>
                 <p class="text-sm">
@@ -37,7 +39,10 @@ const passwordInput = useTemplateRef('passwordInput');
             </div>
             <Dialog>
                 <DialogTrigger as-child>
-                    <Button variant="destructive" data-test="delete-user-button">
+                    <Button
+                        variant="destructive"
+                        data-test="delete-user-button"
+                    >
                         Eliminar cuenta
                     </Button>
                 </DialogTrigger>
@@ -51,15 +56,21 @@ const passwordInput = useTemplateRef('passwordInput');
                         v-slot="{ errors, processing, reset, clearErrors }"
                     >
                         <DialogHeader class="space-y-3">
-                            <DialogTitle>¿Seguro que querés eliminar tu cuenta?</DialogTitle>
+                            <DialogTitle
+                                >¿Seguro que querés eliminar tu
+                                cuenta?</DialogTitle
+                            >
                             <DialogDescription>
-                                Al eliminar tu cuenta, se van a borrar de forma permanente todos tus datos y recursos.
-                                Ingresá tu contraseña para confirmar esta acción.
+                                Al eliminar tu cuenta, se van a borrar de forma
+                                permanente todos tus datos y recursos. Ingresá
+                                tu contraseña para confirmar esta acción.
                             </DialogDescription>
                         </DialogHeader>
 
                         <div class="grid gap-2">
-                            <Label for="password" class="sr-only">Contraseña</Label>
+                            <Label for="password" class="sr-only"
+                                >Contraseña</Label
+                            >
                             <PasswordInput
                                 id="password"
                                 name="password"

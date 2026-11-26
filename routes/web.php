@@ -27,14 +27,18 @@ Route::middleware('auth')->group(function () {
 
     // Perfil
     Route::get('/perfil/{user:slug}', [ProfileController::class, 'show'])->name('profile.show');
-    Route::post('/usuarios/{user:slug}/seguir', [FollowController::class, 'toggle'])->name('users.follow.toggle');
+    Route::post('/usuarios/{user:slug}/seguir', [FollowController::class, 'toggle'])
+        ->middleware('throttle:15,1')->name('users.follow.toggle');
 
     // Publicaciones
-    Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
+    Route::post('/posts', [PostController::class, 'store'])->middleware('throttle:15,1')->name('posts.store');
     Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
-    Route::post('/posts/{post}/responder', [PostController::class, 'reply'])->name('posts.reply');
-    Route::post('/posts/{post}/like', [PostInteractionController::class, 'toggleLike'])->name('posts.like');
-    Route::post('/posts/{post}/rebiblear', [PostInteractionController::class, 'toggleRebible'])->name('posts.rebible');
+    Route::post('/posts/{post}/responder', [PostController::class, 'reply'])
+        ->middleware('throttle:15,1')->name('posts.reply');
+    Route::post('/posts/{post}/like', [PostInteractionController::class, 'toggleLike'])
+        ->middleware('throttle:15,1')->name('posts.like');
+    Route::post('/posts/{post}/rebiblear', [PostInteractionController::class, 'toggleRebible'])
+        ->middleware('throttle:15,1')->name('posts.rebible');
 
     // Herramientas bíblicas (aparte del foco social)
     Route::get('/devocionario', fn () => inertia('Devotional/Index'))->name('devotional.index');
@@ -49,17 +53,18 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('api/bible')->group(function () {
         Route::get('/books-search', [SearchController::class, 'books']);
+        Route::get('/structure', [SearchController::class, 'structure']);
         Route::get('/resolve', [SearchController::class, 'resolve']);
     });
 
     Route::get('/favoritos', [ReaderController::class, 'favorites'])->name('bible.favorites');
     Route::get('/api/favorites', [FavoriteController::class, 'index']);
-    Route::post('/api/favorites', [FavoriteController::class, 'store']);
-    Route::delete('/api/favorites', [FavoriteController::class, 'destroy']);
+    Route::post('/api/favorites', [FavoriteController::class, 'store'])->middleware('throttle:30,1');
+    Route::delete('/api/favorites', [FavoriteController::class, 'destroy'])->middleware('throttle:30,1');
 
     Route::get('/api/notes', [NoteController::class, 'index']);
-    Route::put('/api/notes', [NoteController::class, 'upsert']);
-    Route::delete('/api/notes', [NoteController::class, 'destroy']);
+    Route::put('/api/notes', [NoteController::class, 'upsert'])->middleware('throttle:30,1');
+    Route::delete('/api/notes', [NoteController::class, 'destroy'])->middleware('throttle:30,1');
 
     Route::get('/notas', [ReaderController::class, 'notes'])->name('bible.notes');
     Route::get('/buscar', [TextSearchController::class, 'search'])->name('bible.search');

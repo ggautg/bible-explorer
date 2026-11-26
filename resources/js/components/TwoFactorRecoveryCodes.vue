@@ -59,7 +59,8 @@ onMounted(async () => {
                         :is="isRecoveryCodesVisible ? EyeOff : Eye"
                         class="size-4"
                     />
-                    {{ isRecoveryCodesVisible ? 'Ocultar' : 'Ver' }} códigos de recuperación
+                    {{ isRecoveryCodesVisible ? 'Ocultar' : 'Ver' }} códigos de
+                    recuperación
                 </Button>
 
                 <Form
@@ -111,8 +112,9 @@ onMounted(async () => {
                         </div>
                     </div>
                     <p class="text-xs text-muted-foreground select-none">
-                        Cada código de recuperación puede usarse una sola vez para acceder a tu cuenta
-                        y se va a eliminar después de utilizarse. Si necesitás más, usá
+                        Cada código de recuperación puede usarse una sola vez
+                        para acceder a tu cuenta y se va a eliminar después de
+                        utilizarse. Si necesitás más, usá
                         <span class="font-bold">Regenerar códigos</span>.
                     </p>
                 </div>

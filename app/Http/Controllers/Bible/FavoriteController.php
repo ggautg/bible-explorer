@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Bible;
 
 use App\Http\Controllers\Controller;
+use App\Services\VerseMetadata;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -32,24 +33,32 @@ class FavoriteController extends Controller
      *
      * Si ya existe el mismo versículo para el usuario, no crea duplicados.
      *
-     * @param  Request  $request  Solicitud con book_code, book_name, chapter, verse y text.
+     * El nombre del libro y el texto se derivan de la base de datos, no del cliente.
+     *
+     * @param  Request  $request  Solicitud con book_code, chapter y verse.
      * @return JsonResponse Favorito creado o existente.
      */
-    public function store(Request $request): JsonResponse
+    public function store(Request $request, VerseMetadata $metadata): JsonResponse
     {
         $data = $request->validate([
             'book_code' => 'required|string|max:10',
-            'book_name' => 'required|string',
-            'chapter' => 'required|integer',
-            'verse' => 'required|integer',
-            'text' => 'required|string',
+            'chapter' => 'required|integer|min:1',
+            'verse' => 'required|integer|min:1',
         ]);
+
+        $verse = $metadata->forReference($data['book_code'], (int) $data['chapter'], (int) $data['verse']);
+        if (! $verse) {
+            return response()->json(['message' => 'No encontramos ese versículo en la traducción actual.'], 422);
+        }
 
         $favorite = $request->user()->favorites()->firstOrCreate([
             'book_code' => $data['book_code'],
             'chapter' => $data['chapter'],
             'verse' => $data['verse'],
-        ], $data);
+        ], [
+            'book_name' => $verse['book_name'],
+            'text' => $verse['text'],
+        ]);
 
         return response()->json($favorite);
     }

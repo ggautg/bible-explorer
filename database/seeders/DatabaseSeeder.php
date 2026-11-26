@@ -17,9 +17,12 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
+        // idempotente: volver a sembrar no debe duplicar el usuario de prueba
+        $attributes = User::factory()->make([
             'name' => 'Test User',
             'email' => 'test@example.com',
-        ]);
+        ])->getAttributes();
+
+        User::firstOrCreate(['email' => 'test@example.com'], $attributes);
     }
 }

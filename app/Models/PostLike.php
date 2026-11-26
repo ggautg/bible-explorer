@@ -24,6 +24,8 @@ class PostLike extends Model
 
     /**
      * Usuario que dio me gusta.
+     *
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
@@ -32,6 +34,8 @@ class PostLike extends Model
 
     /**
      * Publicación que recibió el me gusta.
+     *
+     * @return BelongsTo<Post, $this>
      */
     public function post(): BelongsTo
     {

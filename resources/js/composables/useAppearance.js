@@ -43,14 +43,25 @@ export const BIBLICAL_THEMES = [
 export const DEFAULT_THEME = 'getsemani';
 
 const THEME_IDS = new Set(BIBLICAL_THEMES.map((t) => t.id));
-const DARK_THEMES = new Set(BIBLICAL_THEMES.filter((t) => t.mode === 'dark').map((t) => t.id));
+const DARK_THEMES = new Set(
+    BIBLICAL_THEMES.filter((t) => t.mode === 'dark').map((t) => t.id),
+);
 
 /** Resuelve un id de tema válido (con compatibilidad hacia atrás). */
 export function resolveThemeId(value) {
-    if (value && THEME_IDS.has(value)) return value;
+    if (value && THEME_IDS.has(value)) {
+        return value;
+    }
+
     // Compatibilidad con valores anteriores
-    if (value === 'light') return 'pergamino';
-    if (value === 'dark' || value === 'system' || !value) return DEFAULT_THEME;
+    if (value === 'light') {
+        return 'pergamino';
+    }
+
+    if (value === 'dark' || value === 'system' || !value) {
+        return DEFAULT_THEME;
+    }
+
     return DEFAULT_THEME;
 }
 
@@ -61,23 +72,35 @@ export function isDarkTheme(themeId) {
 
 /** Persiste una cookie simple en el navegador. */
 const setCookie = (name, value, days = 365) => {
-    if (typeof document === 'undefined') return;
+    if (typeof document === 'undefined') {
+        return;
+    }
+
     const maxAge = days * 24 * 60 * 60;
     document.cookie = `${name}=${value};path=/;max-age=${maxAge};SameSite=Lax`;
 };
 
 /** Lee una cookie por nombre. */
 const getCookie = (name) => {
-    if (typeof document === 'undefined') return null;
+    if (typeof document === 'undefined') {
+        return null;
+    }
+
     const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+
     return match ? decodeURIComponent(match[1]) : null;
 };
 
 /** Obtiene el tema guardado. */
 const getStoredTheme = () => {
-    if (typeof window === 'undefined') return null;
+    if (typeof window === 'undefined') {
+        return null;
+    }
+
     try {
-        return localStorage.getItem('theme') || localStorage.getItem('appearance');
+        return (
+            localStorage.getItem('theme') || localStorage.getItem('appearance')
+        );
     } catch {
         return null;
     }
@@ -87,7 +110,10 @@ const getStoredTheme = () => {
  * Aplica el tema visual en el documento.
  */
 export function applyTheme(value) {
-    if (typeof document === 'undefined') return DEFAULT_THEME;
+    if (typeof document === 'undefined') {
+        return DEFAULT_THEME;
+    }
+
     const theme = resolveThemeId(value);
     const dark = isDarkTheme(theme);
     const root = document.documentElement;
@@ -103,6 +129,7 @@ export function applyTheme(value) {
     } catch {
         // Sin almacenamiento disponible: no es crítico.
     }
+
     setCookie('theme', theme);
     setCookie('appearance', theme);
 
@@ -111,8 +138,12 @@ export function applyTheme(value) {
 
 /** Inicializa el tema al cargar la aplicación en el cliente. */
 export function initializeTheme() {
-    if (typeof window === 'undefined') return;
-    const saved = getStoredTheme() || getCookie('theme') || getCookie('appearance');
+    if (typeof window === 'undefined') {
+        return;
+    }
+
+    const saved =
+        getStoredTheme() || getCookie('theme') || getCookie('appearance');
     applyTheme(saved || DEFAULT_THEME);
 }
 
@@ -124,13 +155,16 @@ const appearance = ref(DEFAULT_THEME);
  */
 export function useAppearance() {
     onMounted(() => {
-        const saved = getStoredTheme() || getCookie('theme') || getCookie('appearance');
+        const saved =
+            getStoredTheme() || getCookie('theme') || getCookie('appearance');
         const resolved = resolveThemeId(saved || DEFAULT_THEME);
         theme.value = resolved;
         appearance.value = resolved;
     });
 
-    const resolvedAppearance = computed(() => (isDarkTheme(theme.value) ? 'dark' : 'light'));
+    const resolvedAppearance = computed(() =>
+        isDarkTheme(theme.value) ? 'dark' : 'light',
+    );
 
     /**
      * Actualiza el tema seleccionado.

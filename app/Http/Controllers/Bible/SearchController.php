@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Bible;
 
 use App\Http\Controllers\Controller;
 use App\Models\BibleBook;
+use App\Models\BibleVerse;
 use App\Services\BibleReferenceParser;
+use App\Services\VerseMetadata;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
@@ -46,6 +48,52 @@ class SearchController extends Controller
             ->get(['code', 'name']);
 
         return response()->json($books);
+    }
+
+    /**
+     * Devuelve capítulos de un libro y versículos de un capítulo.
+     *
+     * Alimenta el selector del compositor sin enviar todo el texto bíblico:
+     * con `book` devuelve los capítulos y con `book` + `chapter`, los versículos.
+     *
+     * @param  Request  $request  Solicitud con `book` y `chapter` opcional.
+     * @return JsonResponse Estructura disponible en la traducción por defecto.
+     */
+    public function structure(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'book' => 'required|string|max:10',
+            'chapter' => 'nullable|integer|min:1',
+        ]);
+
+        $verses = BibleVerse::query()
+            ->where('translation', VerseMetadata::TRANSLATION)
+            ->where('book_code', $data['book']);
+
+        $chapters = (clone $verses)
+            ->distinct()
+            ->orderBy('chapter')
+            ->pluck('chapter')
+            ->map(fn ($chapter) => (int) $chapter)
+            ->values()
+            ->all();
+
+        if ($chapters === []) {
+            return response()->json(['error' => 'No se encontró ese libro.'], 404);
+        }
+
+        $verseNumbers = [];
+        if (isset($data['chapter'])) {
+            $verseNumbers = (clone $verses)
+                ->where('chapter', $data['chapter'])
+                ->orderBy('verse')
+                ->pluck('verse')
+                ->map(fn ($verse) => (int) $verse)
+                ->values()
+                ->all();
+        }
+
+        return response()->json(['chapters' => $chapters, 'verses' => $verseNumbers]);
     }
 
     /**

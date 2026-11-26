@@ -10,17 +10,17 @@ let nextId = 0;
  * Composable para mostrar y consultar mensajes temporales.
  */
 export function useToast() {
-  /**
-   * Muestra un mensaje temporal en pantalla.
-   */
-  function showToast(message, duration = 2600) {
-    const id = nextId++;
-    toasts.value.push({ id, message });
+    /**
+     * Muestra un mensaje temporal en pantalla.
+     */
+    function showToast(message, duration = 2600) {
+        const id = nextId++;
+        toasts.value.push({ id, message });
 
-    setTimeout(() => {
-      toasts.value = toasts.value.filter((t) => t.id !== id);
-    }, duration);
-  }
+        setTimeout(() => {
+            toasts.value = toasts.value.filter((t) => t.id !== id);
+        }, duration);
+    }
 
-  return { toasts, showToast };
+    return { toasts, showToast };
 }

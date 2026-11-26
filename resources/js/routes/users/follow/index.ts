@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\FollowController::toggle
- * @see app/Http/Controllers/FollowController.php:21
+ * @see app/Http/Controllers/FollowController.php:22
  * @route '/usuarios/{user}/seguir'
  */
 export const toggle = (args: { user: string | { slug: string } } | [user: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ toggle.definition = {
 
 /**
 * @see \App\Http\Controllers\FollowController::toggle
- * @see app/Http/Controllers/FollowController.php:21
+ * @see app/Http/Controllers/FollowController.php:22
  * @route '/usuarios/{user}/seguir'
  */
 toggle.url = (args: { user: string | { slug: string } } | [user: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions) => {
@@ -49,7 +49,7 @@ toggle.url = (args: { user: string | { slug: string } } | [user: string | { slug
 
 /**
 * @see \App\Http\Controllers\FollowController::toggle
- * @see app/Http/Controllers/FollowController.php:21
+ * @see app/Http/Controllers/FollowController.php:22
  * @route '/usuarios/{user}/seguir'
  */
 toggle.post = (args: { user: string | { slug: string } } | [user: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -59,7 +59,7 @@ toggle.post = (args: { user: string | { slug: string } } | [user: string | { slu
 
     /**
 * @see \App\Http\Controllers\FollowController::toggle
- * @see app/Http/Controllers/FollowController.php:21
+ * @see app/Http/Controllers/FollowController.php:22
  * @route '/usuarios/{user}/seguir'
  */
     const toggleForm = (args: { user: string | { slug: string } } | [user: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -69,7 +69,7 @@ toggle.post = (args: { user: string | { slug: string } } | [user: string | { slu
 
             /**
 * @see \App\Http\Controllers\FollowController::toggle
- * @see app/Http/Controllers/FollowController.php:21
+ * @see app/Http/Controllers/FollowController.php:22
  * @route '/usuarios/{user}/seguir'
  */
         toggleForm.post = (args: { user: string | { slug: string } } | [user: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

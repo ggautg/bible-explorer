@@ -20,8 +20,9 @@ class ProfileController extends Controller
     public function show(Request $request, User $user): Response
     {
         $viewer = $request->user();
+        $isOwn = $viewer?->id === $user->id;
         $tab = (string) $request->query('tab', 'posts');
-        if (! in_array($tab, ['posts', 'respuestas', 'me-gusta'], true)) {
+        if (! in_array($tab, ['posts', 'respuestas', 'me-gusta'], true) || ($tab === 'me-gusta' && ! $isOwn)) {
             $tab = 'posts';
         }
 
@@ -33,7 +34,7 @@ class ProfileController extends Controller
             $query->where('user_id', $user->id)->whereNull('parent_id');
         } elseif ($tab === 'respuestas') {
             $query->where('user_id', $user->id)->whereNotNull('parent_id');
-        } else { // me-gusta
+        } else { // me-gusta, solo para el dueño del perfil
             $likedIds = $user->likedPosts()->pluck('posts.id');
             $query->whereIn('id', $likedIds);
         }
@@ -76,7 +77,7 @@ class ProfileController extends Controller
                 'followingCount' => $followingCount,
                 'postsCount' => $postsCount,
                 'isFollowing' => $viewer ? $viewer->isFollowing($user) : false,
-                'isOwn' => $viewer?->id === $user->id,
+                'isOwn' => $isOwn,
             ],
             'tab' => $tab,
             'posts' => $posts->map(fn (Post $post) => $this->postPresenter->serializePost($post, $viewer, $viewerState))->values()->all(),

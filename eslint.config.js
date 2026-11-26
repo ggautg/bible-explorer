@@ -39,6 +39,11 @@ export default defineConfigWithVueTs(
         },
         rules: {
             'vue/multi-word-component-names': 'off',
+            // El proyecto mezcla páginas .js con algún <script setup lang="ts">.
+            'vue/block-lang': [
+                'error',
+                { script: { lang: ['js', 'ts'], allowNoLang: true } },
+            ],
             '@typescript-eslint/no-explicit-any': 'off',
             '@typescript-eslint/consistent-type-imports': [
                 'error',

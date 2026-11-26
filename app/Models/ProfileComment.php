@@ -12,15 +12,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * Puede ser un comentario raíz (en el muro del perfil) o una respuesta a
  * otro comentario. Opcionalmente referencia un versículo bíblico citado.
  *
- * @property int         $id
- * @property int         $profile_user_id  Usuario dueño del muro.
- * @property int         $user_id          Usuario autor del comentario.
- * @property int|null    $parent_id        Comentario padre (si es respuesta).
- * @property string|null $book_code        Código del libro citado.
- * @property string|null $book_name        Nombre del libro citado.
- * @property int|null    $chapter          Capítulo citado.
- * @property int|null    $verse            Versículo citado.
- * @property string      $body             Contenido del comentario.
+ * @property int $id
+ * @property int $profile_user_id Usuario dueño del muro.
+ * @property int $user_id Usuario autor del comentario.
+ * @property int|null $parent_id Comentario padre (si es respuesta).
+ * @property string|null $book_code Código del libro citado.
+ * @property string|null $book_name Nombre del libro citado.
+ * @property int|null $chapter Capítulo citado.
+ * @property int|null $verse Versículo citado.
+ * @property string $body Contenido del comentario.
  */
 class ProfileComment extends Model
 {
@@ -51,6 +51,8 @@ class ProfileComment extends Model
 
     /**
      * Perfil (usuario) dueño del muro donde se publicó el comentario.
+     *
+     * @return BelongsTo<User, $this>
      */
     public function profileUser(): BelongsTo
     {
@@ -59,6 +61,8 @@ class ProfileComment extends Model
 
     /**
      * Usuario autor del comentario.
+     *
+     * @return BelongsTo<User, $this>
      */
     public function author(): BelongsTo
     {
@@ -67,6 +71,8 @@ class ProfileComment extends Model
 
     /**
      * Comentario padre, si es una respuesta.
+     *
+     * @return BelongsTo<self, $this>
      */
     public function parent(): BelongsTo
     {
@@ -75,6 +81,8 @@ class ProfileComment extends Model
 
     /**
      * Respuestas directas a este comentario.
+     *
+     * @return HasMany<self, $this>
      */
     public function replies(): HasMany
     {
@@ -83,6 +91,8 @@ class ProfileComment extends Model
 
     /**
      * Reacciones asociadas a este comentario.
+     *
+     * @return HasMany<ProfileCommentReaction, $this>
      */
     public function reactions(): HasMany
     {

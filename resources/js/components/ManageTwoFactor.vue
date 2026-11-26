@@ -41,9 +41,10 @@ onUnmounted(() => clearTwoFactorAuthData());
             class="flex flex-col items-start justify-start space-y-4"
         >
             <p class="text-sm text-muted-foreground">
-                Al activar la verificación en dos pasos, se te va a pedir un código
-                seguro al iniciar sesión. Podés obtenerlo desde una aplicación
-                de autenticación compatible con códigos TOTP en tu teléfono.
+                Al activar la verificación en dos pasos, se te va a pedir un
+                código seguro al iniciar sesión. Podés obtenerlo desde una
+                aplicación de autenticación compatible con códigos TOTP en tu
+                teléfono.
             </p>
 
             <div>
@@ -65,8 +66,9 @@ onUnmounted(() => clearTwoFactorAuthData());
 
         <div v-else class="flex flex-col items-start justify-start space-y-4">
             <p class="text-sm text-muted-foreground">
-                Al iniciar sesión se te va a solicitar un código seguro y temporal,
-                que vas a poder consultar en tu aplicación de autenticación.
+                Al iniciar sesión se te va a solicitar un código seguro y
+                temporal, que vas a poder consultar en tu aplicación de
+                autenticación.
             </p>
 
             <div class="relative inline">

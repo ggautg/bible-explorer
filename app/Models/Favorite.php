@@ -11,13 +11,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * Guarda la referencia y el texto de un versículo marcado como favorito por
  * un usuario autenticado.
  *
- * @property int         $id
- * @property int         $user_id    Usuario propietario del favorito.
- * @property string      $book_code  Código del libro.
- * @property string      $book_name  Nombre del libro (desnormalizado para mostrar rápido).
- * @property int         $chapter    Número de capítulo.
- * @property int         $verse      Número de versículo.
- * @property string|null $text       Texto del versículo guardado.
+ * @property int $id
+ * @property int $user_id Usuario propietario del favorito.
+ * @property string $book_code Código del libro.
+ * @property string $book_name Nombre del libro (desnormalizado para mostrar rápido).
+ * @property int $chapter Número de capítulo.
+ * @property int $verse Número de versículo.
+ * @property string|null $text Texto del versículo guardado.
  */
 class Favorite extends Model
 {
@@ -37,6 +37,8 @@ class Favorite extends Model
 
     /**
      * Usuario al que pertenece este favorito.
+     *
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

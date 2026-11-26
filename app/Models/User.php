@@ -59,6 +59,8 @@ class User extends Authenticatable implements PasskeyUser
 
     /**
      * Versículos favoritos guardados por el usuario.
+     *
+     * @return HasMany<Favorite, $this>
      */
     public function favorites(): HasMany
     {
@@ -67,6 +69,8 @@ class User extends Authenticatable implements PasskeyUser
 
     /**
      * Notas personales creadas por el usuario.
+     *
+     * @return HasMany<Note, $this>
      */
     public function notes(): HasMany
     {
@@ -75,6 +79,8 @@ class User extends Authenticatable implements PasskeyUser
 
     /**
      * Comentarios publicados en el muro de este perfil.
+     *
+     * @return HasMany<ProfileComment, $this>
      */
     public function profileComments(): HasMany
     {
@@ -83,6 +89,8 @@ class User extends Authenticatable implements PasskeyUser
 
     /**
      * Comentarios escritos por este usuario (en cualquier muro).
+     *
+     * @return HasMany<ProfileComment, $this>
      */
     public function authoredProfileComments(): HasMany
     {
@@ -91,6 +99,8 @@ class User extends Authenticatable implements PasskeyUser
 
     /**
      * Publicaciones creadas por el usuario (posts, respuestas y rebibleos).
+     *
+     * @return HasMany<Post, $this>
      */
     public function posts(): HasMany
     {
@@ -99,6 +109,8 @@ class User extends Authenticatable implements PasskeyUser
 
     /**
      * Publicaciones a las que el usuario dio "me gusta".
+     *
+     * @return BelongsToMany<Post, $this>
      */
     public function likedPosts(): BelongsToMany
     {
@@ -108,6 +120,8 @@ class User extends Authenticatable implements PasskeyUser
 
     /**
      * Usuarios que esta persona sigue.
+     *
+     * @return BelongsToMany<User, $this>
      */
     public function following(): BelongsToMany
     {
@@ -117,6 +131,8 @@ class User extends Authenticatable implements PasskeyUser
 
     /**
      * Usuarios que siguen a esta persona.
+     *
+     * @return BelongsToMany<User, $this>
      */
     public function followers(): BelongsToMany
     {
@@ -163,23 +179,21 @@ class User extends Authenticatable implements PasskeyUser
      */
     public function avatarUrl(): ?string
     {
-        $byEmail = [
+        $known = [
             'giovanni.arestivo@example.test' => '/images/testimonials/giovanni-arestivo.png',
             'piero.arestivo@example.test' => '/images/testimonials/piero-arestivo.png',
             'jose.britez@example.test' => '/images/testimonials/jose-britez.jpg',
-        ];
-
-        if (isset($byEmail[$this->email])) {
-            return $byEmail[$this->email];
-        }
-
-        $byName = [
+            'giovanni-arestivo' => '/images/testimonials/giovanni-arestivo.png',
+            'piero-arestivo' => '/images/testimonials/piero-arestivo.png',
+            'jose-britez' => '/images/testimonials/jose-britez.jpg',
             'Giovanni Arestivo' => '/images/testimonials/giovanni-arestivo.png',
             'Piero Arestivo' => '/images/testimonials/piero-arestivo.png',
             'José Brítez' => '/images/testimonials/jose-britez.jpg',
         ];
 
-        return $byName[$this->name] ?? null;
+        return $known[$this->email]
+            ?? ($this->slug ? ($known[$this->slug] ?? null) : null)
+            ?? ($known[$this->name] ?? null);
     }
 
     /**

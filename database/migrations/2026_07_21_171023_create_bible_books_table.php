@@ -9,15 +9,15 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
- public function up(): void
-{
-    Schema::create('bible_books', function (Blueprint $table) {
-        $table->string('code', 10)->primary(); // GEN, EXO, MAT, etc.
-        $table->string('name');                // Nombre en español
-        $table->enum('testament', ['OT', 'NT']);
-        $table->unsignedSmallInteger('order');
-    });
-}
+    public function up(): void
+    {
+        Schema::create('bible_books', function (Blueprint $table) {
+            $table->string('code', 10)->primary(); // GEN, EXO, MAT, etc.
+            $table->string('name');                // Nombre en español
+            $table->enum('testament', ['OT', 'NT']);
+            $table->unsignedSmallInteger('order');
+        });
+    }
 
     /**
      * Reverse the migrations.
