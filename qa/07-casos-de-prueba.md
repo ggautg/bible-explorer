@@ -10,7 +10,7 @@
 - [Suite heredada](#suite-heredada)
 - [Verificación de correcciones (ronda 1)](#verificación-de-correcciones-ronda-1)
 - [Verificación de correcciones (ronda 2)](#verificación-de-correcciones-ronda-2)
-- [Verificación en navegador, rendimiento, seguridad, API externa, sesiones, estado del cliente, responsive y correos (rondas 3 a 11)](#verificación-en-navegador-ronda-3)
+- [Verificación en navegador, rendimiento, seguridad, API externa, sesiones, estado del cliente, responsive, correos, integridad de BD, presupuestos de consultas, contrato de rutas, límites/validaciones, paths negativos y fronteras finales (rondas 3 a 17)](#verificación-en-navegador-ronda-3)
 - [Casos no ejecutados](#casos-no-ejecutados)
 
 <a id="casos-de-fase-1"></a>
@@ -183,7 +183,7 @@ Suite QA tras la ronda 2: 74 tests, 73 pasan, 1 omitido (FULLTEXT), 429 asercion
 
 <a id="verificación-en-navegador-ronda-3"></a>
 
-## Verificación en navegador, rendimiento, seguridad, API externa, sesiones, estado del cliente, responsive y correos (rondas 3 a 11)
+## Verificación en navegador, rendimiento, seguridad, API externa, sesiones, estado del cliente, responsive, correos, integridad de BD, presupuestos de consultas, contrato de rutas, límites/validaciones, paths negativos y fronteras finales (rondas 3 a 17)
 Se levantó la app con `artisan serve` sobre un SQLite temporal fuera del repo (`C:\Users\Desarrollo\AppData\Local\Temp\opencode\`), sin Vite dev ni MySQL. Se usaron el navegador integrado, su árbol de accesibilidad, teclado y Lighthouse; no se agregó ningún runner JS.
 
 | ID | Caso | Esperado | Real | Estado |
@@ -246,8 +246,78 @@ Se levantó la app con `artisan serve` sobre un SQLite temporal fuera del repo (
 | CP-163 | Reutilización de un token de reset ya usado | Segundo intento rechazado, contraseña vigente | Igual | Pasó |
 | CP-164 | Código de recuperación 2FA | Ingresa, se consume y no sirve en un segundo challenge | Igual | Pasó |
 | CP-165 | Once pedidos de passkey con la misma credencial | 429 en el undécimo | Igual | Pasó |
+| CP-166 | Rollback de las 23 migraciones y re-migración | Sin error, esquema completo otra vez | Igual | Pasó |
+| CP-167 | Duplicar email y slug por SQL directo | Unique rechaza ambos | Igual | Pasó |
+| CP-168 | Duplicar favorito y nota del mismo versículo | Unique rechaza ambos | Igual | Pasó |
+| CP-169 | Duplicar follow y like | Unique rechaza ambos | Igual | Pasó |
+| CP-170 | Duplicar reacción del mismo tipo en un comentario | Unique rechaza el duplicado | Igual | Pasó |
+| CP-171 | Duplicar versículo en una traducción | Unique rechaza, traducción alterna permitida | Igual | Pasó |
+| CP-172 | Duplicar crossref de seis columnas | Unique rechaza el duplicado | Igual | Pasó |
+| CP-173 | Borrar usuario con comentarios, reacciones, follows y likes | Todo se elimina por cascade | Igual | Pasó |
+| CP-174 | Borrar comentario con respuestas y reacciones | Todo se elimina por cascade | Igual | Pasó |
+| CP-175 | Borrar post con respuestas, rebibleos y likes | Todo se elimina por cascade | Igual | Pasó |
+| CP-176 | Borrar libro bíblico con versículos | FK sin cascade bloquea el borrado | Igual | Pasó |
+| CP-177 | Rollback y re-migración de `add_kind_to_posts_table` | Columna removida y default `reflexion` restaurado | Igual | Pasó |
+| CP-178 | Rollback y re-migración de índices de integridad | Tres índices con nombre removidos y restaurados | Igual | Pasó |
+| CP-179 | Backfill de slugs al re-migrar | Dos `juan-perez` distintos, ninguno nulo | Igual | Pasó |
+| CP-180 | Backfill de traducción al re-migrar | Versículo viejo queda con `spa_rvg` | Igual | Pasó |
+| CP-181 | Re-migrar con comentarios y reacciones legacy | 2 posts, 1 respuesta, 1 like y mapa con 2 filas | Igual | Pasó |
+| CP-182 | Feed con 4 → 24 personas sugeridas | Consultas constantes | Antes: 9 → 23; después: constantes | Pasó (BUG-028) |
+| CP-183 | Flag `following` tras bachear los IDs | `true` solo para el usuario seguido | Igual | Pasó (BUG-028) |
+| CP-184 | Feed con 5 → 60 publicaciones | Consultas constantes | Igual | Pasó |
+| CP-185 | `/api/favorites` y `/api/notes` con 150 filas | 1 consulta por endpoint | Igual | Pasó |
+| CP-186 | Capítulo con 20 → 200 versículos | Consultas constantes | Igual | Pasó |
+| CP-187 | Grafo con 1 → 61 crossrefs | Consultas constantes | Igual | Pasó |
+| CP-188 | `/buscar?q=Dios` con 50 → 600 versículos | Consultas constantes | Igual | Pasó |
+| CP-189 | Páginas protegidas sin sesión | Redirect a `/login` | Igual en 7 rutas | Pasó |
+| CP-190 | Usuario sin verificar en settings | `verification.notice` en seguridad, acceso al resto | Igual | Pasó |
+| CP-191 | Seguridad con contraseña sin confirmar | Redirect a `password.confirm`; con sesión confirmada, 200 | Igual | Pasó |
+| CP-192 | Autenticado en login/registro/reset | Sale vía `/` hacia `/comunidad` | Igual | Pasó |
+| CP-193 | Throttles declarados en rutas sensibles | Presentes en 9 rutas | Igual | Pasó |
+| CP-194 | Nota con `body` de 5001 caracteres | 422 sin guardar | Igual | Pasó |
+| CP-195 | Post y reply con 2001 caracteres | 422 sin guardar | Igual | Pasó |
+| CP-196 | `book_code` de 11 caracteres en cuatro escrituras | 422 con error en `book_code` | Igual | Pasó |
+| CP-197 | Capítulo o versículo 0 en cuatro escrituras | 422 con error en el campo | Igual | Pasó |
+| CP-198 | Búsqueda con 55 coincidencias | 50 resultados | Igual | Pasó |
+| CP-199 | Feed con 61 publicaciones | 60 en la prop `posts` | Igual | Pasó |
+| CP-200 | Feed con 21 personas sugeridas | 20 en la prop `people` | Igual | Pasó |
+| CP-201 | Hilo con 22 niveles | 20 respuestas serializadas | Igual | Pasó |
+| CP-202 | Perfil con 61 publicaciones | 60 en la prop `posts` | Igual | Pasó |
+| CP-203 | Nombre/email largos y email malformado | 422 en el campo correspondiente | Igual | Pasó |
+| CP-204 | Grafo con 30 referencias entrantes | 25 aristas | Igual | Pasó |
+| CP-205 | Pestañas inválidas en feed y perfil | Fallback a `para_ti` y `posts` | Igual | Pasó |
+| CP-206 | `structure` sin libro y con capítulo no numérico | 422 en `book` y `chapter` | Igual | Pasó |
+| CP-207 | Versículo sólo en `spa_pdt` o con texto vacío | 422 como referencia | Igual | Pasó |
+| CP-208 | `seed-text` con versículo sin `number` | Omite el ítem sin romper | Antes: excepción; después: SUCCESS sin fila | Pasó (BUG-029) |
+| CP-209 | `seed-text` con argumento `spa_pdt` | Guarda esa traducción | Igual | Pasó |
+| CP-210 | `seed-crossrefs` con índice sin libros | FAILURE con mensaje | Igual | Pasó |
+| CP-211 | `seed-crossrefs` con fallo de conexión en capítulo | FAILURE y 0 filas | Igual | Pasó |
+| CP-212 | `seed-crossrefs` con entrada sin `verse` | Omite y 0 filas | Igual | Pasó |
+| CP-213 | `seed-crossrefs` reimportado con otro `score` | Actualiza a 20 sin duplicar | Igual | Pasó |
+| CP-214 | `bible:list-spanish` con traducciones mixtas | Sólo las `spa` | Igual | Pasó |
+| CP-215 | `bible:list-spanish` sin traducciones `spa` | SUCCESS con aviso | Igual | Pasó |
+| CP-216 | `_` y `\` en `books-search`; `D_o` en `/buscar` | Comodines literales, sin resultados | Igual | Pasó |
+| CP-217 | `Génesis 0:1` y `Génesis 1:0` en `resolve` | 404 | Igual | Pasó |
+| CP-218 | `%` y `_` en `resolve` | 422 por formato | Igual | Pasó |
+| CP-219 | `structure` con capítulo 99 | 200 con `verses` vacío | Igual | Pasó |
+| CP-220 | Capítulo y versículo sólo en `spa_pdt` | 404 en lectura y compartido | Igual | Pasó |
+| CP-221 | Rebiblear un rebibleo | `rebible_of_id` apunta al original | Igual | Pasó |
+| CP-222 | Rebiblear el propio rebibleo | Se rechaza sin duplicar | Igual | Pasó |
+| CP-223 | DELETE sin sesión en notas y favoritos | 401 | Igual | Pasó |
+| CP-224 | Borrar perfil sin `password` | 422 y usuario intacto | Igual | Pasó |
+| CP-225 | Cambiar clave sin confirmación | 422 y clave intacta | Igual | Pasó |
+| CP-226 | Usuario no verificado cambiando clave | Redirect a verificación y clave intacta | Igual | Pasó |
+| CP-227 | 16ª publicación, respuesta, seguido y rebibleo | 429 en cada acción | Igual | Pasó |
+| CP-228 | 31ª nota y favorito | 429 | Igual | Pasó |
+| CP-229 | 31º borrado de nota y favorito | 429 | Igual | Pasó |
+| CP-230 | `%` y `\` en `/buscar` | Comodines literales, una sola coincidencia | Igual | Pasó |
+| CP-231 | Referencia parcial en post y respuesta | 422 en `book_code`, sin filas nuevas | Igual | Pasó |
+| CP-232 | Grafo con scores 1..30 | 25 aristas, scores 6..30 | Igual | Pasó |
+| CP-233 | `resolve` sin `ref` o con `ref` vacío | 422 con mensaje de formato | Igual | Pasó |
+| CP-234 | Portada sin corpus y con versículo huérfano | `null` y luego `bookName` igual al código | Igual | Pasó |
+| CP-235 | Feed `mios` y perfil `respuestas` | Sólo posts propios / sólo respuestas propias | Igual | Pasó |
 
-Suite QA final: 117 tests, 117 pasan, 0 fallos, 0 omitidos, 625 aserciones, 7,4 s.
+Suite QA final: 188 tests, 188 pasan, 0 fallos, 0 omitidos, 1239 aserciones, 9,4 s (incluye la simulación de red de 50 usuarios).
 
 <a id="casos-no-ejecutados"></a>
 
@@ -264,4 +334,4 @@ Suite QA final: 117 tests, 117 pasan, 0 fallos, 0 omitidos, 625 aserciones, 7,4 
 | Seeds contra `bible.helloao.org` real | La ronda 7 simuló la API con `Http::fake()`; no se comprobó latencia, TLS ni el formato actual del servicio |
 | Concurrencia de escrituras sobre MySQL real | La ronda 9 sondeó tres servidores sobre SQLite y obtuvo `database is locked`; no es evidencia válida para MySQL: sigue **NO VERIFICADO** |
 
-Los viewports 375/768/1366/1920 y la pérdida de red a mitad de flujo se cubrieron en la ronda 10 con emulación CDP (CP-150 a CP-154); la revisión manual con lector de pantalla sigue pendiente. Correos, verificación y recuperación se cubrieron en la ronda 11 (CP-156 a CP-165) con notificaciones simuladas y cola `sync`; no se usó un servidor SMTP real.
+Los viewports 375/768/1366/1920 y la pérdida de red a mitad de flujo se cubrieron en la ronda 10 con emulación CDP (CP-150 a CP-154); la revisión manual con lector de pantalla sigue pendiente. Correos, verificación y recuperación se cubrieron en la ronda 11 (CP-156 a CP-165) con notificaciones simuladas y cola `sync`; no se usó un servidor SMTP real. La integridad de esquema y migraciones se cubrió en la ronda 12 (CP-166 a CP-181) con SQL directo sobre SQLite en memoria. Los presupuestos de consultas se midieron en la ronda 13 (CP-182 a CP-188) con el query log de Laravel, sin servidor web. El contrato de rutas y middleware se cubrió en la ronda 14 (CP-189 a CP-193) con peticiones Pest, sin servidor web. Los límites y validaciones, incluidas las ramas de los comandos con API simulada, se cubrieron en la ronda 15 (CP-194 a CP-215). Los paths negativos y los throttles reales se cubrieron en la ronda 16 (CP-216 a CP-229) con peticiones Pest. Las fronteras finales se cubrieron en la ronda 17 (CP-230 a CP-235); el caso del libro huérfano usó `PRAGMA defer_foreign_keys` dentro de `RefreshDatabase`.

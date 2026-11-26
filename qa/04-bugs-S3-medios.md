@@ -14,7 +14,7 @@
 - [BUG-027 — El reset de contraseña revela si un correo está registrado](#bug-027)
 
 ## Estado
-No hay defectos S3 abiertos. BUG-004 (Fase 2, perfil) y BUG-009 (Fase 6, settings) fueron corregidos en la ronda de corrección 1; BUG-014 (ronda 3) se corrigió con un fallback según el driver; BUG-017 y BUG-018 (ronda 7) se corrigieron en los comandos de importación; BUG-021 y BUG-022 (ronda 8) se corrigieron en el manejo de excepciones y en el cliente axios; BUG-023 (ronda 9) se corrigió en la inicialización del usuario de Inertia; BUG-026 y BUG-027 (ronda 11) se corrigieron en el controlador de perfil y en la respuesta de Fortify para reset. Todos fueron verificados con la suite QA en verde y, en los casos de BUG-014, BUG-022 y BUG-023, también en navegador.
+No hay defectos S3 abiertos. BUG-004 (Fase 2, perfil) y BUG-009 (Fase 6, settings) fueron corregidos en la ronda de corrección 1; BUG-014 (ronda 3) se corrigió con un fallback según el driver; BUG-017 y BUG-018 (ronda 7) se corrigieron en los comandos de importación; BUG-021 y BUG-022 (ronda 8) se corrigieron en el manejo de excepciones y en el cliente axios; BUG-023 (ronda 9) se corrigió en la inicialización del usuario de Inertia; BUG-026 y BUG-027 (ronda 11) se corrigieron en el controlador de perfil y en la respuesta de Fortify para reset. Todos fueron verificados con la suite QA en verde y, en los casos de BUG-014, BUG-022 y BUG-023, también en navegador. Las rondas 12, 13, 14, 15, 16 y 17 no agregaron defectos S3.
 
 <a id="bug-004"></a>
 

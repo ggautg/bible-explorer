@@ -17,8 +17,10 @@
 - [BUG-020 — `bible:seed-text` acepta una respuesta sin libros](#bug-020)
 - [BUG-024 — Doble clic rápido duplica el favorito en la lista del cliente](#bug-024)
 - [BUG-025 — Los mensajes de confirmación y error de acciones no se muestran](#bug-025)
+- [BUG-028 — N+1 en el feed: una consulta por persona sugerida](#bug-028)
+- [BUG-029 — `bible:seed-text` revienta si un versículo no tiene `number`](#bug-029)
 
-> **Rondas de corrección 1, 2, 3, 7, 9 y 10:** los 13 hallazgos originales y los nuevos de accesibilidad, API, sesión y estado del cliente fueron corregidos y verificados. La ronda 11 no agregó defectos S4 ni S5. Las entradas siguientes conservan la evidencia original del hallazgo; el estado actual de cada uno se indica en su línea **Estado de verificación**. Ya no queda ningún defecto abierto.
+> **Rondas de corrección 1, 2, 3, 7, 9 y 10:** los 13 hallazgos originales y los nuevos de accesibilidad, API, sesión y estado del cliente fueron corregidos y verificados. La ronda 11 no agregó defectos S4 ni S5; la ronda 13 agregó uno de rendimiento (BUG-028), la ronda 14 no agregó defectos, la ronda 15 agregó uno de importación (BUG-029) y las rondas 16 y 17 no agregaron defectos. Las entradas siguientes conservan la evidencia original del hallazgo; el estado actual de cada uno se indica en su línea **Estado de verificación**. Ya no queda ningún defecto abierto.
 
 <a id="bug-015"></a>
 
@@ -445,4 +447,58 @@
 - **Workaround:** ninguno desde la interfaz; solo se puede inferir el resultado mirando el estado del botón o recargando la página.
 - **Recomendación de corrección:** montar el contenedor existente en la raíz Inertia y conservar el `aria-live` para que los mensajes se anuncien.
 - **Test que lo reproduce:** `tests/QA/ResponsiveFeedbackTest.php` → `the custom toast container is mounted in the inertia root` y `the toast container announces messages to assistive technology`.
+- **Esfuerzo estimado:** S
+
+<a id="bug-028"></a>
+
+### [BUG-028] N+1 en el feed: una consulta por persona sugerida
+- **Severidad:** S4
+- **Prioridad:** P3
+- **Frecuencia:** Constante en `/comunidad` cuando hay personas sugeridas; crece hasta 20 consultas extra por visita
+- **Tipo:** Rendimiento / Consultas N+1
+- **Módulo / Capa:** Backend / `app/Http\Controllers\PostController.php` y `app/Http\Controllers\ProfileController.php`
+- **Estado de verificación:** CONFIRMADO por test de presupuesto fallido → **CORREGIDO y verificado** (ronda 13)
+- **Corrección aplicada:** `serializePerson()` recibe los IDs ya seguidos por el visitante y usa `in_array()` en memoria; `PostController@index` reutiliza el `$followingIds` que ya calculaba y `ProfileController@show` los obtiene una sola vez para el bloque Giovanni y el flag `isFollowing`.
+- **Ubicación original:** `app/Http/Controllers/PostController.php:381-391` y `app/Http/Controllers/ProfileController.php:50-56,79`
+- **Entorno:** PHP 8.3.36, Laravel 13.44.1, SQLite `:memory:`, `DB::enableQueryLog()`
+- **Precondiciones:** visitante autenticado con feed con 4 personas sugeridas; luego 24 usuarios en la base
+- **Pasos para reproducir:**
+  1. Hacer `GET /comunidad` con 4 usuarios distintos al visitante y contar consultas.
+  2. Crear 20 usuarios más y repetir la visita.
+  3. Comparar ambos conteos y revisar las consultas nuevas.
+- **Resultado esperado:** el número de consultas no crece con la cantidad de personas sugeridas (tope 20 en la vista).
+- **Resultado actual (pre-corrección):** 9 consultas con 4 personas y 23 con 24; las consultas nuevas eran `select exists(...)` sobre `follows` por cada persona (`serializePerson()` → `isFollowing()`).
+- **Evidencia:** el test `feed queries do not grow with the number of suggested people` fallaba con `Failed asserting that 23 is equal to 9 or is less than 9.`; tras el fix quedó en verde y el archivo completo pasó de 9,5 s a 0,7 s. Un test adicional comprueba que el flag `following` sigue siendo `true` solo para el usuario seguido.
+- **Causa raíz probable:** el controlador ya tenía los IDs seguidos para filtrar el tab `siguiendo`, pero el serializador volvía a consultar la relación por cada persona del sidebar.
+- **Impacto:** el feed —la página de entrada— ejecuta hasta 20 consultas innecesarias por visita; con MySQL real y tráfico concurrente suma latencia y carga de BD sin cambiar el resultado.
+- **Workaround:** ninguno desde la interfaz; el efecto solo se observa midiendo consultas o latencia.
+- **Recomendación de corrección:** bachear los IDs seguidos una vez y reutilizarlos al serializar, como se implementó.
+- **Test que lo reproduce:** `tests/QA/QueryBudgetTest.php` → `feed queries do not grow with the number of suggested people` y `the feed still flags followed people correctly after batching`.
+- **Esfuerzo estimado:** S
+
+<a id="bug-029"></a>
+
+### [BUG-029] `bible:seed-text` revienta si un versículo no tiene `number`
+- **Severidad:** S4
+- **Prioridad:** P3
+- **Frecuencia:** Constante cuando la respuesta de la API trae un ítem `type=verse` sin `number`; no ocurre en el payload normal
+- **Tipo:** Robustez de importación / comando Artisan
+- **Módulo / Capa:** Backend / `app/Console/Commands/SeedBibleText.php`
+- **Estado de verificación:** CONFIRMADO por test con `Http::fake()` que falló con excepción → **CORREGIDO y verificado** (ronda 15)
+- **Corrección aplicada:** se lee `$item['number'] ?? null` y se omite el ítem cuando falta, con la misma guarda que ya se usaba para capítulos sin `number`.
+- **Ubicación original:** `app/Console/Commands/SeedBibleText.php:88-99`
+- **Entorno:** PHP 8.3.36, Laravel 13.44.1, SQLite `:memory:`, API simulada con `Http::fake()`
+- **Precondiciones:** ejecutar `bible:seed-text` contra una respuesta con un libro, un capítulo y un versículo sin la clave `number`
+- **Pasos para reproducir:**
+  1. Simular `https://bible.helloao.org/api/spa_rvg/complete.json` con un ítem `type=verse` sin `number`.
+  2. Ejecutar `php artisan bible:seed-text spa_rvg`.
+  3. Observar la excepción y la tabla `bible_verses`.
+- **Resultado esperado:** el comando omite el ítem malformado, termina con `SUCCESS` y no inserta una fila con `verse` nulo.
+- **Resultado actual (pre-corrección):** `ErrorException: Undefined array key "number"` en `SeedBibleText.php:97`; el comando aborta antes de seguir importando.
+- **Evidencia:** el test `bible:seed-text skips a malformed verse instead of crashing` falló con ese mensaje; tras el fix hay 8/8 tests del archivo en verde y 0 versículos inválidos.
+- **Causa raíz probable:** el código validaba el `number` del capítulo pero asumía que todo ítem `verse` traía el suyo, sin guarda ni valor por defecto.
+- **Impacto:** una respuesta incompleta de la API externa interrumpe la importación completa y deja el proceso en error; no afecta el request path ni a los usuarios finales.
+- **Workaround:** ninguno desde la aplicación; solo revisar el payload de la API y corregirlo antes de reintentar.
+- **Recomendación de corrección:** omitir ítems sin número de versículo y registrar un aviso, como se implementó.
+- **Test que lo reproduce:** `tests/QA/CommandEdgeCasesTest.php` → `bible:seed-text skips a malformed verse instead of crashing`.
 - **Esfuerzo estimado:** S

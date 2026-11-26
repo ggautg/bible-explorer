@@ -18,6 +18,12 @@
 - [Estado del cliente ante envíos duplicados (ronda 9)](#estado-del-cliente-ante-envíos-duplicados-ronda-9)
 - [Responsive y caída de red (ronda 10)](#responsive-y-caída-de-red-ronda-10)
 - [Correos, verificación y recuperación (ronda 11)](#correos-verificación-y-recuperación-ronda-11)
+- [Integridad de migraciones y datos (ronda 12)](#integridad-de-migraciones-y-datos-ronda-12)
+- [Presupuestos de consultas (ronda 13)](#presupuestos-de-consultas-ronda-13)
+- [Contrato de rutas y middleware (ronda 14)](#contrato-de-rutas-y-middleware-ronda-14)
+- [Validaciones, límites y comandos (ronda 15)](#validaciones-límites-y-comandos-ronda-15)
+- [Paths negativos y throttles reales (ronda 16)](#paths-negativos-y-throttles-reales-ronda-16)
+- [Fronteras finales (ronda 17)](#fronteras-finales-ronda-17)
 - [Cobertura funcional heredada](#cobertura-funcional-heredada)
 
 <a id="instalación-y-configuración"></a>
@@ -39,7 +45,7 @@
 <a id="suite-automatizada"></a>
 
 ## Suite automatizada
-- Línea base de Fase 1: 56 tests pasan (54 heredados + 2 de entorno de QA), 233 aserciones, 0 fallos y 0 omitidos. Al cerrar la Fase 6 los tests QA eran 70, con 10 fallos deliberados que documentaban los siete bugs confirmados por ejecución y 1 omisión explícita por MySQL FULLTEXT. Tras la ronda 1: 69 pasan, 0 fallos y 1 omitido, 391 aserciones. Tras la ronda 2: 73 pasan, 0 fallos y 1 omitido, 429 aserciones. Tras la ronda 3: 77 pasan, 0 fallos, 0 omitidos y 449 aserciones. Tras la ronda 6: 85 pasan, 0 fallos, 0 omitidos y 488 aserciones. Tras la ronda 7: 93 pasan, 0 fallos, 0 omitidos y 515 aserciones. Tras la ronda 8: 98 pasan, 0 fallos, 0 omitidos y 527 aserciones. Tras la ronda 9: 103 pasan, 0 fallos, 0 omitidos y 542 aserciones. Tras la ronda 10: 107 pasan, 0 fallos, 0 omitidos y 550 aserciones. Tras la ronda 11: 117 pasan, 0 fallos, 0 omitidos y 625 aserciones.
+- Línea base de Fase 1: 56 tests pasan (54 heredados + 2 de entorno de QA), 233 aserciones, 0 fallos y 0 omitidos. Al cerrar la Fase 6 los tests QA eran 70, con 10 fallos deliberados que documentaban los siete bugs confirmados por ejecución y 1 omisión explícita por MySQL FULLTEXT. Tras la ronda 1: 69 pasan, 0 fallos y 1 omitido, 391 aserciones. Tras la ronda 2: 73 pasan, 0 fallos y 1 omitido, 429 aserciones. Tras la ronda 3: 77 pasan, 0 fallos, 0 omitidos y 449 aserciones. Tras la ronda 6: 85 pasan, 0 fallos, 0 omitidos y 488 aserciones. Tras la ronda 7: 93 pasan, 0 fallos, 0 omitidos y 515 aserciones. Tras la ronda 8: 98 pasan, 0 fallos, 0 omitidos y 527 aserciones. Tras la ronda 9: 103 pasan, 0 fallos, 0 omitidos y 542 aserciones. Tras la ronda 10: 107 pasan, 0 fallos, 0 omitidos y 550 aserciones. Tras la ronda 11: 117 pasan, 0 fallos, 0 omitidos y 625 aserciones. Tras la ronda 12: 133 pasan, 0 fallos, 0 omitidos y 697 aserciones. Tras la ronda 13: 140 pasan, 0 fallos, 0 omitidos y 733 aserciones. Tras la ronda 14: 145 pasan, 0 fallos, 0 omitidos y 775 aserciones. Tras la ronda 15: 167 pasan, 0 fallos, 0 omitidos y 914 aserciones. Tras la ronda 16: 181 pasan, 0 fallos, 0 omitidos y 1139 aserciones. Tras la ronda 17: 187 pasan, 0 fallos, 0 omitidos y 1214 aserciones. Tras la simulación de red: 188 pasan, 0 fallos, 0 omitidos y 1239 aserciones.
 - Los tests QA viven en `tests/QA/` y se ejecutan con `php artisan test tests/QA`, sin configuración adicional en la raíz. Los 54 tests heredados siguen pasando solos con `php artisan test --compact`.
 - La suite heredada funciona sobre SQLite y, en el ciclo anterior, también sobre MySQL: no hay dependencia de un único driver para los tests actuales.
 
@@ -211,6 +217,63 @@
 - El pedido de reset con un correo inexistente muestra el mismo mensaje que con uno registrado, sin distinción en HTML ni en JSON.
 - El throttle de passkeys se aplica por credencial: el undécimo pedido devuelve 429.
 - Los 10 tests nuevos viven en `tests/QA/MailAndVerificationTest.php`. No se usó un servidor SMTP ni un authenticator real.
+
+<a id="integridad-de-migraciones-y-datos-ronda-12"></a>
+
+## Integridad de migraciones y datos (ronda 12)
+- Las 23 migraciones se revierten y reaplican sin errores, incluidas las que usan `dropColumn`, `dropUnique` y `change()`.
+- Los unique y las foreign keys están en la base: rechazan duplicados y borrados inválidos, y propagan cascadas al borrar usuarios, comentarios o publicaciones.
+- Los backfills generan slugs únicos y asignan `spa_rvg` a versículos preexistentes; los índices con nombre se removieron y reaplicaron correctamente.
+- Los comentarios y reacciones legacy se migran a publicaciones y likes con el mapa persistido.
+- Los 16 tests nuevos viven en `tests/QA/DatabaseIntegrityTest.php`. No se encontraron defectos ni se tocó código de aplicación.
+
+<a id="presupuestos-de-consultas-ronda-13"></a>
+
+## Presupuestos de consultas (ronda 13)
+- El feed mantiene constante el número de consultas al crecer de 5 a 60 publicaciones; las relaciones y conteos ya estaban bacheados.
+- Se detectó y corrigió el único N+1 medido: el serializador consultaba `isFollowing()` por cada persona sugerida. Ahora reutiliza los IDs ya cargados y el flag `following` sigue siendo correcto.
+- Las APIs de notas y favoritos hacen una sola consulta con 150 filas; capítulo, grafo y búsqueda no aumentan sus consultas con 200, 61 y 600 registros respectivamente.
+- Los 7 tests nuevos viven en `tests/QA/QueryBudgetTest.php`. No se midió latencia real con servidor web ni MySQL.
+
+<a id="contrato-de-rutas-y-middleware-ronda-14"></a>
+
+## Contrato de rutas y middleware (ronda 14)
+- Las páginas protegidas redirigen a `/login`; el devocionario es privado y el welcome público.
+- Un usuario sin verificar entra al feed pero no a `security.edit`; con la sesión confirmada por contraseña, esa página responde 200.
+- Las páginas `guest` devuelven a `/` a quien ya inició sesión, y desde ahí se va a `/comunidad`.
+- Los throttles declarados están presentes en nueve rutas sensibles, incluidas las cinco acciones sociales.
+- Los 5 tests nuevos viven en `tests/QA/RouteContractTest.php`. Los dos fallos iniciales fueron expectativas incorrectas del test, no defectos de la aplicación.
+
+<a id="validaciones-límites-y-comandos-ronda-15"></a>
+
+## Validaciones, límites y comandos (ronda 15)
+- Los topes de 5000/2000 caracteres, 10 caracteres de `book_code`, capítulo/versículo ≥ 1 y 255 caracteres en perfil se respetan en todas las rutas de escritura.
+- Feed, perfil, hilo, búsqueda y grafo respetan sus topes de 60, 60, 20 niveles, 50 y 25 elementos.
+- Los comandos de importación reportan fallos sin stack trace, omiten entradas incompletas y actualizan el `score` al reimportar.
+- Se corrigió BUG-029: `bible:seed-text` ya no revienta si un versículo no trae `number`.
+- Los 22 tests nuevos viven en `tests/QA/ValidationLimitsTest.php` y `tests/QA/CommandEdgeCasesTest.php`. La API real sigue sin contactarse.
+
+<a id="paths-negativos-y-throttles-reales-ronda-16"></a>
+
+## Paths negativos y throttles reales (ronda 16)
+- Los comodines del usuario son literales en el autocompletado y en el fallback SQLite de búsqueda de texto.
+- Las referencias con capítulo o versículo 0 no se resuelven y los comodines se rechazan por formato.
+- Los versículos que sólo existen en `spa_pdt` no se muestran en lectura ni en compartidos.
+- Rebiblear un rebibleo apunta al post original y nadie puede rebiblear su propio rebibleo.
+- Las rutas DELETE sin sesión, el borrado sin contraseña y el cambio de clave sin confirmación se rechazan; un usuario no verificado no cambia su clave.
+- Los límites de 15 y 30 peticiones por minuto devuelven 429 en la práctica. Laravel usa el usuario como clave del contador, no la ruta, así que las acciones con el mismo límite comparten cubo.
+- Los 14 tests nuevos viven en `tests/QA/NegativePathsTest.php`; no hubo defectos nuevos.
+
+<a id="fronteras-finales-ronda-17"></a>
+
+## Fronteras finales (ronda 17)
+- `%` y `\` son literales en la búsqueda SQLite, igual que `_` y `%` en el autocompletado.
+- Una referencia incompleta se rechaza en posts y respuestas antes de crear filas.
+- Al recortar el grafo a 25 conexiones se conservan las de mayor `score`, no las primeras insertadas.
+- `resolve` sin parámetro o con texto en blanco informa el formato esperado.
+- La portada sigue respondiendo sin corpus y usa el código del libro cuando falta su metadata.
+- Las pestañas `mios` y `respuestas` no mezclan publicaciones ajenas ni respuestas propias con posts raíz.
+- Los 6 tests nuevos viven en `tests/QA/FinalBoundariesTest.php`; no hubo defectos nuevos.
 
 <a id="cobertura-funcional-heredada"></a>
 

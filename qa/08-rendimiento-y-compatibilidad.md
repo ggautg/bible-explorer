@@ -22,6 +22,15 @@
 | Suite QA completa (103 tests) | 5,9 s | 103 pasan, 0 fallos, 0 omitidos, 542 aserciones (tras la ronda 9) |
 | Suite QA completa (107 tests) | 6,1 s | 107 pasan, 0 fallos, 0 omitidos, 550 aserciones (tras la ronda 10) |
 | Suite QA completa (117 tests) | 7,4 s | 117 pasan, 0 fallos, 0 omitidos, 625 aserciones (tras la ronda 11) |
+| Suite QA completa (133 tests) | 7,5 s | 133 pasan, 0 fallos, 0 omitidos, 697 aserciones (tras la ronda 12) |
+| Suite QA completa (140 tests) | 8,0 s | 140 pasan, 0 fallos, 0 omitidos, 733 aserciones (tras la ronda 13) |
+| Suite QA completa (145 tests) | 8,5 s | 145 pasan, 0 fallos, 0 omitidos, 775 aserciones (tras la ronda 14) |
+| Suite QA completa (167 tests) | 8,8 s | 167 pasan, 0 fallos, 0 omitidos, 914 aserciones (tras la ronda 15) |
+| Suite QA completa (181 tests) | 9,2 s | 181 pasan, 0 fallos, 0 omitidos, 1139 aserciones (tras la ronda 16) |
+| Suite QA completa (187 tests) | 9,3 s | 187 pasan, 0 fallos, 0 omitidos, 1214 aserciones (tras la ronda 17) |
+| Suite QA completa (188 tests) | 9,4 s | 188 pasan, 0 fallos, 0 omitidos, 1239 aserciones (con la simulación de red) |
+| Tests del feed con 24 personas antes del fix | 9,5 s | 23 consultas por visita (BUG-028) |
+| Tests del feed con 24 personas tras el fix | 0,7 s | Consultas constantes, 7 tests de presupuesto en verde |
 | Suite QA de Fase 6 (14 tests) | 0,7 s | 12 pasaban y 2 fallaban antes de la corrección de BUG-009; ahora 14 pasan |
 | `migrate:fresh --seed` | < 1 s | 23 migraciones + seeder mínimo |
 | `migrate:reset` | ~0,1 s | 23 migraciones en archivo SQLite temporal |
@@ -78,6 +87,14 @@ El seeder es deliberadamente mínimo; los comandos `SeedBibleText` y `SeedBibleC
 | Correo y notificaciones | **VERIFICADO** (ronda 11) | `Notification::fake()` con cola `sync`: registro, cambio de correo, reenvíos, reset y consumo de códigos 2FA |
 | Servidor SMTP real | **NO VERIFICADO** | El entorno de tests usa `MAIL_MAILER=array`; no se probó entrega real ni plantillas en un cliente de correo |
 | WebAuthn con authenticator real | **NO VERIFICADO** | Solo se comprobó el throttle por credencial (ronda 11) y el well-known (ronda 6) |
+| Rollback y backfill de migraciones | **VERIFICADO** (ronda 12) | 23 migraciones revertidas y reaplicadas, con constraints, cascadas y datos legacy comprobados por SQL directo |
+| Presupuesto de consultas | **VERIFICADO** (ronda 13) | Conteo de queries en feed, notas/favoritos, capítulo, grafo y búsqueda; un N+1 corregido (BUG-028) |
+| Latencia con FPM/Apache y MySQL | **NO VERIFICADO** | Solo se midió el servidor integrado monoprocreso y el conteo de queries en tests |
+| Contrato de rutas y middleware | **VERIFICADO** (ronda 14) | 9 throttles, redirecciones de invitados, `verified` y confirmación de contraseña comprobados con Pest |
+| Límites y validaciones de entrada | **VERIFICADO** (ronda 15) | Topes de longitud, referencias y listados comprobados por HTTP; sin defectos nuevos |
+| Ramas de comandos con API simulada | **VERIFICADO** (ronda 15) | `seed-text`, `seed-crossrefs` y `list-spanish` con `Http::fake()`; un defecto corregido (BUG-029) |
+| Paths negativos y throttles reales | **VERIFICADO** (ronda 16) | Escapes, referencias inválidas, guardas de traducción, rebibleos, autenticación y 429 por límite; sin defectos nuevos |
+| Fronteras finales | **VERIFICADO** (ronda 17) | Escape de `%`/`\`, referencias parciales, ranking del grafo, portada y pestañas; sin defectos nuevos |
 
 <a id="carga-ronda-5"></a>
 

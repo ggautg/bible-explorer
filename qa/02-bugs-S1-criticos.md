@@ -12,4 +12,4 @@ No se encontraron defectos S1 en el alcance ejecutado hasta la Fase 6 inclusive.
 | --- | --- | --- | --- |
 | — | Sin hallazgos | — | — |
 
-Ciclo completo (Fases 0 a 6) ejecutado sin hallazgos S1. Las rondas 7, 8, 9, 10 y 11 tampoco agregaron defectos S1.
+Ciclo completo (Fases 0 a 6) ejecutado sin hallazgos S1. Las rondas 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 y 17 tampoco agregaron defectos S1.

@@ -20,6 +20,7 @@ class ProfileController extends Controller
     public function show(Request $request, User $user): Response
     {
         $viewer = $request->user();
+        $viewerFollowingIds = $viewer?->following()->pluck('users.id')->all() ?? [];
         $isOwn = $viewer?->id === $user->id;
         $tab = (string) $request->query('tab', 'posts');
         if (! in_array($tab, ['posts', 'respuestas', 'me-gusta'], true) || ($tab === 'me-gusta' && ! $isOwn)) {
@@ -52,7 +53,7 @@ class ProfileController extends Controller
             $supporters = User::query()
                 ->whereIn('email', ['piero.arestivo@example.test', 'jose.britez@example.test'])
                 ->get(['id', 'name', 'email', 'slug', 'church'])
-                ->map(fn (User $s) => $this->postPresenter->serializePerson($s, $viewer))
+                ->map(fn (User $s) => $this->postPresenter->serializePerson($s, $viewer, $viewerFollowingIds))
                 ->values()->all();
 
             $profileGoals = [
@@ -76,7 +77,7 @@ class ProfileController extends Controller
                 'followersCount' => $followersCount,
                 'followingCount' => $followingCount,
                 'postsCount' => $postsCount,
-                'isFollowing' => $viewer ? $viewer->isFollowing($user) : false,
+                'isFollowing' => $viewer ? in_array($user->id, $viewerFollowingIds, true) : false,
                 'isOwn' => $isOwn,
             ],
             'tab' => $tab,

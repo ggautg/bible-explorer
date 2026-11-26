@@ -18,6 +18,12 @@
 - [Ronda 9 — estado del cliente ante envíos duplicados](#ronda-9--estado-del-cliente-ante-envíos-duplicados)
 - [Ronda 10 — viewports y pérdida de red](#ronda-10--viewports-y-pérdida-de-red)
 - [Ronda 11 — correos, verificación y recuperación](#ronda-11--correos-verificación-y-recuperación)
+- [Ronda 12 — integridad de migraciones y datos](#ronda-12--integridad-de-migraciones-y-datos)
+- [Ronda 13 — presupuestos de consultas](#ronda-13--presupuestos-de-consultas)
+- [Ronda 14 — contrato de rutas y middleware](#ronda-14--contrato-de-rutas-y-middleware)
+- [Ronda 15 — validaciones, límites y comandos](#ronda-15--validaciones-límites-y-comandos)
+- [Ronda 16 — paths negativos y throttles reales](#ronda-16--paths-negativos-y-throttles-reales)
+- [Ronda 17 — fronteras finales](#ronda-17--fronteras-finales)
 - [Cierre del ciclo](#cierre-del-ciclo)
 
 ## Alcance
@@ -87,10 +93,45 @@ Auditoría QA funcional, de integración, regresión, seguridad funcional, rendi
 - Dos defectos confirmados: cambiar el correo no enviaba el nuevo aviso de verificación (BUG-026) y pedir un reset con un correo inexistente revelaba que la cuenta no existe (BUG-027).
 - 10 tests nuevos en `tests/QA/MailAndVerificationTest.php`; los dos fallaron antes del fix y quedaron verdes después.
 
+**Probado (ronda 12 — integridad de migraciones y datos):**
+- Ciclo completo de las 23 migraciones (rollback y re-migración), constraints únicos de usuarios, favoritos, notas, follows, likes, reacciones, versículos y referencias cruzadas, y cascadas de borrado en usuarios, comentarios y publicaciones.
+- Backfills de slug y traducción, índices con nombre creados por la migración de integridad y migración de comentarios/reacciones legacy a publicaciones y likes.
+- 16 tests nuevos en `tests/QA/DatabaseIntegrityTest.php`; ningún defecto nuevo.
+
+**Probado (ronda 13 — presupuestos de consultas):**
+- Conteo de queries con `DB::enableQueryLog()` en feed, hilo, perfil, notas/favoritos, capítulo, grafo y búsqueda, con volumen sintético de hasta 600 versículos y 60 publicaciones.
+- Se confirmó un N+1 en el listado de personas sugeridas del feed: una consulta `isFollowing()` por persona (9 → 23 consultas al pasar de 4 a 24 usuarios). BUG-028, corregido reutilizando los IDs ya cargados.
+- 7 tests nuevos en `tests/QA/QueryBudgetTest.php`, incluida una guardia de que el flag `following` sigue siendo correcto tras el bacheo.
+
+**Probado (ronda 14 — contrato de rutas y middleware):**
+- Redirecciones de invitados en páginas protegidas, distinción entre `auth` y `verified`, y confirmación de contraseña en `security.edit`.
+- Redirección de visitantes autenticados desde login/registro/reset: primero a `/` y desde ahí a `/comunidad` (comportamiento real de Laravel + `HomeController`).
+- Presencia de los throttles declarados en login, 2FA, verificación, passkeys y las cinco acciones sociales.
+- 5 tests nuevos en `tests/QA/RouteContractTest.php`; ningún defecto nuevo.
+
+**Probado (ronda 15 — validaciones, límites y comandos):**
+- Límites explícitos de notes (5000), posts/replies (2000), `book_code` (10), capítulo/versículo (≥1), feed (60 posts / 20 personas), perfil (60), hilo (20 niveles), búsqueda (50), grafo entrante (25) y campos de perfil (255).
+- Fallback de pestañas inválidas, validación de `structure`, referencias con traducción alterna o texto vacío y regresiones de escape ya cubiertas indirectamente.
+- Ramas no ejecutadas de `bible:seed-text`, `bible:seed-crossrefs` y `bible:list-spanish` con `Http::fake()`.
+- 22 tests nuevos (14 en `tests/QA/ValidationLimitsTest.php` y 8 en `tests/QA/CommandEdgeCasesTest.php`). BUG-029: un versículo sin `number` reventaba el importador; corregido y verificado.
+
+**Probado (ronda 16 — paths negativos y throttles reales):**
+- Escape literal de `_` y `\` en autocompletado y búsqueda SQLite, referencias `0` y comodines en texto libre, y capítulo inexistente en `structure`.
+- Lectura y compartido ignoran versículos que sólo existen en `spa_pdt`.
+- Rebiblear un rebibleo apunta al original; rebiblear el propio rebibleo se rechaza.
+- DELETE sin sesión devuelve 401; profile sin password y password sin confirmación devuelven 422; usuario no verificado no cambia su clave.
+- Los throttles 15/min y 30/min devuelven 429 en la práctica, no sólo en la declaración de rutas.
+- 14 tests nuevos en `tests/QA/NegativePathsTest.php`; ningún defecto nuevo.
+
+**Probado (ronda 17 — fronteras finales):**
+- `%` y `\` literales en búsqueda SQLite, referencias parciales en posts y respuestas, supervivencia de las mejores aristas del grafo al tope de 25.
+- `resolve` sin parámetro o en blanco, degradación de la portada sin corpus y con libro huérfano, y aislamiento de las pestañas `mios` y `respuestas`.
+- 6 tests nuevos en `tests/QA/FinalBoundariesTest.php`; ningún defecto nuevo.
+
 **No probado:** lector de pantalla dedicado, búsqueda FULLTEXT sobre MySQL real, carga sostenida bajo servidor web con workers, llamadas reales a `bible.helloao.org` (la ronda 7 simuló la API, no la contactó), passkeys/WebAuthn reales y concurrencia de escrituras sobre MySQL real. Las revisiones de viewport y pérdida de red ya no figuran acá: se ejecutaron con emulación de red y dispositivo, no manualmente. En la ronda 3 se ejecutó E2E de login/logout en navegador, se revisó la consola y se corrieron axe/Lighthouse; en la ronda 4 se perfiló el renderer y en la ronda 5 se corrió carga ligera con 15.000 versículos. No se instalaron Playwright, Dusk ni runners JS.
 
 ## Veredicto de liberación
-**GO condicionado a MySQL y lector de pantalla.** Los 27 hallazgos quedaron corregidos y revalidados: suite QA en verde (117/117, 0 omitidos), suite heredada 54/54 y Lighthouse 1,0 en las once páginas auditadas. La verificación en navegador ya se hizo con teclado, árbol de accesibilidad y axe/Lighthouse; la carga ligera con 15.000 versículos respondió 170/170 con 200. Lo que sigue NO VERIFICADO es FULLTEXT sobre MySQL real, un lector de pantalla dedicado, carga sostenida con servidor web real, los seeds contra la API externa real, passkeys/WebAuthn reales y la concurrencia de escrituras sobre MySQL.
+**GO condicionado a MySQL y lector de pantalla.** Los 29 hallazgos quedaron corregidos y revalidados: suite QA en verde (188/188, 0 omitidos), suite heredada 54/54 y Lighthouse 1,0 en las once páginas auditadas. La verificación en navegador ya se hizo con teclado, árbol de accesibilidad y axe/Lighthouse; la carga ligera con 15.000 versículos respondió 170/170 con 200. Lo que sigue NO VERIFICADO es FULLTEXT sobre MySQL real, un lector de pantalla dedicado, carga sostenida con servidor web real, los seeds contra la API externa real, passkeys/WebAuthn reales y la concurrencia de escrituras sobre MySQL.
 
 ## Bugs por severidad
 | Severidad | Cantidad | Estado |
@@ -98,7 +139,7 @@ Auditoría QA funcional, de integración, regresión, seguridad funcional, rendi
 | S1 Crítico | 0 | Sin hallazgos |
 | S2 Alto | 0 | BUG-003 corregido y verificado |
 | S3 Medio | 10 | BUG-004, BUG-009, BUG-014, BUG-017, BUG-018, BUG-021, BUG-022, BUG-023, BUG-026 y BUG-027 corregidos y verificados |
-| S4 Bajo | 12 | BUG-002, BUG-005 a BUG-008, BUG-010 a BUG-012, BUG-015, BUG-019, BUG-024 y BUG-025 corregidos y verificados |
+| S4 Bajo | 14 | BUG-002, BUG-005 a BUG-008, BUG-010 a BUG-012, BUG-015, BUG-019, BUG-024, BUG-025, BUG-028 y BUG-029 corregidos y verificados |
 | S5 Cosmético | 4 | BUG-001, BUG-013, BUG-016 y BUG-020 corregidos y verificados |
 
 ## Hallazgos ordenados por prioridad
@@ -131,22 +172,24 @@ Auditoría QA funcional, de integración, regresión, seguridad funcional, rendi
 | 25 | BUG-025 | Los mensajes de confirmación y error de acciones no se muestran | S4 | P3 | CORREGIDO y verificado (navegador) |
 | 26 | BUG-026 | Cambiar el correo deja la cuenta sin verificar y sin aviso | S3 | P2 | CORREGIDO y verificado |
 | 27 | BUG-027 | El reset de contraseña revela si un correo está registrado | S3 | P2 | CORREGIDO y verificado |
+| 28 | BUG-028 | N+1 en el feed: una consulta por persona sugerida | S4 | P3 | CORREGIDO y verificado |
+| 29 | BUG-029 | `bible:seed-text` revienta si un versículo no tiene `number` | S4 | P3 | CORREGIDO y verificado |
 
 ## Métricas de pruebas
 | Métrica | Valor |
 | --- | ---: |
-| Tests ejecutados | 171 |
-| Pasados | 171 |
+| Tests ejecutados | 242 |
+| Pasados | 242 |
 | Fallidos | 0 |
 | Omitidos | 0 |
-| Aserciones | 851 |
+| Aserciones | 1465 |
 | Migraciones up / down | 23 / 23 |
-| Duración suite principal (54) | 2,6 s |
-| Duración suite QA (117) | 7,4 s |
-| Build | OK, 1,69 s sin `.env` |
+| Duración suite principal (54) | 2,4 s |
+| Duración suite QA (188) | 9,4 s |
+| Build | OK, 1,63 s sin `.env` |
 | Lighthouse (11 páginas) | 1,0 en accesibilidad, buenas prácticas y SEO |
 | Hallazgos abiertos | 0 |
-| Hallazgos corregidos | 27 |
+| Hallazgos corregidos | 29 |
 
 Los 10 fallos originales correspondían a 7 causas raíz (BUG-003 a BUG-009), todas corregidas y verificadas. Los seis hallazgos de frontend/build (BUG-001, BUG-002 y BUG-010 a BUG-013) se cerraron con tests estáticos y luego se confirmaron en navegador. La ronda 3 agregó otros tres hallazgos (BUG-014 a BUG-016) que también quedaron corregidos. Ya no hay tests omitidos: el caso FULLTEXT se ejecuta con fallback en SQLite, mientras que `MATCH ... AGAINST` en MySQL real sigue NO VERIFICADO. La ronda 6 sumó 8 tests preventivos de seguridad sin encontrar defectos nuevos. La ronda 7 simuló fallos de la API externa y encontró cuatro defectos (BUG-017 a BUG-020), todos corregidos. La ronda 8 integró el riesgo de sesiones caducadas y CSRF con `curl` y navegador: dos defectos más (BUG-021 y BUG-022), corregidos. La ronda 9 cubrió el estado del cliente ante envíos duplicados: dos defectos (BUG-023 y BUG-024) confirmados en navegador y corregidos. La ronda 10 emuló viewports y caída de red con CDP: sin desbordamiento en 36 combinaciones y un defecto nuevo (BUG-025), los mensajes de `showToast()` no se mostraban porque el contenedor nunca se montaba. Los 54 tests heredados siguen pasando: no hay regresiones. Tampoco se usó un lector de pantalla dedicado.
 
@@ -326,6 +369,104 @@ Se cubrieron los flujos de Fortify que pasan por correo o notificación, con `No
 
 Dos defectos (BUG-026 y BUG-027) quedaron corregidos y verificados. Los correos no salen del proceso de test: WebAuthn con authenticator real y un servidor de correo real siguen **NO VERIFICADOS**.
 
+<a id="ronda-12--integridad-de-migraciones-y-datos"></a>
+
+## Ronda 12 — integridad de migraciones y datos
+Se cubrió directamente la capa de esquema sobre SQLite `:memory:`, sin pasar por controladores, para comprobar que las garantías están en la base y no solo en la validación de aplicación.
+
+| Escenario | Esperado | Resultado |
+| --- | --- | --- |
+| Rollback de 23 migraciones y re-migración | Todas las `down()` funcionan y el esquema vuelve completo | Igual |
+| Unique de email/slug, favoritos, notas, follows, likes, reacciones, versículos y crossrefs | Rechazo de duplicados a nivel BD | Igual |
+| Cascadas al borrar usuario, comentario o publicación | Desaparecen hijos, reacciones, follows y likes | Igual |
+| Borrar un libro con versículos | FK sin cascade impide el borrado | Igual |
+| Rollback selectivo de `kind`, índices, slug, traducción y tablas `posts` | Columnas e índices se removieron y reaplicaron | Igual |
+| Backfill de slugs y traducción al re-migrar | Slugs únicos derivados del nombre y `spa_rvg` en versículos viejos | Igual |
+| Comentarios y reacciones legacy al re-migrar | 2 posts (uno respuesta) y 1 like con mapa persistido | Igual |
+
+Los 16 tests nuevos en `tests/QA/DatabaseIntegrityTest.php` pasaron sin hallazgos, así que no hubo cambios de aplicación. La migración FULLTEXT y el comportamiento de índices sobre MySQL real siguen **NO VERIFICADOS**.
+
+<a id="ronda-13--presupuestos-de-consultas"></a>
+
+## Ronda 13 — presupuestos de consultas
+Se envolvieron los GET con `DB::enableQueryLog()`/`flushQueryLog()` y se comparó el número de consultas antes y después de aumentar el volumen, sin servidor web ni MySQL.
+
+| Escenario | Esperado | Resultado |
+| --- | --- | --- |
+| Feed con 4 → 24 personas sugeridas | Consultas constantes | Antes: 9 → 23 (+14, N+1). Después: constantes y test en 0,7 s en vez de 9,5 s (BUG-028) |
+| Feed con 5 → 60 publicaciones | Consultas constantes por `limit(60)`, `with()` y `withCount()` | Igual |
+| Flag `following` de las personas sugeridas | Sigue reflejando los follows reales tras el bacheo | Igual |
+| `/api/favorites` y `/api/notes` con 150 filas | 1 consulta por endpoint | Igual |
+| Capítulo con 20 → 200 versículos | Consultas constantes | Igual |
+| Grafo con 1 → 61 referencias cruzadas | Consultas constantes | Igual |
+| `/buscar?q=Dios` con 50 → 600 versículos | Consultas constantes, tope de 50 resultados | Igual |
+
+Un defecto (BUG-028) quedó corregido y verificado. Los 7 tests nuevos viven en `tests/QA/QueryBudgetTest.php`. La latencia real bajo FPM/Apache y MySQL sigue **NO VERIFICADA**.
+
+<a id="ronda-14--contrato-de-rutas-y-middleware"></a>
+
+## Ronda 14 — contrato de rutas y middleware
+Se verificó el contrato observable de las rutas con peticiones Pest, sin servidor web ni MySQL.
+
+| Escenario | Esperado | Resultado |
+| --- | --- | --- |
+| Páginas protegidas sin sesión | Redirect a `/login` | Igual (feed, lectura, notas, favoritos, perfil, `profile.edit` y devocionario) |
+| Usuario sin verificar | Settings de seguridad bloqueado, resto de la app accesible | Igual; `security.edit` además pide confirmación de contraseña |
+| Visitante autenticado en login/registro/reset | Sale de las páginas `guest` | Redirige a `/` y desde ahí a `/comunidad` |
+| Throttles declarados | Presentes en las rutas sensibles | Igual en 9 rutas (auth, 2FA, verificación, passkeys y acciones sociales) |
+| `/` y `/devocionario` sin sesión | Welcome público y devocionario privado | Igual |
+
+No hubo defectos: dos fallos iniciales eran expectativas incorrectas del test (nombre de rutas de settings y suposición de que el devocionario era público), no fallos de la aplicación. Los 5 tests nuevos viven en `tests/QA/RouteContractTest.php`.
+
+<a id="ronda-15--validaciones-límites-y-comandos"></a>
+
+## Ronda 15 — validaciones, límites y comandos
+Se cerraron los huecos de validación y límites explícitos que faltaban, y se ejecutaron ramas de los comandos de importación con la API simulada.
+
+| Escenario | Esperado | Resultado |
+| --- | --- | --- |
+| Note > 5000, post/reply > 2000, `book_code` > 10, capítulo/versículo 0 | 422 sin guardar | Igual en las cuatro rutas de escritura |
+| Feed 61 posts, 21 sugerencias, perfil 61 posts, hilo de 22 niveles | 60 / 20 / 60 / 20 elementos | Igual |
+| Búsqueda con 55 coincidencias y grafo con 30 entrantes | 50 y 25 resultados | Igual |
+| Pestañas inválidas y `structure` sin libro o con capítulo no numérico | Fallback silencioso y 422 | Igual |
+| Versículo sólo en `spa_pdt` o con texto vacío | No aceptable como referencia | Igual |
+| `bible:seed-text` con versículo sin `number` | Omitir el ítem sin romper el comando | Antes: excepción `Undefined array key "number"`. Después: SUCCESS sin fila inválida (BUG-029) |
+| Otras ramas de `seed-text`, `seed-crossrefs` y `list-spanish` | FAILURE/SUCCESS con mensaje y filas correctas | Igual |
+
+Un defecto (BUG-029) quedó corregido y verificado. Los 22 tests nuevos viven en `tests/QA/ValidationLimitsTest.php` y `tests/QA/CommandEdgeCasesTest.php`. La API real de `bible.helloao.org` sigue **NO VERIFICADA**.
+
+<a id="ronda-16--paths-negativos-y-throttles-reales"></a>
+
+## Ronda 16 — paths negativos y throttles reales
+Se ejecutaron las ramas de error que aún no se habían provocado por HTTP y se comprobó que los límites declarados también se aplican en la práctica.
+
+| Escenario | Esperado | Resultado |
+| --- | --- | --- |
+| `books-search` con `_` o `\`; `/buscar` con `D_o` | Coincidencias literales, sin resultados | Igual |
+| `Génesis 0:1`, `Génesis 1:0`, `Génesis 1:%` y `Génesis 1:_` | 404 para ceros y 422 para comodines | Igual |
+| `structure` con capítulo 99 y versículos sólo en `spa_pdt` | 200 con `verses` vacío; 404 en lectura/compartido | Igual |
+| Rebiblear un rebibleo / el propio rebibleo | Apunta al original / se rechaza | Igual |
+| DELETE sin sesión; profile sin password; password sin confirmación; usuario no verificado | 401, 422, 422 y redirect a verificación | Igual |
+| 16ª publicación/respuesta/seguido/rebibleo y 31ª nota/favorito | 429 | Igual |
+
+No hubo defectos nuevos. Los 14 tests nuevos viven en `tests/QA/NegativePathsTest.php`. Observación no defectuosa: el middleware `throttle` de Laravel clave por usuario, no por ruta, así que las acciones con el mismo límite comparten cubo; los tests usan usuarios distintos para medir cada acción por separado.
+
+<a id="ronda-17--fronteras-finales"></a>
+
+## Ronda 17 — fronteras finales
+Última pasada de límites: behaviours que quedaban sin ejercitar y que podían esconder regresiones silenciosas.
+
+| Escenario | Esperado | Resultado |
+| --- | --- | --- |
+| `/buscar?q=100%` y `/buscar?q=\ fiel` | Sólo coincidencias literales | Igual |
+| Post o respuesta con referencia parcial | 422 en `book_code`, sin filas nuevas | Igual |
+| Grafo con 30 aristas de scores 1..30 | Se conservan las 25 mejores (`score` 6..30) | Igual |
+| `resolve` sin `ref` o con `ref` en blanco | 422 con mensaje de formato | Igual |
+| Portada sin versículos y con versículo huérfano | `verseOfTheDay=null`; luego `bookName` igual al código | Igual |
+| Feed `mios` y perfil `respuestas` | Sólo posts propios y sólo respuestas propias | Igual |
+
+No hubo defectos nuevos. Los 6 tests nuevos viven en `tests/QA/FinalBoundariesTest.php`. El caso del libro huérfano se arma con `PRAGMA defer_foreign_keys` dentro de la transacción de `RefreshDatabase`: en producción la FK impide ese estado, pero el fallback de la portada queda cubierto.
+
 <a id="cierre-del-ciclo"></a>
 
 ## Cierre del ciclo
@@ -335,9 +476,9 @@ Checklist final de consistencia de los 12 informes:
 | --- | --- |
 | Informes en `qa/` | 12/12 presentes (`00` a `11`) |
 | Enlaces internos del índice | 0 rotos: todos los enlaces resuelven contra anclas explícitas o encabezados |
-| Hallazgos documentados | 27/27 (`BUG-001` a `BUG-027`), ninguno abierto |
-| Casos de prueba | CP-001 a CP-165, con suites QA y heredada en verde |
-| Tests QA / heredados | 117/117 (625 aserciones) y 54/54 (226 aserciones), 0 omitidos |
+| Hallazgos documentados | 29/29 (`BUG-001` a `BUG-029`), ninguno abierto |
+| Casos de prueba | CP-001 a CP-235, con suites QA y heredada en verde |
+| Tests QA / heredados | 188/188 (1239 aserciones) y 54/54 (226 aserciones), 0 omitidos |
 | Herramientas | Pint, PHPStan, `lint:check`, `format:check`, `types:check` y `npm run build` en verde |
 | Evidencia de navegador | Lighthouse 1,0/1,0/1,0 en 11 páginas; perfilado de renderer y 170 peticiones de carga |
 | Veredicto | **GO condicionado a MySQL y lector de pantalla** |

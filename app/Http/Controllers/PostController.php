@@ -58,7 +58,7 @@ class PostController extends Controller
             ->orderBy('name')
             ->limit(20)
             ->get(['id', 'name', 'slug', 'church'])
-            ->map(fn (User $user) => $this->serializePerson($user, $viewer))
+            ->map(fn (User $user) => $this->serializePerson($user, $viewer, $followingIds))
             ->values()
             ->all();
 
@@ -376,9 +376,10 @@ class PostController extends Controller
     /**
      * Serializa una persona para listados (personas a seguir, seguidores, etc.).
      *
+     * @param  array<int, int>  $followingIds  IDs que el visitante ya sigue.
      * @return array<string, mixed>
      */
-    public function serializePerson(User $user, ?User $viewer): array
+    public function serializePerson(User $user, ?User $viewer, array $followingIds = []): array
     {
         return [
             'id' => $user->id,
@@ -386,7 +387,7 @@ class PostController extends Controller
             'slug' => $user->slug,
             'avatar' => $user->avatarUrl(),
             'church' => $user->churchName(),
-            'following' => $viewer ? $viewer->isFollowing($user) : false,
+            'following' => $viewer ? in_array($user->id, $followingIds, true) : false,
         ];
     }
 

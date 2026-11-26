@@ -104,6 +104,30 @@
 | `php artisan test tests/QA/MailAndVerificationTest.php --compact` tras el fix | 10 tests, 10 passed, 75 assertions, 1,7 s |
 | `php artisan test tests/QA --compact` tras ronda 11 | 117 tests, 117 passed, 0 failed, 0 skipped, 625 assertions, 7,4 s |
 | `php artisan test --compact` tras ronda 11 | 54 passed, 226 assertions — sin regresiones |
+| `php artisan test tests/QA/DatabaseIntegrityTest.php --compact` | 16 tests, 16 passed, 72 assertions, 0,7 s |
+| `php artisan test tests/QA --compact` tras ronda 12 | 133 tests, 133 passed, 0 failed, 0 skipped, 697 assertions, 7,5 s |
+| `php artisan test --compact` tras ronda 12 | 54 passed, 226 assertions — sin regresiones |
+| `php artisan test tests/QA/QueryBudgetTest.php --compact` antes del fix | 6 tests, 5 passed, 1 failed: feed pasó de 9 a 23 consultas al crecer de 4 a 24 personas |
+| `php artisan test tests/QA/QueryBudgetTest.php --compact` tras el fix | 7 tests, 7 passed, 36 assertions, 0,7 s (antes 9,5 s con 6 tests) |
+| `php artisan test tests/QA --compact` tras ronda 13 | 140 tests, 140 passed, 0 failed, 0 skipped, 733 assertions, 8,0 s |
+| `php artisan test --compact` tras ronda 13 | 54 passed, 226 assertions — sin regresiones |
+| `php artisan test tests/QA/RouteContractTest.php --compact` | 5 tests, 5 passed, 42 assertions, 0,4 s |
+| `php artisan test tests/QA --compact` tras ronda 14 | 145 tests, 145 passed, 0 failed, 0 skipped, 775 assertions, 8,5 s |
+| `php artisan test --compact` tras ronda 14 | 54 passed, 226 assertions — sin regresiones |
+| `php artisan test tests/QA/ValidationLimitsTest.php --compact` | 14 tests, 14 passed, 117 assertions, 0,8 s |
+| `php artisan test tests/QA/CommandEdgeCasesTest.php --compact` antes del fix | 8 tests, 7 passed, 1 error: `Undefined array key "number"` en `SeedBibleText.php:97` |
+| `php artisan test tests/QA/CommandEdgeCasesTest.php --compact` tras el fix | 8 tests, 8 passed, 22 assertions, 0,8 s |
+| `php artisan test tests/QA --compact` tras ronda 15 | 167 tests, 167 passed, 0 failed, 0 skipped, 914 assertions, 8,8 s |
+| `php artisan test --compact` tras ronda 15 | 54 passed, 226 assertions — sin regresiones |
+| `php artisan test tests/QA/NegativePathsTest.php --compact` | 14 tests, 14 passed, 225 assertions, 0,9 s |
+| `php artisan test tests/QA --compact` tras ronda 16 | 181 tests, 181 passed, 0 failed, 0 skipped, 1139 assertions, 9,2 s |
+| `php artisan test --compact` tras ronda 16 | 54 passed, 226 assertions — sin regresiones |
+| `php artisan test tests/QA/FinalBoundariesTest.php --compact` | 6 tests, 6 passed, 75 assertions, 0,5 s |
+| `php artisan test tests/QA --compact` tras ronda 17 | 187 tests, 187 passed, 0 failed, 0 skipped, 1214 assertions, 9,3 s |
+| `php artisan test --compact` tras ronda 17 | 54 passed, 226 assertions — sin regresiones |
+| `php artisan test tests/QA/SocialNetworkSimulationTest.php --compact` | 1 test, 1 passed, 25 assertions, 0,6 s |
+| `php artisan test tests/QA --compact` con la simulación | 188 tests, 188 passed, 0 failed, 0 skipped, 1239 assertions, 9,4 s |
+| `php artisan test --compact` con la simulación | 54 passed, 226 assertions — sin regresiones |
 
 <a id="revisión-estática-de-accesibilidad"></a>
 
@@ -196,6 +220,12 @@ Rutas del escenario ligero: `/comunidad`, `/leer/GEN/1`, `/buscar?q=Dios`, `/bib
 - `q >= 3` en `/buscar` usa FULLTEXT de MySQL; en SQLite se validó el fallback `LIKE` y el test se reactivó. `MATCH ... AGAINST` sigue NO VERIFICADO.
 - La ronda 8 simuló expiración de sesión y CSRF; la pérdida del transporte se cubrió en la ronda 10 con emulación CDP, no con una desconexión física de red.
 - La ronda 11 usó `Notification::fake()` y cola `sync`: no se verificó entrega SMTP real ni el render de plantillas en un cliente de correo.
+- La ronda 12 operó `migrate:rollback`/`migrate` dentro de la transacción de `RefreshDatabase`; no se usó una BD MySQL ni se verificó el índice FULLTEXT real.
+- La ronda 13 contó consultas con `DB::enableQueryLog()` sobre SQLite en memoria; no midió latencia de red ni ejecución con FPM/Apache y MySQL.
+- La ronda 14 comprobó middleware con peticiones Pest; no levantó servidor web ni verificó el comportamiento detrás de un proxy real.
+- La ronda 15 ejecutó los comandos con `Http::fake()` sobre SQLite; no validó el formato actual de la API real ni su latencia.
+- La ronda 16 provocó los throttles con peticiones Pest y caché en memoria; no midió su comportamiento detrás de un servidor web con varios workers.
+- La ronda 17 insertó un versículo huérfano con `PRAGMA defer_foreign_keys` dentro de `RefreshDatabase`; ese estado no es alcanzable en producción por la FK.
 - La ronda 9 corrió escrituras paralelas contra SQLite con tres servidores: los `500 database is locked` son del driver, no una medición válida de MySQL.
 - El log se revisó por coincidencias de texto; no se auditó su contenido completo.
 
@@ -207,6 +237,11 @@ Rutas del escenario ligero: `/comunidad`, `/leer/GEN/1`, `/buscar?q=Dios`, `/bib
 - Feedback visual y anunciado de guardados/errores: **cubierto en la ronda 10** con CDP; un defecto corregido (BUG-025).
 - Passkeys/WebAuthn con authenticator real: **NO VERIFICADO**; solo se revisaron configuración, throttles (ronda 11) y el well-known.
 - Correo real y notificaciones entregadas: **NO VERIFICADO**; la ronda 11 cubrió los flujos con fakes sobre la cola `sync`.
+- Consultas N+1: **cubierto en la ronda 13** con presupuestos por endpoint; un defecto corregido (BUG-028). La latencia bajo carga real con MySQL sigue **NO VERIFICADA**.
+- Contrato de rutas y middleware: **cubierto en la ronda 14** con 5 tests; ejecución detrás de servidor web real sigue **NO VERIFICADA**.
+- Límites de validación y ramas de comandos: **cubiertos en la ronda 15** con 22 tests y un defecto corregido (BUG-029). La API externa real sigue **NO VERIFICADA**.
+- Paths negativos y throttles reales: **cubiertos en la ronda 16** con 14 tests; sin defectos. Detrás de un servidor web con workers siguen **NO VERIFICADOS**.
+- Fronteras finales: **cubiertas en la ronda 17** con 6 tests; sin defectos. La FK real impide el versículo huérfano que se simuló para cubrir el fallback de la portada.
 - Comportamiento de la API ante sesiones caducadas y 401/403 a mitad de flujo: **cubierto en la ronda 8** con `curl` y navegador; dos defectos corregidos. La pérdida de red se cubrió en la ronda 10 con emulación CDP; un defecto corregido (BUG-025).
 - XSS almacenado/reflejado y mass assignment en endpoints de publicaciones, notas y perfil: **cubierto en la ronda 6** por `tests/QA/SecurityFunctionalTest.php`, sin defectos. Queda como riesgo latente que `user_id` siga siendo *fillable* en `Post`, `Note` y `Favorite`; los tests fallarían si se pasara a `create($request->all())`.
 - Integración con la API externa de traducciones: timeouts, reintentos y respuestas 500: **cubierto en la ronda 7** con `Http::fake()`; cuatro defectos corregidos. Sigue NO VERIFICADA la API real (latencia, TLS y formato actual del servicio).
@@ -218,7 +253,7 @@ Rutas del escenario ligero: `/comunidad`, `/leer/GEN/1`, `/buscar?q=Dios`, `/bib
 - Los borrados de `AGENTS.md`, `README.md`, `audit/`, `docs/audit/` y los `audit-*.txt` fueron declarados intencionales por el usuario y **no fueron restaurados**.
 - Se eliminaron los artefactos del ciclo anterior que quedaban fuera de `tests/`: `phpunit.qa.xml` y la modificación de `.gitignore`. `.env.testing` también fue eliminado para no conservar credenciales; hoy la BD de QA se define únicamente en `phpunit.xml`.
 - Se creó `.env` local (ignorado por git) solo con `APP_KEY` durante la fase de hallazgos; no contiene credenciales de BD. Tras la ronda 2 el build ya funciona sin ese archivo.
-- Tests QA: `tests/QA/EnvironmentTest.php`, `tests/QA/AuthSecurityTest.php`, `tests/QA/SocialFeedTest.php`, `tests/QA/BibleNotesFavoritesTest.php`, `tests/QA/BibleReadingSearchTest.php`, `tests/QA/SettingsFrontendIntegrityTest.php`, `tests/QA/FrontendIntegrityRound2Test.php`, `tests/QA/SecurityFunctionalTest.php`, `tests/QA/ExternalApiResilienceTest.php`, `tests/QA/SessionExpiryTest.php`, `tests/QA/ClientStateRaceTest.php`, `tests/QA/ResponsiveFeedbackTest.php` y `tests/QA/MailAndVerificationTest.php`; además la carpeta `qa/` con los 12 informes.
+- Tests QA: `tests/QA/EnvironmentTest.php`, `tests/QA/AuthSecurityTest.php`, `tests/QA/SocialFeedTest.php`, `tests/QA/BibleNotesFavoritesTest.php`, `tests/QA/BibleReadingSearchTest.php`, `tests/QA/SettingsFrontendIntegrityTest.php`, `tests/QA/FrontendIntegrityRound2Test.php`, `tests/QA/SecurityFunctionalTest.php`, `tests/QA/ExternalApiResilienceTest.php`, `tests/QA/SessionExpiryTest.php`, `tests/QA/ClientStateRaceTest.php`, `tests/QA/ResponsiveFeedbackTest.php`, `tests/QA/MailAndVerificationTest.php`, `tests/QA/DatabaseIntegrityTest.php`, `tests/QA/QueryBudgetTest.php`, `tests/QA/RouteContractTest.php`, `tests/QA/ValidationLimitsTest.php`, `tests/QA/CommandEdgeCasesTest.php`, `tests/QA/NegativePathsTest.php`, `tests/QA/FinalBoundariesTest.php` y `tests/QA/SocialNetworkSimulationTest.php`; además la carpeta `qa/` con los 12 informes.
 - Con autorización explícita para corregir código de aplicación se modificaron en la ronda 1 `app/Models/User.php`, `app/Http/Controllers/PostController.php`, `app/Http/Controllers/Bible/SearchController.php`, `app/Http/Controllers/Bible/NoteController.php`, `app/Http/Controllers/Bible/FavoriteController.php` y `app/Services/BibleGraphService.php`, y se creó `app/Concerns/VerseReferenceValidationRules.php`.
 - En la ronda 2 se modificaron `vite.config.ts` y componentes/vistas de `resources/js`: `PasswordInput.vue`, `InputError.vue`, `AlertError.vue`, `AppearanceTabs.vue`, `TwoFactorRecoveryCodes.vue`, `TwoFactorSetupModal.vue`, `VerseReferencePicker.vue`, `useConstellationGraph.js`, `Chapter.vue`, `Feed.vue`, `Profile/Show.vue`, `SettingsLayout.vue`, `NavHeader.vue`, `BiblePageShell.vue`, `Welcome.vue`, `Book.vue`, `Search.vue`, `Favorites.vue`, `Notes.vue`, `PostCard.vue`, `ProfileGoalsSection.vue`, `PasskeyItem.vue`, `Login.vue`, `ForgotPassword.vue`, `VerifyEmail.vue`, `TwoFactorChallenge.vue` y las páginas de settings. No se tocó `package.json`.
 - Los 10 fallos originales (3 de Fase 2, 1 de Fase 3, 2 de Fase 4, 2 de Fase 5 y 2 de Fase 6) representaban siete causas raíz y ya no fallan: los tests se conservaron activos, sin desactivarlos ni marcarlos como skip.
@@ -229,5 +264,12 @@ Rutas del escenario ligero: `/comunidad`, `/leer/GEN/1`, `/buscar?q=Dios`, `/bib
 - En la ronda 9 se modificaron `resources/js/app.js` y `resources/js/composables/useFavorites.js`: la primera visita Inertia inicializa el usuario sin descartar notas/favoritos y el alta de favoritos deduplica por referencia en el estado local. No se tocó `package.json` ni `phpunit.xml`.
 - En la ronda 10 se modificó `resources/js/app.js`: se importa y monta `ToastContainer` en la raíz Inertia. No se tocó `package.json` ni `phpunit.xml`; los scripts CDP y la BD auxiliar vivieron en `%LOCALAPPDATA%\Temp\opencode`.
 - En la ronda 11 se modificaron `app/Http/Controllers/Settings/ProfileController.php` y `app/Providers/FortifyServiceProvider.php`, y se crearon `app/Http/Responses/FailedPasswordResetLinkRequestResponse.php` y `tests/QA/MailAndVerificationTest.php`. No se tocó `package.json` ni `phpunit.xml`.
-- No queda ningún hallazgo abierto ni ningún test omitido. Este módulo no agregó commit, push ni PR. El repositorio tiene un commit local `906da37` creado fuera de estas sesiones de QA.
+- La ronda 12 solo agregó `tests/QA/DatabaseIntegrityTest.php`; no se tocó código de aplicación, `package.json` ni `phpunit.xml`.
+- La ronda 13 modificó `app/Http/Controllers/PostController.php` y `app/Http/Controllers/ProfileController.php` y agregó `tests/QA/QueryBudgetTest.php`. No se tocó `package.json` ni `phpunit.xml`.
+- La ronda 14 solo agregó `tests/QA/RouteContractTest.php`; no se tocó código de aplicación, `package.json` ni `phpunit.xml`.
+- La ronda 15 modificó `app/Console/Commands/SeedBibleText.php` y agregó `tests/QA/ValidationLimitsTest.php` y `tests/QA/CommandEdgeCasesTest.php`. No se tocó `package.json` ni `phpunit.xml`.
+- La ronda 16 solo agregó `tests/QA/NegativePathsTest.php`; no se tocó código de aplicación, `package.json` ni `phpunit.xml`.
+- La ronda 17 solo agregó `tests/QA/FinalBoundariesTest.php`; no se tocó código de aplicación, `package.json` ni `phpunit.xml`.
+- La simulación agregó `tests/QA/SocialNetworkSimulationTest.php`: 50 usuarios de 10 iglesias con `mt_srand(20261126)`; genera 245 seguimientos, 75 posts raíz, 96 respuestas, 40 rebibleos, 136 me gusta, 8 rupturas y 3 reconciliaciones, y deja un snapshot JSON en `%LOCALAPPDATA%\Temp\opencode\social-network-simulation.json`. Tampoco tocó código de aplicación.
+- No queda ningún hallazgo abierto ni ningún test omitido. Este módulo no agregó commit, push ni PR. El repositorio tiene commits locales creados fuera de estas sesiones de QA: `906da37` y `1ad3d5e` (este último incluye el trabajo de las rondas 1 a 11). Las rondas 12 a 17 y la simulación quedaron sin commitear: tres archivos de aplicación modificados, ocho tests nuevos y los 12 informes actualizados.
 - El caso de búsqueda FULLTEXT de Fase 5 se reactivó con un fallback para SQLite; `MATCH ... AGAINST` sobre MySQL real queda como verificación pendiente, no como fallo de aplicación.

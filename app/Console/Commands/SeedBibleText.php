@@ -90,11 +90,16 @@ class SeedBibleText extends Command
                         continue;
                     }
 
+                    $verseNumber = $item['number'] ?? null;
+                    if ($verseNumber === null) {
+                        continue;
+                    }
+
                     $verseRows[] = [
                         'translation' => $translation,
                         'book_code' => $book['id'],
                         'chapter' => $chapterNumber,
-                        'verse' => $item['number'],
+                        'verse' => $verseNumber,
                         'text' => $this->extractText($item['content'] ?? []),
                     ];
                 }
