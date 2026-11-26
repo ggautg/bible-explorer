@@ -75,6 +75,35 @@
 | `php artisan test tests/QA/SecurityFunctionalTest.php --compact` | 8 tests, 8 passed, 39 assertions — sin defectos nuevos |
 | `php artisan test tests/QA --compact` tras ronda 6 | 85 tests, 85 passed, 0 failed, 0 skipped, 488 assertions, 3,4 s |
 | `php artisan test --compact` tras ronda 6 | 54 passed, 226 assertions — sin regresiones |
+| `php artisan test tests/QA/ExternalApiResilienceTest.php --compact` antes del fix | 2 passed, 4 failed, 4 errors — `RequestException`, falso éxito y `UNIQUE constraint failed` |
+| `php artisan test tests/QA/ExternalApiResilienceTest.php --compact` tras el fix | 8 tests, 8 passed, 27 assertions |
+| `php artisan test tests/QA --compact` tras ronda 7 | 93 tests, 93 passed, 0 failed, 0 skipped, 515 assertions, 5,9 s |
+| `php artisan test --compact` tras ronda 7 | 54 passed, 226 assertions — sin regresiones |
+| `php .../qa-session-probe.php` contra `artisan serve` | Login 200, `/comunidad` Inertia 200, logout 204, invitado 302 a `/login`, `/api/notes` 401 JSON; `POST /posts` con XSRF vencido: 419 HTML antes del fix y 302 a `/login` después |
+| `php artisan test tests/QA/SessionExpiryTest.php --compact` antes del fix | 4 passed, 1 failed: esperaba 302 y devolvía 419 |
+| `php artisan test tests/QA/SessionExpiryTest.php --compact` tras el fix | 5 tests, 5 passed, 12 assertions |
+| Navegador: `/logout` por `fetch` en `/leer/GEN/1` y clic en favorito | `/api/favorites` y `/api/notes` registrados con 401 en `performance`; la SPA navegó a `/login` |
+| Navegador: `/logout` por `fetch` en `/comunidad` y clic en “Me gusta” | `POST /posts/1/like` registrado con 302; la SPA navegó a `/login` |
+| `php artisan test tests/QA --compact` tras ronda 8 | 98 tests, 98 passed, 0 failed, 0 skipped, 527 assertions, 6,3 s |
+| `php artisan test --compact` tras ronda 8 | 54 passed, 226 assertions — sin regresiones |
+| `./vendor/bin/pint --test`, `./vendor/bin/phpstan analyse --memory-limit=1G` | Pint aplicó `ordered_imports` en tests anteriores; tras la ronda 10, ambos en verde |
+| `npm run lint:check`, `format:check`, `types:check`, `build` | En verde tras montar `ToastContainer`; build en 1,69 s |
+| `php .../qa-concurrency-run.php` y `qa-toggle-race.php` contra tres `artisan serve` en SQLite | Envíos duplicados de favoritos/notas sin filas duplicadas; likes/follows con `500 SQLITE_BUSY` por bloqueo del driver, no extrapolable a MySQL |
+| Navegador: guardar favorito en `/leer/GEN/1` y navegar a `/favoritos` | Antes: 0 artículos y sin `GET /api/favorites`; servidor con 1 fila. Después: 1 artículo |
+| Navegador: dos activaciones del botón de favorito | Antes: dos `POST` y 2 artículos; después: dos `POST` y 1 artículo |
+| `php artisan test tests/QA/ClientStateRaceTest.php --compact` | 5 tests, 5 passed, 15 assertions |
+| `php artisan test tests/QA --compact` tras ronda 9 | 103 tests, 103 passed, 0 failed, 0 skipped, 542 assertions, 5,9 s |
+| `php artisan test --compact` tras ronda 9 | 54 passed, 226 assertions — sin regresiones |
+| `node .../qa-cdp-probe.mjs` con `Emulation.setDeviceMetricsOverride` | 36 combinaciones (9 páginas × 375/768/1366/1920) sin desbordamiento; a 375 px el toggle abre 9 enlaces y se cierra al navegar |
+| `node .../qa-cdp-probe.mjs` con `Network.emulateNetworkConditions({offline: true})` | `net::ERR_INTERNET_DISCONNECTED` al guardar favorito; sin estado pendiente, reintento exitoso |
+| Navegador CDP: mensajes de `showToast()` | Antes: `hasSuccessText: false`, `hasErrorText: false`, 0 nodos `aria-live` con texto; después: ambos textos visibles en `aria-live="polite"` |
+| `php artisan test tests/QA/ResponsiveFeedbackTest.php --compact` | 4 tests, 4 passed, 8 assertions |
+| `php artisan test tests/QA --compact` tras ronda 10 | 107 tests, 107 passed, 0 failed, 0 skipped, 550 assertions, 6,1 s |
+| `php artisan test --compact` tras ronda 10 | 54 passed, 226 assertions — sin regresiones |
+| `php artisan test tests/QA/MailAndVerificationTest.php --compact` antes del fix | 10 tests, 8 passed, 2 failed: sin `VerifyEmail` al cambiar el correo y `status` ausente en el reset con correo inexistente |
+| `php artisan test tests/QA/MailAndVerificationTest.php --compact` tras el fix | 10 tests, 10 passed, 75 assertions, 1,7 s |
+| `php artisan test tests/QA --compact` tras ronda 11 | 117 tests, 117 passed, 0 failed, 0 skipped, 625 assertions, 7,4 s |
+| `php artisan test --compact` tras ronda 11 | 54 passed, 226 assertions — sin regresiones |
 
 <a id="revisión-estática-de-accesibilidad"></a>
 
@@ -162,18 +191,25 @@ Rutas del escenario ligero: `/comunidad`, `/leer/GEN/1`, `/buscar?q=Dios`, `/bib
 ## Limitaciones
 - Sin Xdebug/PCOV: no se mide cobertura por líneas.
 - Sin Vitest, Playwright ni Dusk: no hay tests de componentes ni E2E automatizados; el flujo login/logout se verificó manualmente en la ronda 3.
-- El navegador se usó recién en la ronda 3: se revisaron consola, teclado y axe/Lighthouse, pero no los viewports 375/768/1366/1920.
+- El navegador se usó recién en la ronda 3: se revisaron consola, teclado y axe/Lighthouse. Los viewports 375/768/1366/1920 se cubrieron en la ronda 10 con emulación CDP, no con revisión manual.
 - La ronda 5 midió listados con 15.000 registros, pero solo con el servidor integrado monoprocreso: no hay datos de FPM/Apache, MySQL ni carga sostenida.
 - `q >= 3` en `/buscar` usa FULLTEXT de MySQL; en SQLite se validó el fallback `LIKE` y el test se reactivó. `MATCH ... AGAINST` sigue NO VERIFICADO.
+- La ronda 8 simuló expiración de sesión y CSRF; la pérdida del transporte se cubrió en la ronda 10 con emulación CDP, no con una desconexión física de red.
+- La ronda 11 usó `Notification::fake()` y cola `sync`: no se verificó entrega SMTP real ni el render de plantillas en un cliente de correo.
+- La ronda 9 corrió escrituras paralelas contra SQLite con tres servidores: los `500 database is locked` son del driver, no una medición válida de MySQL.
 - El log se revisó por coincidencias de texto; no se auditó su contenido completo.
 
 <a id="riesgos-no-cubiertos"></a>
 
 ## Riesgos no cubiertos
-- Concurrencia real sobre likes, rebibleos y follows (condiciones de carrera).
-- Comportamiento de la API ante sesiones caducadas, 401/403 a mitad de flujo y pérdida de red.
+- Concurrencia real sobre likes, rebibleos y follows en MySQL: **parcialmente cubierta en la ronda 9** con envíos duplicados y dos likes/follows secuenciales sobre SQLite; el sondeo paralelo dio bloqueos del driver, por lo que las condiciones de carrera sobre MySQL siguen **NO VERIFICADAS**.
+- Estado del cliente ante envíos duplicados y primera visita Inertia: **cubierto en la ronda 9** con navegador; dos defectos corregidos (BUG-023 y BUG-024).
+- Feedback visual y anunciado de guardados/errores: **cubierto en la ronda 10** con CDP; un defecto corregido (BUG-025).
+- Passkeys/WebAuthn con authenticator real: **NO VERIFICADO**; solo se revisaron configuración, throttles (ronda 11) y el well-known.
+- Correo real y notificaciones entregadas: **NO VERIFICADO**; la ronda 11 cubrió los flujos con fakes sobre la cola `sync`.
+- Comportamiento de la API ante sesiones caducadas y 401/403 a mitad de flujo: **cubierto en la ronda 8** con `curl` y navegador; dos defectos corregidos. La pérdida de red se cubrió en la ronda 10 con emulación CDP; un defecto corregido (BUG-025).
 - XSS almacenado/reflejado y mass assignment en endpoints de publicaciones, notas y perfil: **cubierto en la ronda 6** por `tests/QA/SecurityFunctionalTest.php`, sin defectos. Queda como riesgo latente que `user_id` siga siendo *fillable* en `Post`, `Note` y `Favorite`; los tests fallarían si se pasara a `create($request->all())`.
-- Integración con la API externa de traducciones: timeouts, reintentos y respuestas 500.
+- Integración con la API externa de traducciones: timeouts, reintentos y respuestas 500: **cubierto en la ronda 7** con `Http::fake()`; cuatro defectos corregidos. Sigue NO VERIFICADA la API real (latencia, TLS y formato actual del servicio).
 - Compatibilidad con MySQL real (FULLTEXT, índices, `dropColumn`) más allá de la verificación de migraciones en SQLite; en Fase 5 quedó pendiente el comportamiento de `MATCH ... AGAINST` con relevancia y rank.
 
 <a id="estado-del-árbol"></a>
@@ -182,11 +218,16 @@ Rutas del escenario ligero: `/comunidad`, `/leer/GEN/1`, `/buscar?q=Dios`, `/bib
 - Los borrados de `AGENTS.md`, `README.md`, `audit/`, `docs/audit/` y los `audit-*.txt` fueron declarados intencionales por el usuario y **no fueron restaurados**.
 - Se eliminaron los artefactos del ciclo anterior que quedaban fuera de `tests/`: `phpunit.qa.xml` y la modificación de `.gitignore`. `.env.testing` también fue eliminado para no conservar credenciales; hoy la BD de QA se define únicamente en `phpunit.xml`.
 - Se creó `.env` local (ignorado por git) solo con `APP_KEY` durante la fase de hallazgos; no contiene credenciales de BD. Tras la ronda 2 el build ya funciona sin ese archivo.
-- Tests QA: `tests/QA/EnvironmentTest.php`, `tests/QA/AuthSecurityTest.php`, `tests/QA/SocialFeedTest.php`, `tests/QA/BibleNotesFavoritesTest.php`, `tests/QA/BibleReadingSearchTest.php`, `tests/QA/SettingsFrontendIntegrityTest.php`, `tests/QA/FrontendIntegrityRound2Test.php` y `tests/QA/SecurityFunctionalTest.php`; además la carpeta `qa/` con los 12 informes.
+- Tests QA: `tests/QA/EnvironmentTest.php`, `tests/QA/AuthSecurityTest.php`, `tests/QA/SocialFeedTest.php`, `tests/QA/BibleNotesFavoritesTest.php`, `tests/QA/BibleReadingSearchTest.php`, `tests/QA/SettingsFrontendIntegrityTest.php`, `tests/QA/FrontendIntegrityRound2Test.php`, `tests/QA/SecurityFunctionalTest.php`, `tests/QA/ExternalApiResilienceTest.php`, `tests/QA/SessionExpiryTest.php`, `tests/QA/ClientStateRaceTest.php`, `tests/QA/ResponsiveFeedbackTest.php` y `tests/QA/MailAndVerificationTest.php`; además la carpeta `qa/` con los 12 informes.
 - Con autorización explícita para corregir código de aplicación se modificaron en la ronda 1 `app/Models/User.php`, `app/Http/Controllers/PostController.php`, `app/Http/Controllers/Bible/SearchController.php`, `app/Http/Controllers/Bible/NoteController.php`, `app/Http/Controllers/Bible/FavoriteController.php` y `app/Services/BibleGraphService.php`, y se creó `app/Concerns/VerseReferenceValidationRules.php`.
 - En la ronda 2 se modificaron `vite.config.ts` y componentes/vistas de `resources/js`: `PasswordInput.vue`, `InputError.vue`, `AlertError.vue`, `AppearanceTabs.vue`, `TwoFactorRecoveryCodes.vue`, `TwoFactorSetupModal.vue`, `VerseReferencePicker.vue`, `useConstellationGraph.js`, `Chapter.vue`, `Feed.vue`, `Profile/Show.vue`, `SettingsLayout.vue`, `NavHeader.vue`, `BiblePageShell.vue`, `Welcome.vue`, `Book.vue`, `Search.vue`, `Favorites.vue`, `Notes.vue`, `PostCard.vue`, `ProfileGoalsSection.vue`, `PasskeyItem.vue`, `Login.vue`, `ForgotPassword.vue`, `VerifyEmail.vue`, `TwoFactorChallenge.vue` y las páginas de settings. No se tocó `package.json`.
 - Los 10 fallos originales (3 de Fase 2, 1 de Fase 3, 2 de Fase 4, 2 de Fase 5 y 2 de Fase 6) representaban siete causas raíz y ya no fallan: los tests se conservaron activos, sin desactivarlos ni marcarlos como skip.
 - Los seis hallazgos restantes (BUG-001, BUG-002 y BUG-010 a BUG-013) también están corregidos y los de accesibilidad se confirmaron en navegador; no se usó lector de pantalla dedicado.
 - En la ronda 3 se modificaron `app/Http/Controllers/Bible/TextSearchController.php`, `resources/views/app.blade.php` y componentes/vistas de `resources/js`: `auth/Login.vue`, `auth/Register.vue`, `components/Bible/NavHeader.vue`, `pages/Bible/Graph.vue`, `pages/Bible/Chapter.vue`, `pages/Bible/Search.vue`, `pages/Welcome.vue`, `pages/Community/Feed.vue`, `components/Social/PostCard.vue`, `components/Social/VerseReferencePicker.vue` y `layouts/AuthLayout.vue`. No se tocó `package.json` ni `phpunit.xml`.
-- No queda ningún hallazgo abierto ni ningún test omitido. No se hizo commit, push ni PR.
+- En la ronda 7 se modificaron `app/Console/Commands/SeedBibleText.php` y `app/Console/Commands/SeedBibleCrossReferences.php`: reintentos sin `throw` automático, captura de `ConnectionException`, validación de respuestas y `upsert()` de referencias cruzadas. No se tocó `package.json` ni `phpunit.xml`.
+- En la ronda 8 se modificaron `bootstrap/app.php` y `resources/js/app.js`: callback para `HttpException(419)` en visitas Inertia y interceptor global de axios para 401/419, con guardia de navegación única. No se tocó `package.json` ni `phpunit.xml`.
+- En la ronda 9 se modificaron `resources/js/app.js` y `resources/js/composables/useFavorites.js`: la primera visita Inertia inicializa el usuario sin descartar notas/favoritos y el alta de favoritos deduplica por referencia en el estado local. No se tocó `package.json` ni `phpunit.xml`.
+- En la ronda 10 se modificó `resources/js/app.js`: se importa y monta `ToastContainer` en la raíz Inertia. No se tocó `package.json` ni `phpunit.xml`; los scripts CDP y la BD auxiliar vivieron en `%LOCALAPPDATA%\Temp\opencode`.
+- En la ronda 11 se modificaron `app/Http/Controllers/Settings/ProfileController.php` y `app/Providers/FortifyServiceProvider.php`, y se crearon `app/Http/Responses/FailedPasswordResetLinkRequestResponse.php` y `tests/QA/MailAndVerificationTest.php`. No se tocó `package.json` ni `phpunit.xml`.
+- No queda ningún hallazgo abierto ni ningún test omitido. Este módulo no agregó commit, push ni PR. El repositorio tiene un commit local `906da37` creado fuera de estas sesiones de QA.
 - El caso de búsqueda FULLTEXT de Fase 5 se reactivó con un fallback para SQLite; `MATCH ... AGAINST` sobre MySQL real queda como verificación pendiente, no como fallo de aplicación.

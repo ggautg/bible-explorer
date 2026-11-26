@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\BibleBook;
 use Illuminate\Console\Command;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -40,24 +41,53 @@ class SeedBibleCrossReferences extends Command
         BibleBook::query()->count();
 
         $this->info('Consultando estructura del conjunto de datos...');
-        $datasetBooks = $this->httpClient()
-            ->get('https://bible.helloao.org/api/d/open-cross-ref/books.json')
-            ->json('books', []);
 
-        $totalChapters = collect(Arr::wrap($datasetBooks))->sum('numberOfChapters');
+        try {
+            $indexResponse = $this->httpClient()
+                ->get('https://bible.helloao.org/api/d/open-cross-ref/books.json');
+        } catch (ConnectionException) {
+            $this->error('No se pudo consultar el conjunto de datos de referencias cruzadas.');
+
+            return self::FAILURE;
+        }
+
+        if ($indexResponse->failed()) {
+            $this->error('No se pudo consultar el conjunto de datos de referencias cruzadas.');
+
+            return self::FAILURE;
+        }
+
+        $datasetBooks = Arr::wrap($indexResponse->json('books', []));
+        if ($datasetBooks === []) {
+            $this->error('El conjunto de datos de referencias cruzadas no incluyó libros.');
+
+            return self::FAILURE;
+        }
+
+        $totalChapters = collect($datasetBooks)->sum('numberOfChapters');
         $bar = $this->output->createProgressBar((int) $totalChapters);
+        $failedChapters = 0;
 
         foreach ($datasetBooks as $datasetBook) {
             $bookCode = $datasetBook['id'];
             $numberOfChapters = (int) ($datasetBook['numberOfChapters'] ?? 0);
 
             for ($chapter = 1; $chapter <= $numberOfChapters; $chapter++) {
-                $response = $this->httpClient()->retry(3, 200)->get(
-                    "https://bible.helloao.org/api/d/open-cross-ref/{$bookCode}/{$chapter}.json"
-                );
+                try {
+                    $response = $this->httpClient()->retry(3, 200, null, false)->get(
+                        "https://bible.helloao.org/api/d/open-cross-ref/{$bookCode}/{$chapter}.json"
+                    );
+                } catch (ConnectionException) {
+                    $failedChapters++;
+                    $bar->advance();
+
+                    continue;
+                }
 
                 if ($response->successful()) {
                     $this->storeChapterReferences($bookCode, $chapter, $response->json('chapter.content', []));
+                } else {
+                    $failedChapters++;
                 }
 
                 $bar->advance();
@@ -66,6 +96,13 @@ class SeedBibleCrossReferences extends Command
 
         $bar->finish();
         $this->newLine();
+
+        if ($failedChapters > 0) {
+            $this->error("No se pudieron importar {$failedChapters} capítulos de referencias cruzadas.");
+
+            return self::FAILURE;
+        }
+
         $this->info('Referencias cruzadas importadas correctamente.');
 
         return self::SUCCESS;
@@ -76,7 +113,9 @@ class SeedBibleCrossReferences extends Command
      */
     private function httpClient(): PendingRequest
     {
-        $client = Http::timeout(60)->retry(2, 300);
+        // La última respuesta 500 se devuelve al llamador en lugar de lanzarse,
+        // para que handle() pueda reportar el fallo sin stack trace.
+        $client = Http::timeout(60)->retry(2, 300, null, false);
 
         if (app()->environment('local') || config('app.debug')) {
             $client = $client->withoutVerifying();
@@ -116,7 +155,12 @@ class SeedBibleCrossReferences extends Command
         }
 
         if ($rows !== []) {
-            DB::table('bible_cross_references')->insert($rows);
+            // El índice único evita duplicados si el comando se ejecuta dos veces.
+            DB::table('bible_cross_references')->upsert(
+                $rows,
+                ['from_book', 'from_chapter', 'from_verse', 'to_book', 'to_chapter', 'to_verse'],
+                ['score', 'to_verse_end']
+            );
         }
     }
 }

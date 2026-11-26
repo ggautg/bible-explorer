@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\BibleBook;
 use App\Models\BibleVerse;
 use Illuminate\Console\Command;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 
@@ -39,7 +40,13 @@ class SeedBibleText extends Command
 
         $this->info("Descargando {$translation}...");
 
-        $response = $this->httpClient()->get("https://bible.helloao.org/api/{$translation}/complete.json");
+        try {
+            $response = $this->httpClient()->get("https://bible.helloao.org/api/{$translation}/complete.json");
+        } catch (ConnectionException) {
+            $this->error('No se pudo descargar la traducción. Verifica la conexión o el código de traducción.');
+
+            return self::FAILURE;
+        }
 
         if ($response->failed()) {
             $this->error('No se pudo descargar la traducción. Verifica la conexión o el código de traducción.');
@@ -48,6 +55,12 @@ class SeedBibleText extends Command
         }
 
         $books = $response->json('books', []);
+        if ($books === []) {
+            $this->error('La respuesta de la API no incluyó libros para importar.');
+
+            return self::FAILURE;
+        }
+
         $bar = $this->output->createProgressBar(count($books));
 
         foreach ($books as $book) {
@@ -115,7 +128,9 @@ class SeedBibleText extends Command
      */
     private function httpClient(): PendingRequest
     {
-        $client = Http::timeout(120)->retry(2, 500);
+        // El cuarto argumento evita que la última respuesta 500 se convierta
+        // en RequestException: el manejo de errores se hace en handle().
+        $client = Http::timeout(120)->retry(2, 500, null, false);
 
         if (app()->environment('local') || config('app.debug')) {
             $client = $client->withoutVerifying();

@@ -10,7 +10,7 @@
 - [Suite heredada](#suite-heredada)
 - [Verificación de correcciones (ronda 1)](#verificación-de-correcciones-ronda-1)
 - [Verificación de correcciones (ronda 2)](#verificación-de-correcciones-ronda-2)
-- [Verificación en navegador, rendimiento y seguridad (rondas 3 a 6)](#verificación-en-navegador-ronda-3)
+- [Verificación en navegador, rendimiento, seguridad, API externa, sesiones, estado del cliente, responsive y correos (rondas 3 a 11)](#verificación-en-navegador-ronda-3)
 - [Casos no ejecutados](#casos-no-ejecutados)
 
 <a id="casos-de-fase-1"></a>
@@ -183,7 +183,7 @@ Suite QA tras la ronda 2: 74 tests, 73 pasan, 1 omitido (FULLTEXT), 429 asercion
 
 <a id="verificación-en-navegador-ronda-3"></a>
 
-## Verificación en navegador, rendimiento y seguridad (rondas 3 a 6)
+## Verificación en navegador, rendimiento, seguridad, API externa, sesiones, estado del cliente, responsive y correos (rondas 3 a 11)
 Se levantó la app con `artisan serve` sobre un SQLite temporal fuera del repo (`C:\Users\Desarrollo\AppData\Local\Temp\opencode\`), sin Vite dev ni MySQL. Se usaron el navegador integrado, su árbol de accesibilidad, teclado y Lighthouse; no se agregó ningún runner JS.
 
 | ID | Caso | Esperado | Real | Estado |
@@ -213,19 +213,55 @@ Se levantó la app con `artisan serve` sobre un SQLite temporal fuera del repo (
 | CP-130 | Cuerpo de nota con `<script>` | Viaja como texto plano en la API | Igual; `book_name` derivado del servidor | Pasó |
 | CP-131 | Búsqueda de `v-html`/`innerHTML` en `resources/js` | Ningún render de HTML crudo | 0 coincidencias | Pasó |
 | CP-132 | Suites y build tras la ronda 6 | 85/85 QA y 54/54 heredados sin regresiones | Igual | Pasó |
+| CP-133 | 500 esporádico en `bible:seed-text` | Reintenta y guarda el texto extraído | 2 intentos, 1 versículo con las partes textuales | Pasó |
+| CP-134 | `ConnectionException` en `bible:seed-text` | Reintenta y guarda el texto | 2 intentos, 1 versículo | Pasó |
+| CP-135 | 500 persistente en `bible:seed-text` | Error legible, `FAILURE`, BD vacía | Igual (antes lanzaba `RequestException`) | Pasó (BUG-017) |
+| CP-136 | Respuesta 200 sin libros | `FAILURE`, sin versículos | Igual (antes decía “importado correctamente”) | Pasó (BUG-020) |
+| CP-137 | 500 persistente en `bible:list-spanish` | `FAILURE` con mensaje de error | Igual | Pasó |
+| CP-138 | Caída del índice de crossrefs | `FAILURE` con mensaje, BD vacía | Igual | Pasó (BUG-017, BUG-018) |
+| CP-139 | Capítulos de crossrefs con 500 persistente | `FAILURE` con “No se pudieron importar N capítulos” | Igual (antes reportaba éxito) | Pasó (BUG-018) |
+| CP-140 | `bible:seed-crossrefs` dos veces | Segunda ejecución idempotente, 1 fila | Igual (antes violaba el índice único) | Pasó (BUG-019) |
+| CP-141 | Visita Inertia con XSRF vencido (`curl`) | 302 a `/login`, sin HTML “Page Expired” | Antes 419; igual tras el fix | Pasó (BUG-021) |
+| CP-142 | Visita Inertia y API con sesión válida, luego logout | 200 / 200 / 204; invitado va a `/login` y `/api/notes` da 401 JSON | Igual | Pasó |
+| CP-143 | Petición JSON con CSRF vencido | 419 JSON, sin redirección para clientes API | Igual | Pasó |
+| CP-144 | `POST /posts` tipo Inertia con CSRF vencido, verificado con handler de excepciones | 302 con `Location` a `/login` | Igual (el test falló antes del fix) | Pasó (BUG-021) |
+| CP-145 | Sesión invalidada en `/leer/GEN/1` y clic en favorito, en navegador | Las APIs responden 401 y la SPA navega a `/login` | Igual tras el interceptor de axios; `/api/favorites` y `/api/notes` registrados en `performance` | Pasó (BUG-022) |
+| CP-146 | Sesión invalidada en `/comunidad` y clic en “Me gusta”, en navegador | Visita Inertia POST con XSRF vencido va al login, sin “Page Expired” | `POST /posts/1/like` respondió 302 y la SPA fue a `/login` | Pasó (BUG-021) |
+| CP-147 | Guardar favorito en `/leer/GEN/1` y navegar por SPA a `/favoritos` | El versículo aparece en la lista | Antes: lista vacía y sin `GET /api/favorites`; después: 1 artículo | Pasó (BUG-023) |
+| CP-148 | Activar dos veces el botón de favorito antes del primer `await` | Una sola entrada en la lista del cliente | Antes: dos `POST` y dos artículos; después: dos `POST` y un artículo | Pasó (BUG-024) |
+| CP-149 | Envíos duplicados de favorito/nota y dos likes/follows secuenciales | Una fila por referencia y estado final igual al inicial | Igual (tests de `ClientStateRaceTest.php`) | Pasó |
+| CP-150 | 9 páginas en viewports 375/768/1366/1920 emulados con CDP | Sin desbordamiento horizontal ni elementos fuera del ancho | 36/36 sin `scrollWidth > innerWidth` y 0 elementos fuera | Pasó |
+| CP-151 | Menú lateral a 375 px: toggle, enlaces y navegación | `aria-expanded` cambia, 9 enlaces visibles y el menú se cierra al navegar | Igual, sin desbordamiento | Pasó |
+| CP-152 | Caída de red al guardar favorito y reintento tras reconectar | Error visible, sin estado pendiente y favorito guardado al reintentar | `net::ERR_INTERNET_DISCONNECTED`; antes: sin mensaje; después: mensaje de error y luego éxito | Pasó (BUG-025) |
+| CP-153 | Mensajes de `showToast()` | Visibles en contenedor `aria-live="polite"` | Antes: 0 contenedores y 0 textos; después: mensajes de error y éxito presentes | Pasó (BUG-025) |
+| CP-154 | Interceptor de axios ante fallo de transporte | Sin redirección al login si no hay 401/419 | Igual; el botón quedó listo para reintentar | Pasó |
+| CP-155 | Guardas estáticas del montaje del toast y del menú móvil en `app.js` / `BiblePageShell.vue` | Contenedor montado y toggle accesible | 4 tests en `ResponsiveFeedbackTest.php` | Pasó |
+| CP-156 | Registro con notificaciones simuladas | Se envía `VerifyEmail` al usuario nuevo | Igual | Pasó |
+| CP-157 | Cambio de correo en `/settings/profile` | Verification inválida y aviso nuevo enviado | Antes: sin aviso; después: `VerifyEmail` enviado | Pasó (BUG-026) |
+| CP-158 | Verificación con el enlace del correo nuevo | Cuenta verificada y evento `Verified` | Igual tras el fix | Pasó (BUG-026) |
+| CP-159 | Seis reenvíos de verificación en un minuto | Seis avisos y 429 en el séptimo | Igual | Pasó |
+| CP-160 | Enlace de verificación vencido | 403, sin evento y cuenta sin verificar | Igual | Pasó |
+| CP-161 | Reset con correo existente vs. inexistente | Mismo `status` y sin aviso para el inexistente | Antes: error que revelaba la cuenta; después: estado genérico en la vista Inertia | Pasó (BUG-027) |
+| CP-162 | Token de reset con más de 60 minutos | No cambia la contraseña y expone error en `email` | Igual | Pasó |
+| CP-163 | Reutilización de un token de reset ya usado | Segundo intento rechazado, contraseña vigente | Igual | Pasó |
+| CP-164 | Código de recuperación 2FA | Ingresa, se consume y no sirve en un segundo challenge | Igual | Pasó |
+| CP-165 | Once pedidos de passkey con la misma credencial | 429 en el undécimo | Igual | Pasó |
 
-Suite QA final: 85 tests, 85 pasan, 0 fallos, 0 omitidos, 488 aserciones, 3,4 s.
+Suite QA final: 117 tests, 117 pasan, 0 fallos, 0 omitidos, 625 aserciones, 7,4 s.
 
 <a id="casos-no-ejecutados"></a>
 
 ## Casos no ejecutados
 | Área | Motivo |
 | --- | --- |
-| Passkeys (registro y autenticación WebAuthn) | Requiere emulador de autenticador; solo se revisó la config de throttles |
+| Passkeys (registro y autenticación WebAuthn) | Requiere emulador de autenticador; en la ronda 11 se cubrió el throttle por credencial, no el intercambio WebAuthn |
 | E2E automatizado (Playwright/Dusk) | No hay runners instalados; el flujo login → navegación → logout se verificó manualmente en la ronda 3 |
 | Tests de componentes Vue | No hay Vitest/jsdom en `package.json` |
-| Viewports 375/768/1366/1920 | Sin revisión manual de tamaños: sigue **NO VERIFICADO** |
 | Carga con `ab`/`k6` y servidor real | La ronda 5 cubrió carga ligera y pico corto con `curl_multi` sobre el servidor integrado; sigue sin medirse con FPM/Apache ni de forma sostenida |
 | Lector de pantalla dedicado (NVDA/VoiceOver) | Solo se revisó el árbol accesible del navegador |
 | Firefox / WebKit | Solo se dispuso de Chromium |
 | Búsqueda FULLTEXT (`q >= 3`) sobre MySQL real | `MATCH ... AGAINST` no existe en SQLite; se validó el fallback `LIKE` y el test quedó reactivado |
+| Seeds contra `bible.helloao.org` real | La ronda 7 simuló la API con `Http::fake()`; no se comprobó latencia, TLS ni el formato actual del servicio |
+| Concurrencia de escrituras sobre MySQL real | La ronda 9 sondeó tres servidores sobre SQLite y obtuvo `database is locked`; no es evidencia válida para MySQL: sigue **NO VERIFICADO** |
+
+Los viewports 375/768/1366/1920 y la pérdida de red a mitad de flujo se cubrieron en la ronda 10 con emulación CDP (CP-150 a CP-154); la revisión manual con lector de pantalla sigue pendiente. Correos, verificación y recuperación se cubrieron en la ronda 11 (CP-156 a CP-165) con notificaciones simuladas y cola `sync`; no se usó un servidor SMTP real.

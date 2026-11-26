@@ -100,7 +100,12 @@ export function useFavorites() {
         }
 
         const { data } = await axios.post('/api/favorites', payload);
-        favorites.value = [data, ...favorites.value];
+        // El servidor es idempotente; dos clics rapidos no deben duplicar la
+        // fila en memoria (el indice del template usaria claves repetidas).
+        favorites.value = [
+            data,
+            ...favorites.value.filter((f) => keyOf(f) !== keyOf(payload)),
+        ];
     }
 
     return {

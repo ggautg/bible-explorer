@@ -17,6 +17,11 @@
 | Suite QA de entorno (2 tests) | 0,24 s | Sin peticiones HTTP |
 | Suite QA completa (77 tests) | 3,5 s | 77 pasan, 0 fallos, 0 omitidos, 449 aserciones (tras las tres rondas de corrección) |
 | Suite QA completa (85 tests) | 3,4 s | 85 pasan, 0 fallos, 0 omitidos, 488 aserciones (tras la ronda 6) |
+| Suite QA completa (93 tests) | 5,9 s | 93 pasan, 0 fallos, 0 omitidos, 515 aserciones (tras la ronda 7; los reintentos simulados suman ~500 ms) |
+| Suite QA completa (98 tests) | 6,3 s | 98 pasan, 0 fallos, 0 omitidos, 527 aserciones (tras la ronda 8) |
+| Suite QA completa (103 tests) | 5,9 s | 103 pasan, 0 fallos, 0 omitidos, 542 aserciones (tras la ronda 9) |
+| Suite QA completa (107 tests) | 6,1 s | 107 pasan, 0 fallos, 0 omitidos, 550 aserciones (tras la ronda 10) |
+| Suite QA completa (117 tests) | 7,4 s | 117 pasan, 0 fallos, 0 omitidos, 625 aserciones (tras la ronda 11) |
 | Suite QA de Fase 6 (14 tests) | 0,7 s | 12 pasaban y 2 fallaban antes de la corrección de BUG-009; ahora 14 pasan |
 | `migrate:fresh --seed` | < 1 s | 23 migraciones + seeder mínimo |
 | `migrate:reset` | ~0,1 s | 23 migraciones en archivo SQLite temporal |
@@ -59,16 +64,20 @@ El seeder es deliberadamente mínimo; los comandos `SeedBibleText` y `SeedBibleC
 | --- | --- | --- |
 | Chromium | **VERIFICADO** (ronda 3) | Navegador integrado sobre `artisan serve`; once páginas con Lighthouse 1,0/1,0/1,0 |
 | Firefox / WebKit | **NO VERIFICADO** | Sin esos motores disponibles en el entorno |
-| 375 px (móvil) | **NO VERIFICADO** | Sin revisión manual de viewport |
-| 768 px (tablet) | **NO VERIFICADO** | Sin revisión manual de viewport |
-| 1366 px (laptop) | **NO VERIFICADO** | Sin revisión manual de viewport |
-| 1920 px (escritorio) | **NO VERIFICADO** | Sin revisión manual de viewport |
+| 375 px (móvil) | **VERIFICADO** (ronda 10) | CDP `setDeviceMetricsOverride`: sin overflow; toggle del menú abre 9 enlaces y se cierra al navegar |
+| 768 px (tablet) | **VERIFICADO** (ronda 10) | CDP: `scrollWidth <= innerWidth` en las 9 páginas revisadas |
+| 1366 px (laptop) | **VERIFICADO** (ronda 10) | CDP: `scrollWidth <= innerWidth` en las 9 páginas revisadas |
+| 1920 px (escritorio) | **VERIFICADO** (ronda 10) | CDP: `scrollWidth <= innerWidth` en las 9 páginas revisadas |
 | Impresión / PDF / exportaciones | **NO VERIFICADO** | No hay funcionalidad declarada |
 | axe / Lighthouse | **VERIFICADO** (ronda 3) | Sin fallos en once páginas; accesibilidad, buenas prácticas y SEO 1,0 |
 | Lector de pantalla dedicado | **NO VERIFICADO** | Se revisó el árbol accesible del navegador, no NVDA/VoiceOver |
 | Búsqueda FULLTEXT en MySQL 8.0.35 | **NO VERIFICADO** | `MATCH ... AGAINST` no se ejecuta en SQLite; se validó solo el fallback `LIKE` |
 | Carga ligera con 15.000 versículos | **VERIFICADO** (ronda 5) | 170/170 respuestas 200, sin 500 ni timeouts; servidor monoprocreso, no es un techo de capacidad |
 | Carga sostenida / servidor con workers | **NO VERIFICADO** | Requiere FPM o Apache y MySQL con volumen representativo |
+| Pérdida de red a mitad de flujo | **VERIFICADO** (ronda 10) | CDP `emulateNetworkConditions`: `ERR_INTERNET_DISCONNECTED`, sin estado pendiente y reintento exitoso |
+| Correo y notificaciones | **VERIFICADO** (ronda 11) | `Notification::fake()` con cola `sync`: registro, cambio de correo, reenvíos, reset y consumo de códigos 2FA |
+| Servidor SMTP real | **NO VERIFICADO** | El entorno de tests usa `MAIL_MAILER=array`; no se probó entrega real ni plantillas en un cliente de correo |
+| WebAuthn con authenticator real | **NO VERIFICADO** | Solo se comprobó el throttle por credencial (ronda 11) y el well-known (ronda 6) |
 
 <a id="carga-ronda-5"></a>
 

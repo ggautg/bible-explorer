@@ -13,8 +13,12 @@
 - [BUG-005 — Una respuesta a una respuesta queda invisible en el hilo](#bug-005)
 - [BUG-002 — El build falla en instalación limpia sin APP_KEY](#bug-002)
 - [BUG-001 — Wayfinder ensucia el árbol con cambios de salto de línea](#bug-001)
+- [BUG-019 — `bible:seed-crossrefs` no es idempotente](#bug-019)
+- [BUG-020 — `bible:seed-text` acepta una respuesta sin libros](#bug-020)
+- [BUG-024 — Doble clic rápido duplica el favorito en la lista del cliente](#bug-024)
+- [BUG-025 — Los mensajes de confirmación y error de acciones no se muestran](#bug-025)
 
-> **Rondas de corrección 1, 2 y 3:** los 13 hallazgos originales y los dos nuevos de accesibilidad (BUG-015 y BUG-016) fueron corregidos y verificados. Las entradas siguientes conservan la evidencia original del hallazgo; el estado actual de cada uno se indica en su línea **Estado de verificación**. Ya no queda ningún defecto abierto.
+> **Rondas de corrección 1, 2, 3, 7, 9 y 10:** los 13 hallazgos originales y los nuevos de accesibilidad, API, sesión y estado del cliente fueron corregidos y verificados. La ronda 11 no agregó defectos S4 ni S5. Las entradas siguientes conservan la evidencia original del hallazgo; el estado actual de cada uno se indica en su línea **Estado de verificación**. Ya no queda ningún defecto abierto.
 
 <a id="bug-015"></a>
 
@@ -333,4 +337,112 @@
 - **Workaround:** después del build, ejecutar `git restore -- resources/js/actions resources/js/routes`.
 - **Recomendación de corrección:** normalizar la salida del generador o ignorar esos directorios si se consideran artefactos derivados. La corrección aplicada evita la regeneración en el build; en CI conviene verificar que compilar no introduzca cambios nuevos.
 - **Test que lo reproduce:** no aplica; se reproduce con comandos de git.
+- **Esfuerzo estimado:** S
+
+<a id="bug-019"></a>
+
+### [BUG-019] `bible:seed-crossrefs` no es idempotente y viola el índice único
+- **Severidad:** S4
+- **Prioridad:** P3
+- **Frecuencia:** Siempre que se ejecuta el comando por segunda vez sobre la misma BD
+- **Tipo:** Integridad de datos / Operación repetible
+- **Módulo / Capa:** Backend / Comando Artisan `bible:seed-crossrefs`
+- **Estado de verificación:** CONFIRMADO por test → **CORREGIDO y verificado** (ronda 7)
+- **Corrección aplicada:** reemplazar `DB::table(...)->insert()` por `upsert()` con la clave única de seis columnas y actualización de `score` y `to_verse_end`.
+- **Ubicación original:** `app/Console/Commands/SeedBibleCrossReferences.php:118-120` y `database/migrations/2026_11_26_000001_add_integrity_indexes_to_bible_explorer.php:62-69`
+- **Entorno:** PHP 8.3.36, Laravel 13.44.1, SQLite `:memory:`; API simulada con `Http::fake()`
+- **Precondiciones:** el índice único `bible_cross_refs_unique_reference` ya existe y el comando se ejecutó una vez con éxito
+- **Pasos para reproducir:**
+  1. Simular `books.json` con un libro de un capítulo y una referencia cruzada.
+  2. Ejecutar `bible:seed-crossrefs` dos veces seguidas.
+  3. Observar la segunda ejecución.
+- **Resultado esperado:** ambas ejecuciones terminan con éxito y la tabla sigue teniendo una sola fila.
+- **Resultado actual (pre-corrección):** la segunda ejecución lanzaba `SQLSTATE[23000]: Integrity constraint violation: 19 UNIQUE constraint failed: bible_cross_references.from_book, ...` y abortaba con traza.
+- **Evidencia:** error de `Connection.php:608` con traza en `SeedBibleCrossReferences.php:119` durante el test nuevo; tras el fix, 8/8 tests pasan y el row count se mantiene en 1.
+- **Causa raíz probable:** la migración de integridad agregó el índice único después de que el comando se escribiera con inserciones crudas; el import sigue usando `insert()` en vez de `upsert()`.
+- **Impacto:** reintentar un import tras un fallo parcial, o programarlo dos veces, rompe la tarea y deja el grafo a medio actualizar.
+- **Workaround:** truncar `bible_cross_references` antes de cada ejecución (pierde datos si el import falla a mitad).
+- **Recomendación de corrección:** usar `upsert()` con la clave existente; equivale a “insertar si no existe, refrescar `score` si cambió”.
+- **Test que lo reproduce:** `tests/QA/ExternalApiResilienceTest.php` → `bible:seed-crossrefs is idempotent when the command runs twice`.
+- **Esfuerzo estimado:** S
+
+<a id="bug-020"></a>
+
+### [BUG-020] `bible:seed-text` acepta una respuesta sin libros como importación correcta
+- **Severidad:** S5
+- **Prioridad:** P4
+- **Frecuencia:** Solo si la API responde 200 con un payload vacío o con otra forma
+- **Tipo:** Validación de respuesta / Observabilidad
+- **Módulo / Capa:** Backend / Comando Artisan `bible:seed-text`
+- **Estado de verificación:** CONFIRMADO por test → **CORREGIDO y verificado** (ronda 7)
+- **Corrección aplicada:** después de `json('books', [])`, si la lista está vacía se emite `La respuesta de la API no incluyó libros para importar.` y se devuelve `self::FAILURE`.
+- **Ubicación original:** `app/Console/Commands/SeedBibleText.php:50-52`
+- **Entorno:** PHP 8.3.36, Laravel 13.44.1, SQLite `:memory:`; API simulada con `Http::fake()`
+- **Precondiciones:** API responde 200 con `{"books": []}`
+- **Pasos para reproducir:**
+  1. Simular una respuesta 200 vacía en `complete.json`.
+  2. Ejecutar `bible:seed-text spa_rvg`.
+  3. Revisar código de salida y `bible_verses`.
+- **Resultado esperado:** fallo explícito y ninguna fila insertada.
+- **Resultado actual (pre-corrección):** `Texto bíblico importado correctamente.`, código 0 y cero versículos.
+- **Evidencia:** el test nuevo esperaba `Command::FAILURE` y obtenía `0`; tras el fix, 8/8 pasan.
+- **Causa raíz probable:** `json('books', [])` silencia la diferencia entre “no hay libros” y “la respuesta no tiene la forma esperada”; el bucle no ejecuta iteraciones y el comando siempre reporta éxito.
+- **Impacto:** una respuesta degenerada de la API pasa desapercibida y deja la BD sin texto bíblico; el problema se descubre solo al navegar.
+- **Workaround:** verificar manualmente el número de versículos después del seed.
+- **Recomendación de corrección:** validar forma y cardinalidad mínima del payload antes de crear la barra de progreso.
+- **Test que lo reproduce:** `tests/QA/ExternalApiResilienceTest.php` → `bible:seed-text fails cleanly when the payload has no books`.
+- **Esfuerzo estimado:** S
+
+<a id="bug-024"></a>
+
+### [BUG-024] Doble clic rápido duplica el favorito en la lista del cliente
+- **Severidad:** S4
+- **Prioridad:** P3
+- **Frecuencia:** Ocasional (dos activaciones del botón antes del primer `await`)
+- **Tipo:** Frontend / Estado local
+- **Módulo / Capa:** Frontend / `resources/js/composables/useFavorites.js`
+- **Estado de verificación:** CONFIRMADO en navegador → **CORREGIDO y verificado** (ronda 9)
+- **Corrección aplicada:** al insertar, se reemplaza cualquier entrada previa con la misma clave (`book_code-chapter-verse`) en vez de anteponer sin filtrar.
+- **Ubicación original:** `resources/js/composables/useFavorites.js:102-103` (`favorites.value = [data, ...favorites.value]`)
+- **Entorno:** navegador integrado sobre `artisan serve` con SQLite temporal
+- **Precondiciones:** sesión iniciada, favorito ausente para `GEN 1:1` y página `/leer/GEN/1` recién cargada
+- **Pasos para reproducir:**
+  1. Abrir `/leer/GEN/1` con el versículo sin marcar como favorito.
+  2. Activar dos veces el botón “Guardar Génesis 1:1 en favoritos” antes de que termine la primera petición.
+  3. Navegar por SPA a `/favoritos` y contar las entradas de `Génesis 1:1`.
+- **Resultado esperado:** una sola entrada para el versículo, con una clave `v-for` única.
+- **Resultado actual (pre-corrección):** dos `POST /api/favorites` (ambos 200) y dos artículos idénticos en `/favoritos`; el servidor tenía una sola fila gracias al índice único.
+- **Evidencia:** `network.list` registró `GET 200, POST 200, POST 200` y el DOM mostró `articles: 2` con dos veces “GÉNESIS 1:1”. Tras el fix, con las mismas dos peticiones el DOM mostró `articles: 1`.
+- **Causa raíz probable:** el handler de `useFavorites` agregaba la respuesta al arreglo local sin verificar si la clave ya estaba presente; el botón se deshabilita recién en el siguiente render de Vue, así que dos activaciones en el mismo tick pasan la comprobación `isFavorite`.
+- **Impacto:** confusión visual y claves repetidas en el `v-for`; no hay duplicados en la base porque `FavoriteController::store()` ya es idempotente.
+- **Workaround:** recargar la página para sincronizar la lista desde la API.
+- **Recomendación de corrección:** deduplicar por clave al actualizar el estado local, manteniendo la idempotencia del servidor como única fuente de verdad.
+- **Test que lo reproduce:** `tests/QA/ClientStateRaceTest.php` → `rapid favorite clicks do not duplicate entries in client state` y `duplicate favorite submissions keep a single row`.
+- **Esfuerzo estimado:** S
+
+<a id="bug-025"></a>
+
+### [BUG-025] Los mensajes de confirmación y error de acciones no se muestran
+- **Severidad:** S4
+- **Prioridad:** P3
+- **Frecuencia:** Constante: afecta a todos los `showToast()` de guardado, borrado y copia
+- **Tipo:** Funcional / Feedback de UI y accesibilidad
+- **Módulo / Capa:** Frontend / `resources/js/app.js` y `components/Bible/ToastContainer.vue`
+- **Estado de verificación:** CONFIRMADO en navegador con CDP → **CORREGIDO y verificado** (ronda 10)
+- **Corrección aplicada:** se importa `ToastContainer.vue` en la raíz Inertia y se agrega `h(ToastContainer)` junto a `h(App, props)` y `h(Sonner)`.
+- **Ubicación original:** `ToastContainer.vue` definido con `aria-live="polite"` pero sin ninguna importación ni render en `app.js`
+- **Entorno:** Chromium headless vía CDP sobre `artisan serve` con SQLite auxiliar y usuario de prueba
+- **Precondiciones:** sesión iniciada, `/leer/GEN/1` cargado y favorito ausente
+- **Pasos para reproducir:**
+  1. Guardar un favorito y observar el mensaje esperado “Versículo guardado en favoritos.”
+  2. Cortar la red con `Network.emulateNetworkConditions({offline: true})` y activar el botón de favorito.
+  3. Revisar el DOM en busca de `[aria-live]` y del texto de error.
+- **Resultado esperado:** mensajes visibles y anunciados por el contenedor `aria-live="polite"`.
+- **Resultado actual (pre-corrección):** 0 nodos `aria-live` con texto, `hasSuccessText: false`, `hasErrorText: false`; el único efecto visible era el cambio de etiqueta del botón. El `catch` sí ejecutaba `showToast()`, pero nadie renderizaba la cola.
+- **Evidencia:** antes del fix, `Network.loadingFailed` con `net::ERR_INTERNET_DISCONNECTED`, `sonner: []` y textos ausentes; tras el fix, `hasErrorText: true` durante la caída y `[aria-live]` con “No se pudo actualizar favoritos.” y “Versículo guardado en favoritos.” al reconectar.
+- **Causa raíz probable:** el contenedor de la cola `useToast` nunca se montó en la raíz de la aplicación; Vue no renderiza mensajes que nadie consume.
+- **Impacto:** el usuario no recibe confirmación de guardados ni aviso de fallos de red; las acciones parecen no hacer nada y las tecnologías asistivas tampoco anuncian el resultado.
+- **Workaround:** ninguno desde la interfaz; solo se puede inferir el resultado mirando el estado del botón o recargando la página.
+- **Recomendación de corrección:** montar el contenedor existente en la raíz Inertia y conservar el `aria-live` para que los mensajes se anuncien.
+- **Test que lo reproduce:** `tests/QA/ResponsiveFeedbackTest.php` → `the custom toast container is mounted in the inertia root` y `the toast container announces messages to assistive technology`.
 - **Esfuerzo estimado:** S

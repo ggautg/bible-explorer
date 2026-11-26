@@ -5,7 +5,7 @@
 - [BUG-003 — Usuarios nuevos sin slug y perfil en 404](#bug-003)
 
 ## Estado
-No hay defectos S2 abiertos. BUG-003 (Fase 2) fue corregido en la ronda de corrección 1 y verificado con la suite QA en verde. Las Fases 3 a 6 no agregaron defectos S2.
+No hay defectos S2 abiertos. BUG-003 (Fase 2) fue corregido en la ronda de corrección 1 y verificado con la suite QA en verde. Las Fases 3 a 6 no agregaron defectos S2; las rondas 7 a 11 tampoco.
 
 <a id="bug-003"></a>
 

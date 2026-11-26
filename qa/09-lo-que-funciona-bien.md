@@ -13,6 +13,11 @@
 - [Correcciones verificadas (ronda 2)](#correcciones-verificadas-ronda-2)
 - [Verificación en navegador (ronda 3)](#verificación-en-navegador-ronda-3)
 - [Seguridad funcional (ronda 6)](#seguridad-funcional-ronda-6)
+- [Integración con API externa (ronda 7)](#integración-con-api-externa-ronda-7)
+- [Sesiones caducadas y CSRF (ronda 8)](#sesiones-caducadas-y-csrf-ronda-8)
+- [Estado del cliente ante envíos duplicados (ronda 9)](#estado-del-cliente-ante-envíos-duplicados-ronda-9)
+- [Responsive y caída de red (ronda 10)](#responsive-y-caída-de-red-ronda-10)
+- [Correos, verificación y recuperación (ronda 11)](#correos-verificación-y-recuperación-ronda-11)
 - [Cobertura funcional heredada](#cobertura-funcional-heredada)
 
 <a id="instalación-y-configuración"></a>
@@ -34,7 +39,7 @@
 <a id="suite-automatizada"></a>
 
 ## Suite automatizada
-- Línea base de Fase 1: 56 tests pasan (54 heredados + 2 de entorno de QA), 233 aserciones, 0 fallos y 0 omitidos. Al cerrar la Fase 6 los tests QA eran 70, con 10 fallos deliberados que documentaban los siete bugs confirmados por ejecución y 1 omisión explícita por MySQL FULLTEXT. Tras la ronda 1: 69 pasan, 0 fallos y 1 omitido, 391 aserciones. Tras la ronda 2: 73 pasan, 0 fallos y 1 omitido, 429 aserciones. Tras la ronda 3: 77 pasan, 0 fallos, 0 omitidos y 449 aserciones. Tras la ronda 6: 85 pasan, 0 fallos, 0 omitidos y 488 aserciones.
+- Línea base de Fase 1: 56 tests pasan (54 heredados + 2 de entorno de QA), 233 aserciones, 0 fallos y 0 omitidos. Al cerrar la Fase 6 los tests QA eran 70, con 10 fallos deliberados que documentaban los siete bugs confirmados por ejecución y 1 omisión explícita por MySQL FULLTEXT. Tras la ronda 1: 69 pasan, 0 fallos y 1 omitido, 391 aserciones. Tras la ronda 2: 73 pasan, 0 fallos y 1 omitido, 429 aserciones. Tras la ronda 3: 77 pasan, 0 fallos, 0 omitidos y 449 aserciones. Tras la ronda 6: 85 pasan, 0 fallos, 0 omitidos y 488 aserciones. Tras la ronda 7: 93 pasan, 0 fallos, 0 omitidos y 515 aserciones. Tras la ronda 8: 98 pasan, 0 fallos, 0 omitidos y 527 aserciones. Tras la ronda 9: 103 pasan, 0 fallos, 0 omitidos y 542 aserciones. Tras la ronda 10: 107 pasan, 0 fallos, 0 omitidos y 550 aserciones. Tras la ronda 11: 117 pasan, 0 fallos, 0 omitidos y 625 aserciones.
 - Los tests QA viven en `tests/QA/` y se ejecutan con `php artisan test tests/QA`, sin configuración adicional en la raíz. Los 54 tests heredados siguen pasando solos con `php artisan test --compact`.
 - La suite heredada funciona sobre SQLite y, en el ciclo anterior, también sobre MySQL: no hay dependencia de un único driver para los tests actuales.
 
@@ -158,6 +163,54 @@
 - Dos usuarios pueden tener su propia nota para el mismo versículo sin sobrescribirse (índice único por `user_id` + referencia).
 - El cuerpo con `<script>` se conserva como texto literal en la API y no hay `v-html` ni `innerHTML` en `resources/js`: Vue lo renderiza con interpolación.
 - Riesgo latente documentado: `user_id` sigue siendo *fillable* en `Post`, `Note` y `Favorite`. Los 8 tests nuevos (`tests/QA/SecurityFunctionalTest.php`) funcionan como guardia de regresión.
+
+<a id="integración-con-api-externa-ronda-7"></a>
+
+## Integración con API externa (ronda 7)
+- `bible:seed-text` reintenta un 500 esporádico o un timeout y guarda el texto extraído de los fragmentos; con fallos persistentes informa el error y devuelve `FAILURE` sin insertar datos.
+- Un payload 200 sin libros ya no se acepta como importación correcta.
+- `bible:list-spanish` ya respondía con error legible ante un 500; se conservó ese comportamiento.
+- `bible:seed-crossrefs` valida el índice del conjunto de datos, cuenta los capítulos que fallan y ya no imprime “importadas correctamente” cuando hay pérdida de datos.
+- La segunda ejecución de `bible:seed-crossrefs` es idempotente: `upsert()` mantiene una fila por referencia en lugar de chocar con el índice único.
+- Los 8 tests usan `Http::fake()`: la API real de `bible.helloao.org` no fue contactada.
+
+<a id="sesiones-caducadas-y-csrf-ronda-8"></a>
+
+## Sesiones caducadas y CSRF (ronda 8)
+- La visita Inertia autenticada responde 200; luego del logout, una visita de invitado responde 302 hacia `/login` y `/api/notes` responde 401 JSON.
+- Un `POST /posts` tipo Inertia con XSRF vencido ya no muestra “Page Expired” dentro del modal: responde 302 a `/login`. En navegador, un like con la sesión invalidada siguió ese mismo camino.
+- Una petición JSON con CSRF vencido conserva el 419 del framework, para no confundir a clientes API.
+- En navegador, al invalidar la sesión y tocar un favorito, las peticiones `/api/favorites` y `/api/notes` respondieron 401 y la SPA navegó sola al login; el interceptor evita redirecciones duplicadas.
+- Los 5 tests nuevos viven en `tests/QA/SessionExpiryTest.php`. La pérdida de red sigue fuera de alcance.
+
+<a id="estado-del-cliente-ante-envíos-duplicados-ronda-9"></a>
+
+## Estado del cliente ante envíos duplicados (ronda 9)
+- Guardar un favorito y navegar por SPA a `/favoritos` muestra el versículo recién guardado: la primera visita Inertia ya no descarta el estado local.
+- Dos activaciones rápidas del botón de favorito siguen generando dos `POST` idempotentes, pero el cliente muestra una sola entrada.
+- El servidor conserva una fila por usuario/referencia para favoritos y notas, y en notas gana el último cuerpo enviado.
+- Dos likes y dos follows secuenciales devuelven el estado al punto de partida, sin filas duplicadas.
+- Los 5 tests nuevos viven en `tests/QA/ClientStateRaceTest.php`. La concurrencia real sobre MySQL sigue fuera de alcance: con SQLite aparecieron bloqueos del driver, no un defecto de la aplicación.
+
+<a id="responsive-y-caída-de-red-ronda-10"></a>
+
+## Responsive y caída de red (ronda 10)
+- Las nueve páginas revisadas no tienen desbordamiento horizontal en 375, 768, 1366 ni 1920 px (36 combinaciones).
+- A 375 px, el toggle `aria-controls="mobile-nav"` abre el menú con nueve enlaces, expone `aria-expanded=true` y se cierra al navegar.
+- Una desconexión forzada durante el alta de un favorito produce `net::ERR_INTERNET_DISCONNECTED`; la interfaz no queda en espera y el reintento con la red restaurada persiste el favorito.
+- Los mensajes de `showToast()` pasaron a renderizarse en el contenedor `aria-live="polite"` montado en la raíz: antes no se veían; ahora se muestran el error y el éxito.
+- Los 4 tests nuevos viven en `tests/QA/ResponsiveFeedbackTest.php`. La verificación fue con emulación CDP, no con revisión manual ni lector de pantalla.
+
+<a id="correos-verificación-y-recuperación-ronda-11"></a>
+
+## Correos, verificación y recuperación (ronda 11)
+- El alta de usuarios envía el aviso de verificación; el cambio de correo ahora también lo envía y el enlace nuevo verifica la cuenta.
+- El reenvío manual respeta el límite de seis por minuto y devuelve 429 en el séptimo pedido, sin notificaciones extra.
+- Los enlaces firmados vencidos se rechazan con 403 y no marcan la cuenta como verificada.
+- Los tokens de reset vencen a la hora y no se pueden reutilizar; los códigos de recuperación 2FA se consumen tras un login correcto.
+- El pedido de reset con un correo inexistente muestra el mismo mensaje que con uno registrado, sin distinción en HTML ni en JSON.
+- El throttle de passkeys se aplica por credencial: el undécimo pedido devuelve 429.
+- Los 10 tests nuevos viven en `tests/QA/MailAndVerificationTest.php`. No se usó un servidor SMTP ni un authenticator real.
 
 <a id="cobertura-funcional-heredada"></a>
 
