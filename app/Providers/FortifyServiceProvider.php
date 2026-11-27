@@ -5,12 +5,15 @@ namespace App\Providers;
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Http\Responses\FailedPasswordResetLinkRequestResponse;
+use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Laravel\Fortify\Contracts\FailedPasswordResetLinkRequestResponse as FailedPasswordResetLinkRequestResponseContract;
 use Laravel\Fortify\Features;
@@ -35,8 +38,47 @@ class FortifyServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureActions();
+        $this->configureAuthentication();
         $this->configureViews();
         $this->configureRateLimiting();
+    }
+
+    /**
+     * Bloquea el ingreso de cuentas suspendidas por un admin.
+     */
+    private function configureAuthentication(): void
+    {
+        Fortify::authenticateUsing(function (Request $request) {
+            $credentials = $request->only(Fortify::username(), 'password');
+            $provider = Auth::getProvider();
+            $user = $provider->retrieveByCredentials($credentials);
+
+            if (! $user instanceof User || ! $provider->validateCredentials($user, $credentials)) {
+                return null;
+            }
+
+            if ($user->isBanned()) {
+                throw ValidationException::withMessages([
+                    Fortify::username() => [$this->banMessage($user)],
+                ]);
+            }
+
+            return $user;
+        });
+    }
+
+    /**
+     * Explica al usuario suspendido por qué no puede entrar.
+     */
+    private function banMessage(User $user): string
+    {
+        $until = $user->banned_until;
+
+        if ($until?->greaterThan(now()->addYears(10))) {
+            return 'Tu cuenta está suspendida permanentemente. Contactá al administrador.';
+        }
+
+        return 'Tu cuenta está suspendida hasta el '.($until?->format('d/m/Y H:i') ?? 'nuevo aviso').'. Contactá al administrador.';
     }
 
     /**

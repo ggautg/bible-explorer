@@ -1,9 +1,10 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 import users from './users'
+import reports from './reports'
 import posts from './posts'
 /**
 * @see \App\Http\Controllers\AdminController::dashboard
- * @see app/Http/Controllers/AdminController.php:18
+ * @see app/Http/Controllers/AdminController.php:20
  * @route '/admin'
  */
 export const dashboard = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -18,7 +19,7 @@ dashboard.definition = {
 
 /**
 * @see \App\Http\Controllers\AdminController::dashboard
- * @see app/Http/Controllers/AdminController.php:18
+ * @see app/Http/Controllers/AdminController.php:20
  * @route '/admin'
  */
 dashboard.url = (options?: RouteQueryOptions) => {
@@ -27,7 +28,7 @@ dashboard.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\AdminController::dashboard
- * @see app/Http/Controllers/AdminController.php:18
+ * @see app/Http/Controllers/AdminController.php:20
  * @route '/admin'
  */
 dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -36,7 +37,7 @@ dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\AdminController::dashboard
- * @see app/Http/Controllers/AdminController.php:18
+ * @see app/Http/Controllers/AdminController.php:20
  * @route '/admin'
  */
 dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -46,7 +47,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\AdminController::dashboard
- * @see app/Http/Controllers/AdminController.php:18
+ * @see app/Http/Controllers/AdminController.php:20
  * @route '/admin'
  */
     const dashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -56,7 +57,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\AdminController::dashboard
- * @see app/Http/Controllers/AdminController.php:18
+ * @see app/Http/Controllers/AdminController.php:20
  * @route '/admin'
  */
         dashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -65,7 +66,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\AdminController::dashboard
- * @see app/Http/Controllers/AdminController.php:18
+ * @see app/Http/Controllers/AdminController.php:20
  * @route '/admin'
  */
         dashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -82,6 +83,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 const admin = {
     dashboard: Object.assign(dashboard, dashboard),
 users: Object.assign(users, users),
+reports: Object.assign(reports, reports),
 posts: Object.assign(posts, posts),
 }
 

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\CarbonInterface;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -28,6 +29,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property string $email
  * @property string|null $church
  * @property bool $is_admin
+ * @property Carbon|null $banned_until
  * @property string|null $slug
  * @property Carbon|null $email_verified_at
  * @property string $password
@@ -44,6 +46,17 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+
+    /** Duraciones de suspensión disponibles en minutos (el último valor es permanente). */
+    public const BAN_DURATIONS = [
+        30 => '30 minutos',
+        60 => '1 hora',
+        360 => '6 horas',
+        1440 => '1 día',
+        10080 => '7 días',
+        43200 => '30 días',
+        52560000 => 'Permanente',
+    ];
 
     /**
      * Mantiene el slug alineado con el nombre y garantiza que nunca quede vacío.
@@ -91,6 +104,7 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     {
         return [
             'is_admin' => 'boolean',
+            'banned_until' => 'datetime',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
@@ -103,6 +117,30 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     public function isAdmin(): bool
     {
         return (bool) $this->is_admin;
+    }
+
+    /**
+     * Indica si la suspensión temporaria sigue vigente.
+     */
+    public function isBanned(): bool
+    {
+        return $this->banned_until?->isFuture() ?? false;
+    }
+
+    /**
+     * Suspende a la persona hasta la fecha indicada; el admin no se auto-banea.
+     */
+    public function banUntil(CarbonInterface $until): void
+    {
+        $this->forceFill(['banned_until' => $until])->save();
+    }
+
+    /**
+     * Levanta la suspensión.
+     */
+    public function unban(): void
+    {
+        $this->forceFill(['banned_until' => null])->save();
     }
 
     /**

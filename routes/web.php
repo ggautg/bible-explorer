@@ -13,6 +13,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PostInteractionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -36,6 +37,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
     Route::post('/posts/{post}/responder', [PostController::class, 'reply'])
         ->middleware('throttle:social')->name('posts.reply');
+    Route::post('/posts/{post}/reportar', [ReportController::class, 'store'])
+        ->middleware('throttle:social')->name('posts.report');
     Route::post('/posts/{post}/like', [PostInteractionController::class, 'toggleLike'])
         ->middleware('throttle:social')->name('posts.like');
     Route::post('/posts/{post}/rebiblear', [PostInteractionController::class, 'toggleRebible'])
@@ -74,6 +77,9 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminController::class, 'index'])->name('dashboard');
     Route::post('/usuarios/{user}/rol', [AdminController::class, 'toggleRole'])->name('users.role');
+    Route::post('/usuarios/{user}/ban', [AdminController::class, 'ban'])->name('users.ban');
+    Route::post('/usuarios/{user}/desbanear', [AdminController::class, 'unban'])->name('users.unban');
+    Route::post('/reportes/{report}/resolver', [AdminController::class, 'resolveReport'])->name('reports.resolve');
     Route::delete('/posts/{post}', [AdminController::class, 'destroyPost'])->name('posts.destroy');
 });
 

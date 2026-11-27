@@ -10,6 +10,7 @@ import {
     NotebookText,
     Search,
     Settings,
+    Shield,
     User,
 } from '@lucide/vue';
 import { computed } from 'vue';
@@ -35,6 +36,10 @@ const socialItems = computed(() => {
             label: 'Mi perfil',
             icon: User,
         });
+    }
+
+    if (currentUser.value?.is_admin === true) {
+        items.push({ href: '/admin', label: 'Panel admin', icon: Shield });
     }
 
     return items;

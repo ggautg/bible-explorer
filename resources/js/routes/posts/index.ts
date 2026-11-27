@@ -236,6 +236,85 @@ reply.post = (args: { post: number | { id: number } } | [post: number | { id: nu
     
     reply.form = replyForm
 /**
+* @see \App\Http\Controllers\ReportController::report
+ * @see app/Http/Controllers/ReportController.php:15
+ * @route '/posts/{post}/reportar'
+ */
+export const report = (args: { post: number | { id: number } } | [post: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: report.url(args, options),
+    method: 'post',
+})
+
+report.definition = {
+    methods: ["post"],
+    url: '/posts/{post}/reportar',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\ReportController::report
+ * @see app/Http/Controllers/ReportController.php:15
+ * @route '/posts/{post}/reportar'
+ */
+report.url = (args: { post: number | { id: number } } | [post: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { post: args }
+    }
+
+            if (typeof args === 'object' && !Array.isArray(args) && 'id' in args) {
+            args = { post: args.id }
+        }
+    
+    if (Array.isArray(args)) {
+        args = {
+                    post: args[0],
+                }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+                        post: typeof args.post === 'object'
+                ? args.post.id
+                : args.post,
+                }
+
+    return report.definition.url
+            .replace('{post}', parsedArgs.post.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\ReportController::report
+ * @see app/Http/Controllers/ReportController.php:15
+ * @route '/posts/{post}/reportar'
+ */
+report.post = (args: { post: number | { id: number } } | [post: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: report.url(args, options),
+    method: 'post',
+})
+
+    /**
+* @see \App\Http\Controllers\ReportController::report
+ * @see app/Http/Controllers/ReportController.php:15
+ * @route '/posts/{post}/reportar'
+ */
+    const reportForm = (args: { post: number | { id: number } } | [post: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        action: report.url(args, options),
+        method: 'post',
+    })
+
+            /**
+* @see \App\Http\Controllers\ReportController::report
+ * @see app/Http/Controllers/ReportController.php:15
+ * @route '/posts/{post}/reportar'
+ */
+        reportForm.post = (args: { post: number | { id: number } } | [post: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+            action: report.url(args, options),
+            method: 'post',
+        })
+    
+    report.form = reportForm
+/**
 * @see \App\Http\Controllers\PostInteractionController::like
  * @see app/Http/Controllers/PostInteractionController.php:26
  * @route '/posts/{post}/like'
@@ -397,6 +476,7 @@ const posts = {
     store: Object.assign(store, store),
 show: Object.assign(show, show),
 reply: Object.assign(reply, reply),
+report: Object.assign(report, report),
 like: Object.assign(like, like),
 rebible: Object.assign(rebible, rebible),
 }

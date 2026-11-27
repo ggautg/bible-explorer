@@ -1,6 +1,6 @@
 <script setup>
 import { Link, router, usePage } from '@inertiajs/vue3';
-import { Heart, MessageCircle, Repeat2, Share } from '@lucide/vue';
+import { Flag, Heart, MessageCircle, Repeat2, Share } from '@lucide/vue';
 import { computed, onUnmounted, ref } from 'vue';
 
 const props = defineProps({
@@ -72,6 +72,20 @@ async function sharePost(target) {
     } catch {
         // fallback silencioso
     }
+}
+
+function reportPost(target) {
+    const reason = window.prompt('¿Por qué reportás esta publicación?');
+
+    if (!reason || !reason.trim()) {
+        return;
+    }
+
+    router.post(
+        `/posts/${target.id}/reportar`,
+        { reason: reason.trim() },
+        { preserveScroll: true },
+    );
 }
 
 function verseHref(verse) {
@@ -282,6 +296,18 @@ function verseHref(verse) {
                         <span class="text-xs">{{
                             copied ? 'Copiado' : 'Compartir'
                         }}</span>
+                    </button>
+
+                    <button
+                        v-if="viewer && displayPost.author?.id !== viewer.id"
+                        type="button"
+                        class="group inline-flex items-center gap-1.5 rounded transition-colors hover:text-bible-error focus-visible:ring-2 focus-visible:ring-bible-accent focus-visible:outline-none"
+                        :aria-label="`Reportar publicación de ${displayPost.author?.name || 'Usuario'}`"
+                        title="Reportar publicación"
+                        @click="reportPost(displayPost)"
+                    >
+                        <Flag class="h-4 w-4" aria-hidden="true" />
+                        <span class="text-xs">Reportar</span>
                     </button>
                 </div>
             </div>
