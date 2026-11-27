@@ -126,7 +126,9 @@
 | `php artisan test tests/QA --compact` tras ronda 17 | 187 tests, 187 passed, 0 failed, 0 skipped, 1214 assertions, 9,3 s |
 | `php artisan test --compact` tras ronda 17 | 54 passed, 226 assertions — sin regresiones |
 | `php artisan test tests/QA/SocialNetworkSimulationTest.php --compact` | 1 test, 1 passed, 25 assertions, 0,6 s |
-| `php artisan test tests/QA --compact` con la simulación | 188 tests, 188 passed, 0 failed, 0 skipped, 1239 assertions, 9,4 s |
+| `php artisan test tests/QA/AdminRoleTest.php --compact` | 7 tests, 7 passed, 0 failed, 0 skipped, 86 assertions, 0,9 s |
+| `php artisan test tests/QA/AdminGhostTest.php --compact` | 3 tests, 3 passed, 0 failed, 0 skipped, 35 assertions, 0,4 s |
+| `php artisan test tests/QA --compact` con simulación, rol admin y modo fantasma | 198 tests, 198 passed, 0 failed, 0 skipped, 1363 assertions, 10,1 s |
 | `php artisan test --compact` con la simulación | 54 passed, 226 assertions — sin regresiones |
 
 <a id="revisión-estática-de-accesibilidad"></a>
@@ -244,7 +246,7 @@ Rutas del escenario ligero: `/comunidad`, `/leer/GEN/1`, `/buscar?q=Dios`, `/bib
 - Fronteras finales: **cubiertas en la ronda 17** con 6 tests; sin defectos. La FK real impide el versículo huérfano que se simuló para cubrir el fallback de la portada.
 - Comportamiento de la API ante sesiones caducadas y 401/403 a mitad de flujo: **cubierto en la ronda 8** con `curl` y navegador; dos defectos corregidos. La pérdida de red se cubrió en la ronda 10 con emulación CDP; un defecto corregido (BUG-025).
 - XSS almacenado/reflejado y mass assignment en endpoints de publicaciones, notas y perfil: **cubierto en la ronda 6** por `tests/QA/SecurityFunctionalTest.php`, sin defectos. Queda como riesgo latente que `user_id` siga siendo *fillable* en `Post`, `Note` y `Favorite`; los tests fallarían si se pasara a `create($request->all())`.
-- Integración con la API externa de traducciones: timeouts, reintentos y respuestas 500: **cubierto en la ronda 7** con `Http::fake()`; cuatro defectos corregidos. Sigue NO VERIFICADA la API real (latencia, TLS y formato actual del servicio).
+- Integración con la API externa de traducciones: timeouts, reintentos y respuestas 500: **cubierto en la ronda 7** con `Http::fake()`; cuatro defectos corregidos. Después `bible:seed-text` sí se ejecutó contra la API real (formato actual y TLS); latencia y los otros dos comandos siguen sin medirse en condiciones reales.
 - Compatibilidad con MySQL real (FULLTEXT, índices, `dropColumn`) más allá de la verificación de migraciones en SQLite; en Fase 5 quedó pendiente el comportamiento de `MATCH ... AGAINST` con relevancia y rank.
 
 <a id="estado-del-árbol"></a>
@@ -270,6 +272,6 @@ Rutas del escenario ligero: `/comunidad`, `/leer/GEN/1`, `/buscar?q=Dios`, `/bib
 - La ronda 15 modificó `app/Console/Commands/SeedBibleText.php` y agregó `tests/QA/ValidationLimitsTest.php` y `tests/QA/CommandEdgeCasesTest.php`. No se tocó `package.json` ni `phpunit.xml`.
 - La ronda 16 solo agregó `tests/QA/NegativePathsTest.php`; no se tocó código de aplicación, `package.json` ni `phpunit.xml`.
 - La ronda 17 solo agregó `tests/QA/FinalBoundariesTest.php`; no se tocó código de aplicación, `package.json` ni `phpunit.xml`.
-- La simulación agregó `tests/QA/SocialNetworkSimulationTest.php`: 50 usuarios de 10 iglesias con `mt_srand(20261126)`; genera 245 seguimientos, 75 posts raíz, 96 respuestas, 40 rebibleos, 136 me gusta, 8 rupturas y 3 reconciliaciones, y deja un snapshot JSON en `%LOCALAPPDATA%\Temp\opencode\social-network-simulation.json`. Tampoco tocó código de aplicación.
-- No queda ningún hallazgo abierto ni ningún test omitido. Este módulo no agregó commit, push ni PR. El repositorio tiene commits locales creados fuera de estas sesiones de QA: `906da37` y `1ad3d5e` (este último incluye el trabajo de las rondas 1 a 11). Las rondas 12 a 17 y la simulación quedaron sin commitear: tres archivos de aplicación modificados, ocho tests nuevos y los 12 informes actualizados.
+- La simulación agregó `tests/QA/SocialNetworkSimulationTest.php`: 50 usuarios de 10 iglesias con `mt_srand(20261126)`; genera 235 seguimientos entre miembros (el admin fantasma no sigue ni es seguido), 75 posts raíz, 96 respuestas, 40 rebibleos, 136 me gusta, 8 rupturas y 3 reconciliaciones, y deja un snapshot JSON en `%LOCALAPPDATA%\Temp\opencode\social-network-simulation.json`. Después el rol admin marcó al usuario `admin@red.test` en el seeder, agregó el panel `/admin`, lo convirtió en fantasma (invisible, sin follows, omnisciente) y migró/sembró todo en la BD MySQL dedicada `bible_simulation` sin tocar `.env`; `bible:seed-text spa_rvg` cargó después 66 libros y 31.102 versículos desde la API real.
+- No queda ningún hallazgo abierto ni ningún test omitido. Este módulo no agregó commit, push ni PR. El repositorio tiene commits locales creados fuera de estas sesiones de QA: `906da37` y `1ad3d5e` (este último incluye el trabajo de las rondas 1 a 11). Los 12 informes quedaron incluidos en `8850d52`; el rol admin (controller, middleware, migración, panel Vue y seeder) y `tests/QA/AdminRoleTest.php` siguen sin commitear, junto con los ajustes a tests QA preexistentes.
 - El caso de búsqueda FULLTEXT de Fase 5 se reactivó con un fallback para SQLite; `MATCH ... AGAINST` sobre MySQL real queda como verificación pendiente, no como fallo de aplicación.

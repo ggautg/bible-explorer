@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -69,6 +70,20 @@ class Post extends Model
             'chapter' => 'integer',
             'verse' => 'integer',
         ];
+    }
+
+    /**
+     * El admin ve todo; para los miembros sus publicaciones no existen.
+     *
+     * @param  Builder<Post>  $query
+     */
+    public function scopeVisibleTo(Builder $query, ?User $viewer): void
+    {
+        if ($viewer?->isAdmin()) {
+            return;
+        }
+
+        $query->whereHas('author', fn (Builder $authorQuery) => $authorQuery->where('is_admin', false));
     }
 
     /**

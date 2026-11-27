@@ -23,8 +23,8 @@ class FollowController extends Controller
     {
         $viewer = $request->user();
 
-        if ($viewer->id === $user->id) {
-            return back();
+        if (! $viewer->canFollow($user)) {
+            return back()->with('toast', ['type' => 'info', 'message' => 'Ese perfil no participa en la red.']);
         }
 
         // La clave única (follower_id, followed_id) permite alternar sin

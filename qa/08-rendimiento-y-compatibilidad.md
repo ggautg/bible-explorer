@@ -28,7 +28,7 @@
 | Suite QA completa (167 tests) | 8,8 s | 167 pasan, 0 fallos, 0 omitidos, 914 aserciones (tras la ronda 15) |
 | Suite QA completa (181 tests) | 9,2 s | 181 pasan, 0 fallos, 0 omitidos, 1139 aserciones (tras la ronda 16) |
 | Suite QA completa (187 tests) | 9,3 s | 187 pasan, 0 fallos, 0 omitidos, 1214 aserciones (tras la ronda 17) |
-| Suite QA completa (188 tests) | 9,4 s | 188 pasan, 0 fallos, 0 omitidos, 1239 aserciones (con la simulación de red) |
+| Suite QA completa (198 tests) | 10,1 s | 198 pasan, 0 fallos, 0 omitidos, 1363 aserciones (con la simulación de red, el rol admin y el modo fantasma) |
 | Tests del feed con 24 personas antes del fix | 9,5 s | 23 consultas por visita (BUG-028) |
 | Tests del feed con 24 personas tras el fix | 0,7 s | Consultas constantes, 7 tests de presupuesto en verde |
 | Suite QA de Fase 6 (14 tests) | 0,7 s | 12 pasaban y 2 fallaban antes de la corrección de BUG-009; ahora 14 pasan |

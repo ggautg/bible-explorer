@@ -128,10 +128,10 @@ Auditoría QA funcional, de integración, regresión, seguridad funcional, rendi
 - `resolve` sin parámetro o en blanco, degradación de la portada sin corpus y con libro huérfano, y aislamiento de las pestañas `mios` y `respuestas`.
 - 6 tests nuevos en `tests/QA/FinalBoundariesTest.php`; ningún defecto nuevo.
 
-**No probado:** lector de pantalla dedicado, búsqueda FULLTEXT sobre MySQL real, carga sostenida bajo servidor web con workers, llamadas reales a `bible.helloao.org` (la ronda 7 simuló la API, no la contactó), passkeys/WebAuthn reales y concurrencia de escrituras sobre MySQL real. Las revisiones de viewport y pérdida de red ya no figuran acá: se ejecutaron con emulación de red y dispositivo, no manualmente. En la ronda 3 se ejecutó E2E de login/logout en navegador, se revisó la consola y se corrieron axe/Lighthouse; en la ronda 4 se perfiló el renderer y en la ronda 5 se corrió carga ligera con 15.000 versículos. No se instalaron Playwright, Dusk ni runners JS.
+**No probado:** lector de pantalla dedicado, búsqueda FULLTEXT sobre MySQL real, carga sostenida bajo servidor web con workers, latencia y TLS de la API real fuera de `bible:seed-text` (que sí se ejecutó), passkeys/WebAuthn reales y concurrencia de escrituras sobre MySQL real. Las revisiones de viewport y pérdida de red ya no figuran acá: se ejecutaron con emulación de red y dispositivo, no manualmente. En la ronda 3 se ejecutó E2E de login/logout en navegador, se revisó la consola y se corrieron axe/Lighthouse; en la ronda 4 se perfiló el renderer y en la ronda 5 se corrió carga ligera con 15.000 versículos. No se instalaron Playwright, Dusk ni runners JS.
 
 ## Veredicto de liberación
-**GO condicionado a MySQL y lector de pantalla.** Los 29 hallazgos quedaron corregidos y revalidados: suite QA en verde (188/188, 0 omitidos), suite heredada 54/54 y Lighthouse 1,0 en las once páginas auditadas. La verificación en navegador ya se hizo con teclado, árbol de accesibilidad y axe/Lighthouse; la carga ligera con 15.000 versículos respondió 170/170 con 200. Lo que sigue NO VERIFICADO es FULLTEXT sobre MySQL real, un lector de pantalla dedicado, carga sostenida con servidor web real, los seeds contra la API externa real, passkeys/WebAuthn reales y la concurrencia de escrituras sobre MySQL.
+**GO condicionado a FULLTEXT y concurrencia en MySQL, y lector de pantalla.** Los 29 hallazgos quedaron corregidos y revalidados: suite QA en verde (198/198, 0 omitidos), suite heredada 54/54 y Lighthouse 1,0 en las once páginas auditadas. La verificación en navegador ya se hizo con teclado, árbol de accesibilidad y axe/Lighthouse; la carga ligera con 15.000 versículos respondió 170/170 con 200. La simulación de 50 usuarios y el panel admin ya se verificaron en la BD MySQL dedicada `bible_simulation`, sin tocar `.env`. El admin quedó como fantasma (invisible, sin follows, omnisciente) y el corpus completo de `spa_rvg` (66 libros, 31.102 versículos) se importó desde la API real. Lo que sigue NO VERIFICADO es FULLTEXT sobre MySQL real, un lector de pantalla dedicado, carga sostenida con servidor web real, passkeys/WebAuthn reales y la concurrencia de escrituras sobre MySQL.
 
 ## Bugs por severidad
 | Severidad | Cantidad | Estado |
@@ -178,14 +178,14 @@ Auditoría QA funcional, de integración, regresión, seguridad funcional, rendi
 ## Métricas de pruebas
 | Métrica | Valor |
 | --- | ---: |
-| Tests ejecutados | 242 |
-| Pasados | 242 |
+| Tests ejecutados | 252 |
+| Pasados | 252 |
 | Fallidos | 0 |
 | Omitidos | 0 |
-| Aserciones | 1465 |
-| Migraciones up / down | 23 / 23 |
+| Aserciones | 1589 |
+| Migraciones up / down | 24 / 24 |
 | Duración suite principal (54) | 2,4 s |
-| Duración suite QA (188) | 9,4 s |
+| Duración suite QA (198) | 10,1 s |
 | Build | OK, 1,63 s sin `.env` |
 | Lighthouse (11 páginas) | 1,0 en accesibilidad, buenas prácticas y SEO |
 | Hallazgos abiertos | 0 |
@@ -271,7 +271,7 @@ Se sembraron 15.000 versículos sintéticos en un SQLite temporal separado y se 
 | Ligero (5 concurrentes × 10 por ruta, 5 rutas) | 50 | 50 | 0 | 660–772 ms | 1114–1276 ms |
 | Pico corto (20 concurrentes × 40 por ruta, 3 rutas) | 120 | 120 | 0 | 2232–2389 ms | 4149–4375 ms |
 
-Sin 500 ni timeouts. El aumento de latencia con 20 concurrentes se explica porque el servidor integrado de PHP en Windows atiende una petición a la vez: es encolamiento, no degradación de la aplicación. Estos números no son un SLA ni un techo de capacidad. Sigue NO VERIFICADO el comportamiento con FPM/Apache, MySQL FULLTEXT sobre corpus grande y carga sostenida. El veredicto pasa a **GO condicionado a MySQL y lector de pantalla**.
+Sin 500 ni timeouts. El aumento de latencia con 20 concurrentes se explica porque el servidor integrado de PHP en Windows atiende una petición a la vez: es encolamiento, no degradación de la aplicación. Estos números no son un SLA ni un techo de capacidad. Sigue NO VERIFICADO el comportamiento con FPM/Apache, MySQL FULLTEXT sobre corpus grande y carga sostenida. El veredicto pasa a **GO condicionado a FULLTEXT y concurrencia en MySQL, y lector de pantalla**.
 
 <a id="ronda-6--seguridad-funcional"></a>
 
@@ -280,7 +280,8 @@ Se cerró el hueco documentado en `11-anexos.md` bajo “Riesgos no cubiertos”
 
 | Escenario | Esperado | Resultado |
 | --- | --- | --- |
-| `PATCH /settings/profile` con `slug`, `church`, `email_verified_at`, `is_admin` y `role` | Solo se aplican `name` y `email`; el slug se deriva del nombre | El slug pasó a `nombre-legitimo`, no al manipulado; sin columnas `is_admin`/`role`; verificación intacta |
+| `PATCH /settings/profile` con `slug`, `church`, `email_verified_at`, `is_admin` y `role` | Solo se aplican `name` y `email`; el slug se deriva del nombre | El slug pasó a `nombre-legitimo`, no al manipulado; `is_admin` sigue en `false` (la columna ya existe), sin columna `role`; verificación intacta |
+| `/admin` sin sesión, como miembro y como admin | Redirect a `/login`, 403 y panel con métricas de la red | Igual; 50 usuarios, 10 iglesias y 1 admin sobre MySQL |
 | `POST /posts` con `user_id`, `parent_id`, `rebible_of_id` y `book_name` ajenos | El servidor impone identidad, relaciones nulas y nombre derivado | Igual |
 | `POST /posts` con `kind=rebibleada` | 422: es un tipo automático, no elegible | Igual |
 | `PUT /api/notes` y `POST /api/favorites` con `user_id` de otro usuario | La fila queda asociada al autenticado | Igual |
@@ -303,7 +304,7 @@ Se cubrió el último riesgo funcional abierto de `11-anexos.md` con `Http::fake
 | `bible:list-spanish` con 500 | `FAILURE` con “No se pudo contactar la API.” | Igual; ya funcionaba antes del fix |
 | Ejecutar `bible:seed-crossrefs` dos veces | Idempotente, una sola fila | Igual tras reemplazar `insert()` por `upsert()` |
 
-Cuatro defectos nuevos (BUG-017 a BUG-020) quedaron corregidos y verificados. La API real sigue **NO VERIFICADA**: los tests simulan respuestas, no comprueban latencia, certificados ni el formato actual del servicio remoto.
+Cuatro defectos nuevos (BUG-017 a BUG-020) quedaron corregidos y verificados. Los tests simulan respuestas y no comprueban latencia ni certificados. Después `bible:seed-text` sí se ejecutó contra la API real y comprobó el formato actual del servicio.
 
 <a id="ronda-8--sesiones-caducadas-y-csrf"></a>
 
@@ -433,7 +434,7 @@ Se cerraron los huecos de validación y límites explícitos que faltaban, y se 
 | `bible:seed-text` con versículo sin `number` | Omitir el ítem sin romper el comando | Antes: excepción `Undefined array key "number"`. Después: SUCCESS sin fila inválida (BUG-029) |
 | Otras ramas de `seed-text`, `seed-crossrefs` y `list-spanish` | FAILURE/SUCCESS con mensaje y filas correctas | Igual |
 
-Un defecto (BUG-029) quedó corregido y verificado. Los 22 tests nuevos viven en `tests/QA/ValidationLimitsTest.php` y `tests/QA/CommandEdgeCasesTest.php`. La API real de `bible.helloao.org` sigue **NO VERIFICADA**.
+Un defecto (BUG-029) quedó corregido y verificado. Los 22 tests nuevos viven en `tests/QA/ValidationLimitsTest.php` y `tests/QA/CommandEdgeCasesTest.php`. La API real quedó verificada después con `bible:seed-text spa_rvg` sobre MySQL; los tests siguen usando `Http::fake()`.
 
 <a id="ronda-16--paths-negativos-y-throttles-reales"></a>
 
@@ -477,10 +478,10 @@ Checklist final de consistencia de los 12 informes:
 | Informes en `qa/` | 12/12 presentes (`00` a `11`) |
 | Enlaces internos del índice | 0 rotos: todos los enlaces resuelven contra anclas explícitas o encabezados |
 | Hallazgos documentados | 29/29 (`BUG-001` a `BUG-029`), ninguno abierto |
-| Casos de prueba | CP-001 a CP-235, con suites QA y heredada en verde |
-| Tests QA / heredados | 188/188 (1239 aserciones) y 54/54 (226 aserciones), 0 omitidos |
+| Casos de prueba | CP-001 a CP-245, con suites QA y heredada en verde |
+| Tests QA / heredados | 198/198 (1363 aserciones) y 54/54 (226 aserciones), 0 omitidos |
 | Herramientas | Pint, PHPStan, `lint:check`, `format:check`, `types:check` y `npm run build` en verde |
 | Evidencia de navegador | Lighthouse 1,0/1,0/1,0 en 11 páginas; perfilado de renderer y 170 peticiones de carga |
-| Veredicto | **GO condicionado a MySQL y lector de pantalla** |
+| Veredicto | **GO condicionado a FULLTEXT y concurrencia en MySQL, y lector de pantalla** |
 
-Pendiente externo, fuera de este entorno: `MATCH ... AGAINST` sobre MySQL aislado, lector de pantalla dedicado (NVDA/VoiceOver), carga con servidor web real, una ejecución real de los seeds contra `bible.helloao.org`, passkeys/WebAuthn con authenticator real y concurrencia de escrituras sobre MySQL. Este módulo no agregó commit, push ni PR; los borrados preexistentes declarados intencionales siguen intactos.
+Pendiente externo, fuera de este entorno: `MATCH ... AGAINST` sobre MySQL aislado, lector de pantalla dedicado (NVDA/VoiceOver), carga con servidor web real, latencia de la API real fuera de `bible:seed-text`, passkeys/WebAuthn con authenticator real y concurrencia de escrituras sobre MySQL. Este módulo no agregó commit, push ni PR; los borrados preexistentes declarados intencionales siguen intactos. El rol admin y sus tests siguen sin commitear; los 12 informes quedaron incluidos en `8850d52`.

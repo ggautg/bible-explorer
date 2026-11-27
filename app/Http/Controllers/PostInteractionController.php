@@ -26,6 +26,7 @@ class PostInteractionController extends Controller
     public function toggleLike(Request $request, Post $post): RedirectResponse
     {
         $viewer = $request->user();
+        abort_unless($viewer->isAdmin() || ! $post->author->isAdmin(), 404);
 
         // La clave única (user_id, post_id) hace idempotente la escritura:
         // primero se intenta borrar y, si no había fila, se inserta ignorando
@@ -63,6 +64,7 @@ class PostInteractionController extends Controller
     public function toggleRebible(Request $request, Post $post): RedirectResponse
     {
         $viewer = $request->user();
+        abort_unless($viewer->isAdmin() || ! $post->author->isAdmin(), 404);
 
         if ($post->user_id === $viewer->id) {
             return back()->with('toast', ['type' => 'info', 'message' => 'No podés rebiblear tu propia publicación.']);

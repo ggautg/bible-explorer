@@ -45,7 +45,7 @@
 <a id="suite-automatizada"></a>
 
 ## Suite automatizada
-- Línea base de Fase 1: 56 tests pasan (54 heredados + 2 de entorno de QA), 233 aserciones, 0 fallos y 0 omitidos. Al cerrar la Fase 6 los tests QA eran 70, con 10 fallos deliberados que documentaban los siete bugs confirmados por ejecución y 1 omisión explícita por MySQL FULLTEXT. Tras la ronda 1: 69 pasan, 0 fallos y 1 omitido, 391 aserciones. Tras la ronda 2: 73 pasan, 0 fallos y 1 omitido, 429 aserciones. Tras la ronda 3: 77 pasan, 0 fallos, 0 omitidos y 449 aserciones. Tras la ronda 6: 85 pasan, 0 fallos, 0 omitidos y 488 aserciones. Tras la ronda 7: 93 pasan, 0 fallos, 0 omitidos y 515 aserciones. Tras la ronda 8: 98 pasan, 0 fallos, 0 omitidos y 527 aserciones. Tras la ronda 9: 103 pasan, 0 fallos, 0 omitidos y 542 aserciones. Tras la ronda 10: 107 pasan, 0 fallos, 0 omitidos y 550 aserciones. Tras la ronda 11: 117 pasan, 0 fallos, 0 omitidos y 625 aserciones. Tras la ronda 12: 133 pasan, 0 fallos, 0 omitidos y 697 aserciones. Tras la ronda 13: 140 pasan, 0 fallos, 0 omitidos y 733 aserciones. Tras la ronda 14: 145 pasan, 0 fallos, 0 omitidos y 775 aserciones. Tras la ronda 15: 167 pasan, 0 fallos, 0 omitidos y 914 aserciones. Tras la ronda 16: 181 pasan, 0 fallos, 0 omitidos y 1139 aserciones. Tras la ronda 17: 187 pasan, 0 fallos, 0 omitidos y 1214 aserciones. Tras la simulación de red: 188 pasan, 0 fallos, 0 omitidos y 1239 aserciones.
+- Línea base de Fase 1: 56 tests pasan (54 heredados + 2 de entorno de QA), 233 aserciones, 0 fallos y 0 omitidos. Al cerrar la Fase 6 los tests QA eran 70, con 10 fallos deliberados que documentaban los siete bugs confirmados por ejecución y 1 omisión explícita por MySQL FULLTEXT. Tras la ronda 1: 69 pasan, 0 fallos y 1 omitido, 391 aserciones. Tras la ronda 2: 73 pasan, 0 fallos y 1 omitido, 429 aserciones. Tras la ronda 3: 77 pasan, 0 fallos, 0 omitidos y 449 aserciones. Tras la ronda 6: 85 pasan, 0 fallos, 0 omitidos y 488 aserciones. Tras la ronda 7: 93 pasan, 0 fallos, 0 omitidos y 515 aserciones. Tras la ronda 8: 98 pasan, 0 fallos, 0 omitidos y 527 aserciones. Tras la ronda 9: 103 pasan, 0 fallos, 0 omitidos y 542 aserciones. Tras la ronda 10: 107 pasan, 0 fallos, 0 omitidos y 550 aserciones. Tras la ronda 11: 117 pasan, 0 fallos, 0 omitidos y 625 aserciones. Tras la ronda 12: 133 pasan, 0 fallos, 0 omitidos y 697 aserciones. Tras la ronda 13: 140 pasan, 0 fallos, 0 omitidos y 733 aserciones. Tras la ronda 14: 145 pasan, 0 fallos, 0 omitidos y 775 aserciones. Tras la ronda 15: 167 pasan, 0 fallos, 0 omitidos y 914 aserciones. Tras la ronda 16: 181 pasan, 0 fallos, 0 omitidos y 1139 aserciones. Tras la ronda 17: 187 pasan, 0 fallos, 0 omitidos y 1214 aserciones. Tras la simulación de red: 188 pasan, 0 fallos, 0 omitidos y 1239 aserciones. Tras el rol admin: 195 pasan, 0 fallos, 0 omitidos y 1325 aserciones. Tras el modo fantasma: 198 pasan, 0 fallos, 0 omitidos y 1363 aserciones.
 - Los tests QA viven en `tests/QA/` y se ejecutan con `php artisan test tests/QA`, sin configuración adicional en la raíz. Los 54 tests heredados siguen pasando solos con `php artisan test --compact`.
 - La suite heredada funciona sobre SQLite y, en el ciclo anterior, también sobre MySQL: no hay dependencia de un único driver para los tests actuales.
 
@@ -157,12 +157,12 @@
 - Los nodos del grafo muestran foco visible y el SVG expone `role="group"` con etiqueta.
 - `/buscar` devuelve resultados con SQLite mediante el fallback `LIKE` escapado; MySQL conserva FULLTEXT.
 - Lighthouse dio 1,0 en accesibilidad, buenas prácticas y SEO en once páginas, sin fallos de axe.
-- Las once páginas auditadas incluyen auth, inicio, comunidad, lectura, búsqueda, notas, favoritos, ajustes y grafo.
+- Las once páginas auditadas incluyen auth, inicio, comunidad, lectura, búsqueda, notas, favoritos, ajustes y grafo. El panel admin se sumó después y quedó verificado en navegador sobre MySQL: métricas de la red, promoción/degradación y borrado de publicaciones ajenas funcionan desde la cuenta `admin@red.test`. Como fantasma, sus posts y su perfil no existen para los miembros, no genera ni recibe follows, pero él ve feeds, perfiles y el panel completos. La BD MySQL tiene además 66 libros y 31.102 versículos de `spa_rvg`.
 
 <a id="seguridad-funcional-ronda-6"></a>
 
 ## Seguridad funcional (ronda 6)
-- `ProfileUpdateRequest` solo valida `name` y `email`: `is_admin`, `role`, `slug` y `church` enviados en el payload no se persisten. El slug se deriva del nombre, no del cliente.
+- `ProfileUpdateRequest` solo valida `name` y `email`: `is_admin` no está en `$fillable`, y `role`, `slug` y `church` enviados en el payload no se persisten. El slug se deriva del nombre, no del cliente; el rol sólo puede cambiar desde `/admin`.
 - `PostController` construye el array de creación de forma explícita: la autoría es siempre el usuario autenticado, `parent_id` y `rebible_of_id` quedan nulos y `book_name` se deriva del servidor.
 - `kind=rebibleada` se rechaza con 422: es un tipo automático reservado a la rebibleada real.
 - `NoteController` y `FavoriteController` trabajan sobre la relación del usuario autenticado, así que un `user_id` ajeno no cambia la propiedad de la fila.
@@ -178,7 +178,7 @@
 - `bible:list-spanish` ya respondía con error legible ante un 500; se conservó ese comportamiento.
 - `bible:seed-crossrefs` valida el índice del conjunto de datos, cuenta los capítulos que fallan y ya no imprime “importadas correctamente” cuando hay pérdida de datos.
 - La segunda ejecución de `bible:seed-crossrefs` es idempotente: `upsert()` mantiene una fila por referencia en lugar de chocar con el índice único.
-- Los 8 tests usan `Http::fake()`: la API real de `bible.helloao.org` no fue contactada.
+- Los 8 tests usan `Http::fake()`: en esa ronda la API real no fue contactada. Después `bible:seed-text` sí se ejecutó contra el servicio real.
 
 <a id="sesiones-caducadas-y-csrf-ronda-8"></a>
 

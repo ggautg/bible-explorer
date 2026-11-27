@@ -525,7 +525,7 @@ notes.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     notes.form = notesForm
 /**
 * @see \App\Http\Controllers\Bible\TextSearchController::search
- * @see app/Http/Controllers/Bible/TextSearchController.php:28
+ * @see app/Http/Controllers/Bible/TextSearchController.php:29
  * @route '/buscar'
  */
 export const search = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -540,7 +540,7 @@ search.definition = {
 
 /**
 * @see \App\Http\Controllers\Bible\TextSearchController::search
- * @see app/Http/Controllers/Bible/TextSearchController.php:28
+ * @see app/Http/Controllers/Bible/TextSearchController.php:29
  * @route '/buscar'
  */
 search.url = (options?: RouteQueryOptions) => {
@@ -549,7 +549,7 @@ search.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Bible\TextSearchController::search
- * @see app/Http/Controllers/Bible/TextSearchController.php:28
+ * @see app/Http/Controllers/Bible/TextSearchController.php:29
  * @route '/buscar'
  */
 search.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -558,7 +558,7 @@ search.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Bible\TextSearchController::search
- * @see app/Http/Controllers/Bible/TextSearchController.php:28
+ * @see app/Http/Controllers/Bible/TextSearchController.php:29
  * @route '/buscar'
  */
 search.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -568,7 +568,7 @@ search.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Bible\TextSearchController::search
- * @see app/Http/Controllers/Bible/TextSearchController.php:28
+ * @see app/Http/Controllers/Bible/TextSearchController.php:29
  * @route '/buscar'
  */
     const searchForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -578,7 +578,7 @@ search.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Bible\TextSearchController::search
- * @see app/Http/Controllers/Bible/TextSearchController.php:28
+ * @see app/Http/Controllers/Bible/TextSearchController.php:29
  * @route '/buscar'
  */
         searchForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -587,7 +587,7 @@ search.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Bible\TextSearchController::search
- * @see app/Http/Controllers/Bible/TextSearchController.php:28
+ * @see app/Http/Controllers/Bible/TextSearchController.php:29
  * @route '/buscar'
  */
         searchForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

@@ -80,7 +80,7 @@ toggleLike.post = (args: { post: number | { id: number } } | [post: number | { i
     toggleLike.form = toggleLikeForm
 /**
 * @see \App\Http\Controllers\PostInteractionController::toggleRebible
- * @see app/Http/Controllers/PostInteractionController.php:63
+ * @see app/Http/Controllers/PostInteractionController.php:64
  * @route '/posts/{post}/rebiblear'
  */
 export const toggleRebible = (args: { post: number | { id: number } } | [post: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -95,7 +95,7 @@ toggleRebible.definition = {
 
 /**
 * @see \App\Http\Controllers\PostInteractionController::toggleRebible
- * @see app/Http/Controllers/PostInteractionController.php:63
+ * @see app/Http/Controllers/PostInteractionController.php:64
  * @route '/posts/{post}/rebiblear'
  */
 toggleRebible.url = (args: { post: number | { id: number } } | [post: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -128,7 +128,7 @@ toggleRebible.url = (args: { post: number | { id: number } } | [post: number | {
 
 /**
 * @see \App\Http\Controllers\PostInteractionController::toggleRebible
- * @see app/Http/Controllers/PostInteractionController.php:63
+ * @see app/Http/Controllers/PostInteractionController.php:64
  * @route '/posts/{post}/rebiblear'
  */
 toggleRebible.post = (args: { post: number | { id: number } } | [post: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -138,7 +138,7 @@ toggleRebible.post = (args: { post: number | { id: number } } | [post: number | 
 
     /**
 * @see \App\Http\Controllers\PostInteractionController::toggleRebible
- * @see app/Http/Controllers/PostInteractionController.php:63
+ * @see app/Http/Controllers/PostInteractionController.php:64
  * @route '/posts/{post}/rebiblear'
  */
     const toggleRebibleForm = (args: { post: number | { id: number } } | [post: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -148,7 +148,7 @@ toggleRebible.post = (args: { post: number | { id: number } } | [post: number | 
 
             /**
 * @see \App\Http\Controllers\PostInteractionController::toggleRebible
- * @see app/Http/Controllers/PostInteractionController.php:63
+ * @see app/Http/Controllers/PostInteractionController.php:64
  * @route '/posts/{post}/rebiblear'
  */
         toggleRebibleForm.post = (args: { post: number | { id: number } } | [post: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

@@ -43,7 +43,7 @@ test('all migrations roll back cleanly and can be reapplied', function () {
 
     expect($tables())->toContain('users')->toContain('bible_verses')->toContain('posts');
 
-    expect(Artisan::call('migrate:rollback', ['--step' => 23, '--force' => true]))->toBe(0);
+    expect(Artisan::call('migrate:rollback', ['--step' => 24, '--force' => true]))->toBe(0);
 
     expect($tables())->not->toContain('users')->not->toContain('bible_verses');
 
@@ -220,7 +220,7 @@ test('rolling back the last migration removes the post kind and reapplying resto
 
     expect(DB::table('posts')->where('id', $post)->value('kind'))->toBe('reflexion');
 
-    expect(Artisan::call('migrate:rollback', ['--step' => 1, '--force' => true]))->toBe(0);
+    expect(Artisan::call('migrate:rollback', ['--step' => 2, '--force' => true]))->toBe(0);
 
     expect(Schema::hasColumn('posts', 'kind'))->toBeFalse();
 
@@ -230,7 +230,7 @@ test('rolling back the last migration removes the post kind and reapplying resto
 });
 
 test('rolling back the integrity migration removes the named indexes and reapplying restores them', function () {
-    expect(Artisan::call('migrate:rollback', ['--step' => 2, '--force' => true]))->toBe(0);
+    expect(Artisan::call('migrate:rollback', ['--step' => 3, '--force' => true]))->toBe(0);
 
     $postIndexes = collect(Schema::getIndexes('posts'))->pluck('name');
     $crossRefIndexes = collect(Schema::getIndexes('bible_cross_references'))->pluck('name');
@@ -250,7 +250,7 @@ test('the slug migration backfills existing users without duplicate slugs', func
     $first = qaDbUser(['name' => 'Juan Perez', 'slug' => null]);
     $second = qaDbUser(['name' => 'Juan Perez', 'slug' => null]);
 
-    expect(Artisan::call('migrate:rollback', ['--step' => 9, '--force' => true]))->toBe(0);
+    expect(Artisan::call('migrate:rollback', ['--step' => 10, '--force' => true]))->toBe(0);
 
     expect(Schema::hasColumn('users', 'slug'))->toBeFalse();
 
@@ -265,7 +265,7 @@ test('the slug migration backfills existing users without duplicate slugs', func
 });
 
 test('the translation migration backfills verses created before the column existed', function () {
-    expect(Artisan::call('migrate:rollback', ['--step' => 10, '--force' => true]))->toBe(0);
+    expect(Artisan::call('migrate:rollback', ['--step' => 11, '--force' => true]))->toBe(0);
 
     expect(Schema::hasColumn('bible_verses', 'translation'))->toBeFalse();
 
@@ -285,7 +285,7 @@ test('legacy profile comments and reactions are migrated to posts and likes', fu
     $user = qaDbUser();
     $other = qaDbUser();
 
-    expect(Artisan::call('migrate:rollback', ['--step' => 4, '--force' => true]))->toBe(0);
+    expect(Artisan::call('migrate:rollback', ['--step' => 5, '--force' => true]))->toBe(0);
 
     expect(Schema::hasTable('posts'))->toBeFalse();
 

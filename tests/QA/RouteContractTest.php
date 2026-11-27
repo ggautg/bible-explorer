@@ -55,11 +55,11 @@ test('the declared throttles are present on the sensitive routes', function () {
         'two-factor.login.store' => 'throttle:two-factor',
         'verification.send' => 'throttle:6,1',
         'passkey.login' => 'throttle:passkeys',
-        'users.follow.toggle' => 'throttle:15,1',
-        'posts.store' => 'throttle:15,1',
-        'posts.reply' => 'throttle:15,1',
-        'posts.like' => 'throttle:15,1',
-        'posts.rebible' => 'throttle:15,1',
+        'users.follow.toggle' => 'throttle:social',
+        'posts.store' => 'throttle:social',
+        'posts.reply' => 'throttle:social',
+        'posts.like' => 'throttle:social',
+        'posts.rebible' => 'throttle:social',
     ];
 
     foreach ($expected as $name => $middleware) {

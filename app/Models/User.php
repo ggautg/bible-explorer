@@ -27,6 +27,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property string $name
  * @property string $email
  * @property string|null $church
+ * @property bool $is_admin
  * @property string|null $slug
  * @property Carbon|null $email_verified_at
  * @property string $password
@@ -89,10 +90,19 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     protected function casts(): array
     {
         return [
+            'is_admin' => 'boolean',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Indica si la persona tiene el rol de administrador de la red.
+     */
+    public function isAdmin(): bool
+    {
+        return (bool) $this->is_admin;
     }
 
     /**
@@ -164,6 +174,7 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     public function following(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'follows', 'follower_id', 'followed_id')
+            ->where('users.is_admin', false)
             ->withTimestamps();
     }
 
@@ -175,6 +186,7 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     public function followers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'follows', 'followed_id', 'follower_id')
+            ->where('users.is_admin', false)
             ->withTimestamps();
     }
 
@@ -183,7 +195,7 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
      */
     public function isFollowing(User $user): bool
     {
-        if ($this->id === $user->id) {
+        if (! $this->canFollow($user)) {
             return false;
         }
 
@@ -191,11 +203,19 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     }
 
     /**
+     * El admin es fantasma: no sigue, no es seguido y nadie puede seguirlo.
+     */
+    public function canFollow(User $user): bool
+    {
+        return $this->id !== $user->id && ! $this->isAdmin() && ! $user->isAdmin();
+    }
+
+    /**
      * Comienza a seguir a otro usuario.
      */
     public function follow(User $user): void
     {
-        if ($this->id === $user->id) {
+        if (! $this->canFollow($user)) {
             return;
         }
 
@@ -207,6 +227,10 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
      */
     public function unfollow(User $user): void
     {
+        if (! $this->canFollow($user)) {
+            return;
+        }
+
         $this->following()->detach($user->id);
     }
 

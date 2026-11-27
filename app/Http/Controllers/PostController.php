@@ -39,6 +39,7 @@ class PostController extends Controller
         $followingIds = $viewer->following()->pluck('users.id')->all();
 
         $query = Post::query()
+            ->visibleTo($viewer)
             ->whereNull('parent_id')
             ->with($this->feedRelations())
             ->withCount(['replies', 'likedBy', 'rebibles']);
@@ -53,8 +54,12 @@ class PostController extends Controller
         $posts = $query->latest()->limit(60)->get();
         $viewerState = $this->viewerStateFor($posts, $viewer);
 
-        $people = User::query()
-            ->where('id', '!=', $viewer->id)
+        $peopleQuery = User::query()->where('id', '!=', $viewer->id);
+        if (! $viewer->isAdmin()) {
+            $peopleQuery->where('is_admin', false);
+        }
+
+        $people = $peopleQuery
             ->orderBy('name')
             ->limit(20)
             ->get(['id', 'name', 'slug', 'church'])
@@ -120,6 +125,8 @@ class PostController extends Controller
     {
         $viewer = $request->user();
 
+        abort_unless($viewer->isAdmin() || ! $post->author->isAdmin(), 404);
+
         $post->load($this->feedRelations())->loadCount(['replies', 'likedBy', 'rebibles']);
 
         // El hilo es plano en la UI: incluimos todos los descendientes, no solo
@@ -130,6 +137,7 @@ class PostController extends Controller
 
         while ($parentIds !== [] && $depth < 20) {
             $batch = Post::query()
+                ->visibleTo($viewer)
                 ->whereIn('parent_id', $parentIds)
                 ->with($this->feedRelations())
                 ->withCount(['replies', 'likedBy', 'rebibles'])
@@ -163,6 +171,9 @@ class PostController extends Controller
      */
     public function reply(Request $request, Post $post): RedirectResponse
     {
+        $viewer = $request->user();
+        abort_unless($viewer->isAdmin() || ! $post->author->isAdmin(), 404);
+
         $data = $request->validate(
             [
                 'body' => 'required|string|max:2000',
@@ -254,7 +265,8 @@ class PostController extends Controller
             : ($viewerId ? $post->rebibles()->where('user_id', $viewerId)->exists() : false);
 
         $original = null;
-        if ($post->isRebible() && $post->relationLoaded('rebibleOf') && $post->rebibleOf) {
+        if ($post->isRebible() && $post->relationLoaded('rebibleOf') && $post->rebibleOf
+            && ($viewer?->isAdmin() || ! $post->rebibleOf->author->isAdmin())) {
             $orig = $post->rebibleOf;
             $origLiked = $viewerState
                 ? isset($viewerState['likedIds'][$orig->id])

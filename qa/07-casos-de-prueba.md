@@ -317,7 +317,18 @@ Se levantó la app con `artisan serve` sobre un SQLite temporal fuera del repo (
 | CP-234 | Portada sin corpus y con versículo huérfano | `null` y luego `bookName` igual al código | Igual | Pasó |
 | CP-235 | Feed `mios` y perfil `respuestas` | Sólo posts propios / sólo respuestas propias | Igual | Pasó |
 
-Suite QA final: 188 tests, 188 pasan, 0 fallos, 0 omitidos, 1239 aserciones, 9,4 s (incluye la simulación de red de 50 usuarios).
+| CP-236 | `/admin` sin sesión, como miembro y como admin | Redirect a `/login`, 403 y panel con métricas de la red | Igual; 50 usuarios, 10 iglesias y 1 admin sobre MySQL | Pasó |
+| CP-237 | Promover, degradar e intentar degradarse uno mismo | 303 con el rol cambiado; 422 al degradarse | Igual; el admin no se quita el rol | Pasó |
+| CP-238 | Borrar una publicación ajena desde `/admin` | 303 y la fila desaparece | Igual | Pasó |
+| CP-239 | Miembro usando las rutas de superpoderes | 403 en promote/demote y borrado; datos intactos | Igual | Pasó |
+| CP-240 | `PATCH /settings/profile` con `is_admin=true` | El usuario sigue sin ser admin | Igual; `is_admin` no es *fillable* | Pasó |
+| CP-241 | `auth.user.is_admin` en Inertia | `true` para el admin y `false` para el miembro | Igual | Pasó |
+| CP-242 | 20 escrituras de admin y 16 de miembro | Admin sin 429; miembro topa en la 16ª | Igual; los miembros siguen con 15/min | Pasó |
+| CP-243 | Feed y lista de personas para un miembro | No aparece el admin fantasma ni sus posts | Igual; el admin ve todo lo demás | Pasó |
+| CP-244 | Perfil, detalle, like y respuesta sobre contenido fantasma | 404 para miembros; 200 para el admin | Igual | Pasó |
+| CP-245 | Seguir al fantasma o ser seguido por él | Ninguna relación se crea ni se muestra | Igual; 235 seguimientos entre miembros | Pasó |
+
+Suite QA final: 198 tests, 198 pasan, 0 fallos, 0 omitidos, 1363 aserciones, 10,1 s (incluyen la simulación de red de 50 usuarios, el rol admin y el modo fantasma).
 
 <a id="casos-no-ejecutados"></a>
 
@@ -331,7 +342,7 @@ Suite QA final: 188 tests, 188 pasan, 0 fallos, 0 omitidos, 1239 aserciones, 9,4
 | Lector de pantalla dedicado (NVDA/VoiceOver) | Solo se revisó el árbol accesible del navegador |
 | Firefox / WebKit | Solo se dispuso de Chromium |
 | Búsqueda FULLTEXT (`q >= 3`) sobre MySQL real | `MATCH ... AGAINST` no existe en SQLite; se validó el fallback `LIKE` y el test quedó reactivado |
-| Seeds contra `bible.helloao.org` real | La ronda 7 simuló la API con `Http::fake()`; no se comprobó latencia, TLS ni el formato actual del servicio |
+| Seeds contra `bible.helloao.org` real | `bible:seed-text spa_rvg` sí se ejecutó contra la API real e importó 66 libros y 31.102 versículos; `bible:seed-crossrefs` y `bible:list-spanish` siguen cubiertos sólo con `Http::fake()` |
 | Concurrencia de escrituras sobre MySQL real | La ronda 9 sondeó tres servidores sobre SQLite y obtuvo `database is locked`; no es evidencia válida para MySQL: sigue **NO VERIFICADO** |
 
-Los viewports 375/768/1366/1920 y la pérdida de red a mitad de flujo se cubrieron en la ronda 10 con emulación CDP (CP-150 a CP-154); la revisión manual con lector de pantalla sigue pendiente. Correos, verificación y recuperación se cubrieron en la ronda 11 (CP-156 a CP-165) con notificaciones simuladas y cola `sync`; no se usó un servidor SMTP real. La integridad de esquema y migraciones se cubrió en la ronda 12 (CP-166 a CP-181) con SQL directo sobre SQLite en memoria. Los presupuestos de consultas se midieron en la ronda 13 (CP-182 a CP-188) con el query log de Laravel, sin servidor web. El contrato de rutas y middleware se cubrió en la ronda 14 (CP-189 a CP-193) con peticiones Pest, sin servidor web. Los límites y validaciones, incluidas las ramas de los comandos con API simulada, se cubrieron en la ronda 15 (CP-194 a CP-215). Los paths negativos y los throttles reales se cubrieron en la ronda 16 (CP-216 a CP-229) con peticiones Pest. Las fronteras finales se cubrieron en la ronda 17 (CP-230 a CP-235); el caso del libro huérfano usó `PRAGMA defer_foreign_keys` dentro de `RefreshDatabase`.
+Los viewports 375/768/1366/1920 y la pérdida de red a mitad de flujo se cubrieron en la ronda 10 con emulación CDP (CP-150 a CP-154); la revisión manual con lector de pantalla sigue pendiente. Correos, verificación y recuperación se cubrieron en la ronda 11 (CP-156 a CP-165) con notificaciones simuladas y cola `sync`; no se usó un servidor SMTP real. La integridad de esquema y migraciones se cubrió en la ronda 12 (CP-166 a CP-181) con SQL directo sobre SQLite en memoria. Los presupuestos de consultas se midieron en la ronda 13 (CP-182 a CP-188) con el query log de Laravel, sin servidor web. El contrato de rutas y middleware se cubrió en la ronda 14 (CP-189 a CP-193) con peticiones Pest, sin servidor web. Los límites y validaciones, incluidas las ramas de los comandos con API simulada, se cubrieron en la ronda 15 (CP-194 a CP-215). Los paths negativos y los throttles reales se cubrieron en la ronda 16 (CP-216 a CP-229) con peticiones Pest. Las fronteras finales se cubrieron en la ronda 17 (CP-230 a CP-235); el caso del libro huérfano usó `PRAGMA defer_foreign_keys` dentro de `RefreshDatabase`. El rol admin y su bypass de throttles se cubrieron después (CP-236 a CP-242), con el panel verificado en MySQL. El modo fantasma (invisibilidad, sin seguimientos y visión total) se cubrió con CP-243 a CP-245.

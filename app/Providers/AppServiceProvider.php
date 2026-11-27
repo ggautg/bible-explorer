@@ -3,8 +3,11 @@
 namespace App\Providers;
 
 use Carbon\CarbonImmutable;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -34,6 +37,23 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+        $this->configureRateLimits();
+    }
+
+    /**
+     * Los admins tienen superpoderes: no topan con los límites de escrituras.
+     */
+    protected function configureRateLimits(): void
+    {
+        $key = fn (Request $request): string => $request->ip().'|'.$request->method().'|'.$request->path();
+
+        RateLimiter::for('social', fn (Request $request) => $request->user()?->isAdmin()
+            ? Limit::none()
+            : Limit::perMinute(15)->by($key($request)));
+
+        RateLimiter::for('bible-write', fn (Request $request) => $request->user()?->isAdmin()
+            ? Limit::none()
+            : Limit::perMinute(30)->by($key($request)));
     }
 
     /**

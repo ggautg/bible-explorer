@@ -64,7 +64,8 @@ test('extra profile fields cannot be mass assigned', function () {
         ->and($this->attacker->slug)->not->toBe('slug-manipulado')
         ->and($this->attacker->email_verified_at?->toDateTimeString())->toBe($verifiedAt?->toDateTimeString())
         ->and($this->attacker->church)->not->toBe('Iglesia falsa')
-        ->and($this->attacker->getAttributes())->not->toHaveKeys(['is_admin', 'role']);
+        ->and($this->attacker->is_admin)->toBeFalse()
+        ->and($this->attacker->getAttributes())->not->toHaveKey('role');
 });
 
 test('a post ignores client supplied ownership and relation fields', function () {

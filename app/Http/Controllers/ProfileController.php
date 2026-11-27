@@ -20,6 +20,8 @@ class ProfileController extends Controller
     public function show(Request $request, User $user): Response
     {
         $viewer = $request->user();
+        abort_unless($viewer?->isAdmin() || ! $user->isAdmin(), 404);
+
         $viewerFollowingIds = $viewer?->following()->pluck('users.id')->all() ?? [];
         $isOwn = $viewer?->id === $user->id;
         $tab = (string) $request->query('tab', 'posts');
@@ -28,6 +30,7 @@ class ProfileController extends Controller
         }
 
         $query = Post::query()
+            ->visibleTo($viewer)
             ->with($this->postPresenter->feedRelations())
             ->withCount(['replies', 'likedBy', 'rebibles']);
 
